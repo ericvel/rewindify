@@ -1,12 +1,41 @@
-# vue-project
+# Rewindify
 
-This template should help get you started developing with Vue 3 in Vite.
+A looping player for practising a passage: pick A and B on the waveform and the
+track repeats between them. Playback runs through the Spotify Web Playback SDK,
+so a Spotify Premium account is required.
 
-## Recommended IDE Setup
+## Spotify setup
+
+1. Create an app in the [Spotify for Developers dashboard](https://developer.spotify.com/dashboard).
+2. Under **Which API/SDKs are you planning to use**, tick **Web API** and **Web Playback SDK**.
+3. Add `http://127.0.0.1:5173/callback` as a redirect URI.
+4. Copy `.env.example` to `.env.local` and put the app's client id in it.
+
+Two things about that redirect URI:
+
+- **It must be `127.0.0.1`, not `localhost`.** Spotify allows plain `http` only
+  for the loopback address, and compares the string exactly. Open the dev server
+  at `http://127.0.0.1:5173`, or the exchange fails with `INVALID_CLIENT`.
+- The app derives its own redirect from `window.location.origin`, so deploying
+  somewhere else means registering that origin's `/callback` too. Nothing in the
+  code needs to change.
+
+While the app is in development mode, only accounts you add under
+**User Management** in the dashboard can authorise it.
+
+The client id is public — the authorisation code flow with PKCE proves the
+client with a per-attempt code verifier rather than a secret, which is why this
+app needs no server of its own. It lives in `.env.local` (git-ignored) so a fork
+points at its own Spotify app rather than inheriting this one's user allowlist
+and rate limit.
+
+## Development
+
+### Recommended IDE Setup
 
 [VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-## Recommended Browser Setup
+### Recommended Browser Setup
 
 - Chromium-based browsers (Chrome, Edge, Brave, etc.):
   - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
@@ -15,15 +44,15 @@ This template should help get you started developing with Vue 3 in Vite.
   - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
   - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
 
-## Type Support for `.vue` Imports in TS
+### Type Support for `.vue` Imports in TS
 
 TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
 
-## Customize configuration
+### Customize configuration
 
 See [Vite Configuration Reference](https://vite.dev/config/).
 
-## Project Setup
+### Project Setup
 
 ```sh
 npm install

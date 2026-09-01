@@ -1,10 +1,18 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { formatAgo, formatTime } from '../time'
 import { resolveLoopTransition } from '../loop'
 import { generateWaveform } from '../waveform'
+import { latestFakePlaybackSource } from './fakePlaybackSource'
+import { TEST_TRACK } from './fixtures'
 import { MIN_LOOP_SECONDS, usePlayerStore } from '@/stores/player'
-import { TRACKS } from '@/data/tracks'
+import { useSessionStore } from '@/stores/session'
+
+// The store's rules are the subject here, not Spotify's SDK.
+vi.mock('../spotifyPlaybackSource', async () => {
+  const fake = await import('./fakePlaybackSource')
+  return { createSpotifyPlaybackSource: fake.createFakePlaybackSource }
+})
 
 describe('formatTime', () => {
   it('pads seconds to two digits', () => {
@@ -54,7 +62,7 @@ describe('generateWaveform', () => {
 })
 
 describe('loop clamping', () => {
-  const track = TRACKS[0]
+  const track = TEST_TRACK
 
   beforeEach(() => setActivePinia(createPinia()))
 
@@ -136,5 +144,62 @@ describe('resolveLoopTransition', () => {
     expect(
       resolveLoopTransition({ position: 0, duration: 0, loopOn: false, loopA: 0, loopB: 0 }),
     ).toBeNull()
+  })
+})
+
+describe('player store over its source', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    setActivePinia(createPinia())
+  })
+
+  it('wraps back to A when the playhead reaches B', async () => {
+    const player = usePlayerStore()
+    const source = latestFakePlaybackSource()
+    await player.loadTrack(TEST_TRACK, { a: 30, b: 33, on: true })
+    await player.togglePlay()
+
+    await source.advance(1)
+    expect(player.position).toBeCloseTo(31, 5)
+
+    await source.advance(2.5)
+    expect(player.position).toBeGreaterThanOrEqual(30)
+    expect(player.position).toBeLessThan(33)
+    expect(player.isPlaying).toBe(true)
+  })
+
+  it('pauses at the end of the track when the loop is off', async () => {
+    const player = usePlayerStore()
+    const source = latestFakePlaybackSource()
+    await player.loadTrack(TEST_TRACK, { a: 30, b: 33, on: false })
+    await player.togglePlay()
+
+    await source.advance(TEST_TRACK.duration)
+    expect(player.isPlaying).toBe(false)
+    expect(player.position).toBe(TEST_TRACK.duration)
+  })
+
+  /**
+   * The store outlives the view, so a disconnect has to stop the sound rather
+   * than leave a track playing behind the connect screen.
+   */
+  it('stops playing when the session goes away', async () => {
+    localStorage.setItem(
+      'rewindify:session',
+      JSON.stringify({ displayName: 'Test Listener', product: 'premium' }),
+    )
+
+    const session = useSessionStore()
+    const player = usePlayerStore()
+    const source = latestFakePlaybackSource()
+    expect(session.isConnected).toBe(true)
+
+    await player.loadTrack(TEST_TRACK)
+    await player.togglePlay()
+    expect(player.isPlaying).toBe(true)
+
+    await session.disconnect()
+    await source.advance(0)
+    expect(player.isPlaying).toBe(false)
   })
 })

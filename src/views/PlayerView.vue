@@ -18,11 +18,15 @@ const isDesktop = useIsDesktop()
 const trackId = computed(() => String(route.params.trackId))
 
 // The route is the source of truth for what is loaded; the store never sets it.
+// The router's guard has already fetched and cached this track, so `ensureTrack`
+// normally answers without a request — but it is still a promise, and the route
+// can move on while one is in flight, so the answer is checked before it lands.
 watch(
   trackId,
-  (id) => {
-    const track = library.findTrack(id)
-    if (track) void player.loadTrack(track, readLoopFromQuery(route.query))
+  async (id) => {
+    const requested = readLoopFromQuery(route.query)
+    const track = await library.ensureTrack(id)
+    if (track && trackId.value === id) void player.loadTrack(track, requested)
   },
   { immediate: true },
 )

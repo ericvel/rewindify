@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import TrackRow from './TrackRow.vue'
 import { useLibraryStore } from '@/stores/library'
 import { usePlayerStore } from '@/stores/player'
@@ -14,7 +14,10 @@ const query = ref('')
 const inputEl = ref<HTMLInputElement | null>(null)
 
 const trimmed = computed(() => query.value.trim())
-const matches = computed(() => library.searchTracks(query.value))
+const matches = computed(() => library.searchResults)
+
+// Results now arrive after the keystroke that asked for them.
+watch(query, (next) => library.search(next))
 
 /** With no query the overlay doubles as the recently-played list. */
 const rows = computed(() =>
@@ -24,7 +27,9 @@ const rows = computed(() =>
 )
 
 const resultsLabel = computed(() => {
+  if (library.error) return library.error
   if (!trimmed.value) return 'Recently played'
+  if (library.isSearching) return 'Searching…'
   const count = matches.value.length
   return `${count} ${count === 1 ? 'track' : 'tracks'}`
 })

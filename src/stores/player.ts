@@ -1,6 +1,6 @@
 import { computed, onScopeDispose, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
-import { createMockPlaybackSource } from '@/playback/mockPlaybackSource'
+import { createSpotifyPlaybackSource } from '@/playback/spotifyPlaybackSource'
 import { resolveLoopTransition } from '@/playback/loop'
 import { formatTime } from '@/playback/time'
 import { useLocalStorage } from '@/composables/useLocalStorage'
@@ -34,7 +34,7 @@ function clampLoop(a: number, b: number, duration: number) {
 export const usePlayerStore = defineStore('player', () => {
   const library = useLibraryStore()
   const session = useSessionStore()
-  const source = createMockPlaybackSource()
+  const source = createSpotifyPlaybackSource()
   onScopeDispose(() => source.dispose())
 
   const currentTrack = ref<Track | null>(null)
@@ -51,6 +51,9 @@ export const usePlayerStore = defineStore('player', () => {
   const duration = computed(() => source.duration.value)
   const isPlaying = computed(() => source.isPlaying.value)
   const isScrubbing = computed(() => scrubKind.value !== null)
+  /** False until Spotify has registered this browser as a playback device. */
+  const isReady = computed(() => source.isReady.value)
+  const error = computed(() => source.error.value)
 
   /** Display values follow the pointer during a drag; committed state does not. */
   const position = computed(() =>
@@ -73,9 +76,15 @@ export const usePlayerStore = defineStore('player', () => {
     const span = Math.round(displayLoopB.value - displayLoopA.value)
     return `${formatTime(displayLoopA.value)} – ${formatTime(displayLoopB.value)}  ·  ${span}s`
   })
-  const statusLabel = computed(
-    () => (isPlaying.value ? 'Playing' : 'Paused') + (loopOn.value ? '  ·  Loop on' : ''),
-  )
+  /**
+   * Doubles as where playback trouble is reported. A device that will not
+   * register, or a track Spotify refuses to start, is more worth the header slot
+   * than repeating what the play button already shows.
+   */
+  const statusLabel = computed(() => {
+    if (error.value !== null) return error.value
+    return (isPlaying.value ? 'Playing' : 'Paused') + (loopOn.value ? '  ·  Loop on' : '')
+  })
 
   /**
    * Loads a track at the start, paused, with the loop off unless the URL asks
@@ -94,7 +103,7 @@ export const usePlayerStore = defineStore('player', () => {
     loopOn.value = requested.on ?? false
 
     await source.seek(loopOn.value ? loopA.value : 0)
-    library.markPlayed(track.id)
+    library.markPlayed(track)
   }
 
   async function togglePlay() {
@@ -164,13 +173,16 @@ export const usePlayerStore = defineStore('player', () => {
 
   /**
    * The store outlives the view that created it, so losing the session has to
-   * stop the clock explicitly: without this the mock keeps ticking behind the
+   * stop playback explicitly: without this a track keeps playing behind the
    * connect screen and reconnecting resumes mid-track, seconds further on.
    */
   watch(
     () => session.isConnected,
     (connected) => {
-      if (!connected) void source.pause()
+      // Disposing rather than pausing: a device Spotify can no longer get a
+      // token for should not stay listed on Spotify Connect. The source
+      // re-attaches on demand, so this costs nothing if a session returns.
+      if (!connected) source.dispose()
     },
   )
 
@@ -200,6 +212,8 @@ export const usePlayerStore = defineStore('player', () => {
     timeDisplay,
     duration,
     isPlaying,
+    isReady,
+    error,
     isScrubbing,
     scrubKind,
     position,

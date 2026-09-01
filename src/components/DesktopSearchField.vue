@@ -17,15 +17,26 @@ const isOpen = ref(false)
 const activeIndex = ref(0)
 
 const trimmed = computed(() => query.value.trim())
-const results = computed(() => library.searchTracks(query.value))
+
+/** With no query the popover doubles as the recently-played list. */
+const results = computed(() =>
+  trimmed.value ? library.searchResults : library.recentTracks.map((entry) => entry.track),
+)
 const activeTrack = computed(() => results.value[activeIndex.value])
 const activeOptionId = computed(() =>
   activeTrack.value ? `search-option-${activeTrack.value.id}` : undefined,
 )
 const resultsLabel = computed(() => {
-  if (!trimmed.value) return `All ${library.tracks.length} tracks`
-  return `${results.value.length} ${results.value.length === 1 ? 'match' : 'matches'}`
+  if (library.error) return library.error
+  if (!trimmed.value) return 'Recently played'
+  if (library.isSearching) return 'Searching…'
+  const count = results.value.length
+  return `${count} ${count === 1 ? 'match' : 'matches'}`
 })
+
+// Results now arrive after the keystroke that asked for them, so the store is
+// told about the query and the rows follow when Spotify answers.
+watch(query, (next) => library.search(next))
 
 // A fresh query invalidates whatever the arrow keys had landed on.
 watch(results, () => {

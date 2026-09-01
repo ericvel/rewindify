@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import SessionStatus from '@/components/SessionStatus.vue'
 import { resolveRedirectTarget } from '@/auth/redirect'
+import { IS_CONFIGURED } from '@/spotify/config'
 import { useSessionStore } from '@/stores/session'
 
 const route = useRoute()
-const router = useRouter()
 const session = useSessionStore()
 
-/** Replaces rather than pushes: Back should not walk into a gate you passed. */
+/**
+ * Hands the browser to Spotify, carrying the path the gate turned away so the
+ * far side of the redirect knows where the visitor was going. Nothing after
+ * this runs on this page: the answer arrives on `/callback`.
+ */
 async function connect() {
-  await session.connect()
-  await router.replace(resolveRedirectTarget(route.query.redirect))
+  await session.connect(resolveRedirectTarget(route.query.redirect))
 }
 </script>
 
@@ -30,10 +33,15 @@ async function connect() {
           Rewindify plays from your library and loops the passage you are working on.
         </p>
 
+        <p v-if="session.failureMessage" class="connect__failure" role="alert">
+          {{ session.failureMessage }}
+        </p>
+
         <button
           type="button"
           class="connect__action"
           aria-describedby="connect-requirement"
+          :disabled="!IS_CONFIGURED"
           @click="connect()"
         >
           <span class="connect__mark" aria-hidden="true" />
@@ -127,6 +135,17 @@ async function connect() {
   color: #4a4a4a;
 }
 
+/* Only ever the truth about the last attempt, so it sits above the button
+   rather than replacing the invitation to try again. */
+.connect__failure {
+  margin: 24px 0 0;
+  border-left: 3px solid #1a1a1a;
+  padding: 2px 0 2px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #1a1a1a;
+}
+
 .connect__action {
   margin-top: 30px;
   width: 100%;
@@ -141,6 +160,12 @@ async function connect() {
   &:active {
     background: #4a4a4a;
     border-color: #4a4a4a;
+  }
+
+  // A build without a client id has nowhere to send anyone.
+  &:disabled {
+    background: #9a9a9a;
+    border-color: #9a9a9a;
   }
 }
 
