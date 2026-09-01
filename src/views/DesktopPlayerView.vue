@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import DesktopSearchField from '@/components/DesktopSearchField.vue'
 import LoopNudger from '@/components/LoopNudger.vue'
 import LoopToggle from '@/components/LoopToggle.vue'
@@ -27,25 +27,54 @@ function ownsKeyboard(target: EventTarget | null) {
   return INTERACTIVE.has(target.tagName) || target.isContentEditable
 }
 
+/** A or B held down turns the arrows into a nudge of that loop point. */
+const LOOP_KEYS: Record<string, 'a' | 'b'> = { a: 'a', b: 'b' }
+const NUDGE_SECONDS = 1
+
+const heldPoint = ref<'a' | 'b' | null>(null)
+
 function onKeydown(event: KeyboardEvent) {
   if (ownsKeyboard(event.target)) return
-  if (event.key === ' ' || event.code === 'Space') {
+  const point = LOOP_KEYS[event.key.toLowerCase()]
+  if (point) {
+    event.preventDefault()
+    heldPoint.value = point
+  } else if (event.key === ' ' || event.code === 'Space') {
     event.preventDefault()
     void player.togglePlay()
   } else if (event.key === 'ArrowLeft') {
     event.preventDefault()
-    void player.rewind()
+    if (heldPoint.value) player.nudge(heldPoint.value, -NUDGE_SECONDS)
+    else void player.rewind()
   } else if (event.key === 'ArrowRight') {
     event.preventDefault()
-    void player.forward()
+    if (heldPoint.value) player.nudge(heldPoint.value, NUDGE_SECONDS)
+    else void player.forward()
   } else if (event.key.toLowerCase() === 'l') {
     event.preventDefault()
     player.toggleLoop()
   }
 }
 
-onMounted(() => window.addEventListener('keydown', onKeydown))
-onUnmounted(() => window.removeEventListener('keydown', onKeydown))
+function onKeyup(event: KeyboardEvent) {
+  if (LOOP_KEYS[event.key.toLowerCase()] === heldPoint.value) heldPoint.value = null
+}
+
+/** A key released while the window is away never reaches us; drop the hold. */
+function onBlur() {
+  heldPoint.value = null
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+  window.addEventListener('keyup', onKeyup)
+  window.addEventListener('blur', onBlur)
+})
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('keyup', onKeyup)
+  window.removeEventListener('blur', onBlur)
+})
 </script>
 
 <template>
@@ -110,6 +139,22 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
       <span class="desktop__shortcut">
         <kbd class="desktop__key desktop__key--narrow">L</kbd>
         <span class="desktop__shortcut-label">Loop</span>
+      </span>
+      <span class="desktop__shortcut">
+        <kbd
+          class="desktop__key desktop__key--narrow"
+          :class="{ 'desktop__key--held': heldPoint === 'a' }"
+          >A</kbd
+        >
+        <kbd
+          class="desktop__key desktop__key--narrow"
+          :class="{ 'desktop__key--held': heldPoint === 'b' }"
+          >B</kbd
+        >
+        <span class="desktop__shortcut-plus">+</span>
+        <kbd class="desktop__key desktop__key--narrow">←</kbd>
+        <kbd class="desktop__key desktop__key--narrow">→</kbd>
+        <span class="desktop__shortcut-label">Move loop</span>
       </span>
       <span class="desktop__spacer" />
       <span class="desktop__credit">Eric Veliyulin · 2026</span>
@@ -270,6 +315,18 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 
 .desktop__key--narrow {
   min-width: 22px;
+}
+
+.desktop__key--held {
+  color: #ffffff;
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+.desktop__shortcut-plus {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  color: #9a9a9a;
 }
 
 .desktop__shortcut-label {
