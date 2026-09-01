@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppIcon from './AppIcon.vue';
 import { usePlayerStore } from '@/stores/player';
 
 withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), { variant: 'mobile' });
@@ -8,40 +9,49 @@ const player = usePlayerStore();
 
 <template>
   <div class="transport" :class="`transport--${variant}`">
+    <!--
+      The three keys are identical in size and material, the way a transport row
+      on real gear is. Stepping back is the most frequent action in a practice
+      session, so it may not be the smallest key on the panel — which is what it
+      was when play was 96px and the steps were 72px.
+    -->
     <button
       type="button"
-      class="transport__button transport__button--skip"
+      class="transport__key cap-surface"
       :aria-label="`Rewind ${player.skipSeconds} seconds`"
       @click="player.rewind()"
     >
-      <span class="transport__glyph" aria-hidden="true">↺</span>
-      <span class="transport__skip-label">{{ player.skipLabel }}</span>
+      <AppIcon name="step-back" :size="variant === 'desktop' ? 20 : 24" />
+      <span class="transport__step">{{ player.skipLabel }}</span>
     </button>
 
     <button
       type="button"
-      class="transport__button transport__button--play"
+      class="transport__key cap-surface"
       :aria-label="player.isPlaying ? 'Pause' : 'Play'"
       @click="player.togglePlay()"
     >
-      <span class="transport__glyph transport__glyph--play" aria-hidden="true">
-        {{ player.playGlyph }}
-      </span>
+      <AppIcon
+        :name="player.isPlaying ? 'pause' : 'play'"
+        :size="variant === 'desktop' ? 24 : 28"
+      />
     </button>
 
     <button
       type="button"
-      class="transport__button transport__button--skip"
+      class="transport__key cap-surface"
       :aria-label="`Fast forward ${player.skipSeconds} seconds`"
       @click="player.forward()"
     >
-      <span class="transport__glyph" aria-hidden="true">↻</span>
-      <span class="transport__skip-label">{{ player.skipLabel }}</span>
+      <AppIcon name="step-forward" :size="variant === 'desktop' ? 20 : 24" />
+      <span class="transport__step">{{ player.skipLabel }}</span>
     </button>
   </div>
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/surfaces' as *;
+
 .transport {
   display: flex;
   align-items: center;
@@ -49,85 +59,48 @@ const player = usePlayerStore();
 }
 
 .transport--mobile {
-  justify-content: space-between;
-  border: 1px solid #9a9a9a;
-  background: #ffffff;
-  padding: 16px;
+  justify-content: center;
+  gap: 22px;
 }
 
 .transport--desktop {
   gap: 16px;
 }
 
-.transport__button {
-  border-radius: 50%;
-  border: 1px solid #1a1a1a;
-  background: #ffffff;
+.transport__key {
+  @include cap(50%);
+  width: 76px;
+  height: 76px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1px;
-
-  &:active {
-    background: #eaeaea;
-  }
+  gap: 2px;
 }
 
-.transport__button--skip {
-  width: 72px;
-  height: 72px;
-}
-
-.transport__button--play {
-  width: 96px;
-  height: 96px;
-  border-width: 2px;
-}
-
-.transport__glyph {
-  font-size: 20px;
-  line-height: 1;
-  color: #1a1a1a;
-}
-
-.transport__glyph--play {
-  font-size: 28px;
-}
-
-.transport__skip-label {
-  font-family: ui-monospace, monospace;
+.transport__step {
+  @include figures;
   font-size: 11px;
-  color: #767676;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: rgba(242, 239, 232, 0.62);
 }
 
 .transport--desktop {
-  .transport__button--skip {
-    width: 56px;
-    height: 56px;
+  .transport__key {
+    width: 60px;
+    height: 60px;
   }
 
-  .transport__button--play {
-    width: 72px;
-    height: 72px;
-  }
-
-  .transport__glyph {
-    font-size: 16px;
-  }
-
-  .transport__glyph--play {
-    font-size: 22px;
-  }
-
-  .transport__skip-label {
+  .transport__step {
     font-size: 10px;
   }
 }
 
 @media (hover: hover) {
-  .transport--desktop .transport__button:hover {
-    background: #f5f5f5;
+  .transport__key:hover {
+    background: linear-gradient(#474741, var(--cap-top));
   }
 }
 </style>

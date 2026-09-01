@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import AppIcon from '@/components/AppIcon.vue';
 import DesktopSearchField from '@/components/DesktopSearchField.vue';
 import MobileSearchOverlay from '@/components/MobileSearchOverlay.vue';
 import SessionStatus from '@/components/SessionStatus.vue';
@@ -35,10 +36,10 @@ function open(track: Track) {
         v-if="!isDesktop"
         type="button"
         class="start__search-button"
+        aria-label="Search"
         @click="searchOpen = true"
       >
-        <span aria-hidden="true">⌕</span>
-        <span>Search</span>
+        <AppIcon name="search" :size="17" />
       </button>
     </header>
 
@@ -69,23 +70,19 @@ function open(track: Track) {
 
 <style scoped lang="scss">
 @use '@/styles/media-queries' as *;
+@use '@/styles/surfaces' as *;
 
 .start {
   width: 100%;
   min-height: 100dvh;
-  background: #ffffff;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    sans-serif;
-  color: #1a1a1a;
+  background: var(--surface-plate);
+  color: var(--ink);
   display: flex;
   flex-direction: column;
 }
 
 .start__header {
-  height: 56px;
+  height: 60px;
   flex: none;
   display: flex;
   align-items: center;
@@ -93,15 +90,16 @@ function open(track: Track) {
   padding: 0 16px;
 
   @include screen-desktop {
-    height: 52px;
-    border-bottom: 1px solid #9a9a9a;
+    height: 56px;
+    box-shadow: inset 0 -1px 0 var(--surface-edge);
     padding: 0 20px;
   }
 }
 
 .start__brand {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.018em;
 
   @include screen-desktop {
     font-size: 15px;
@@ -113,23 +111,13 @@ function open(track: Track) {
 }
 
 .start__search-button {
-  height: 30px;
+  @include cap-light;
   flex: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid #1a1a1a;
-  background: #ffffff;
-  padding: 0 10px;
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #1a1a1a;
-
-  &:active {
-    background: #f5f5f5;
-  }
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  color: var(--ink-body);
 }
 
 .start__body {
@@ -147,20 +135,22 @@ function open(track: Track) {
 
 .start__title {
   margin: 0;
-  font-size: 24px;
+  font-size: 25px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  line-height: 1.14;
+  letter-spacing: -0.022em;
+  text-wrap: pretty;
 
   @include screen-desktop {
-    font-size: 28px;
+    font-size: 29px;
   }
 }
 
 .start__copy {
-  margin: 14px 0 0;
+  margin: 13px 0 0;
   font-size: 15px;
-  line-height: 1.4;
-  color: #4a4a4a;
+  line-height: 1.45;
+  color: var(--ink-body);
 }
 
 .start__search {
@@ -168,30 +158,25 @@ function open(track: Track) {
 }
 
 .start__note {
-  // The doubled hairline reads as a caption rule rather than a divider.
-  border-top: 3px double #d4d4d4;
+  @include legend(10px);
+  box-shadow: inset 0 1px 0 var(--surface-edge);
   margin: 26px 0 0;
-  padding-top: 12px;
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: #767676;
-  text-transform: uppercase;
+  padding-top: 13px;
+  line-height: 1.4;
 }
 
 .start__footer {
-  height: 36px;
+  height: 40px;
   flex: none;
-  border-top: 1px solid #9a9a9a;
-  background: #f5f5f5;
+  box-shadow: inset 0 1px 0 var(--surface-edge);
+  background: var(--surface-well);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 20px;
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: #9a9a9a;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-label);
 
   @include screen-desktop {
     justify-content: flex-start;

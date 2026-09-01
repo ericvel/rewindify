@@ -42,9 +42,15 @@ const ENTRIES: [title: string, artist: string, album: string, seconds: number][]
  * Artwork as a data uri, so a fixture run needs no network at all. Real covers
  * are photographs; these only have to be distinct enough that a list of thirty
  * rows does not read as one repeated placeholder.
+ *
+ * The hue avoids 5-45deg. On this plate the orange accent means the loop and
+ * nothing else, and the old full-wheel `seed % 360` put a terracotta disc in
+ * the recently-played list on every screen — a second thing wearing the one
+ * colour that is supposed to mean one thing. 70-300 keeps both the ground and
+ * the disc (hue + 40) clear of the reserved band without wrapping into it.
  */
 function artwork(seed: number): string {
-  const hue = seed % 360;
+  const hue = 70 + (seed % 231);
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="176" height="176">` +
     `<rect width="176" height="176" fill="hsl(${hue} 30% 78%)"/>` +

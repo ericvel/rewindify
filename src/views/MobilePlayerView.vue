@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import AppIcon from '@/components/AppIcon.vue';
 import LoopNudger from '@/components/LoopNudger.vue';
 import LoopToggle from '@/components/LoopToggle.vue';
 import MobileSearchOverlay from '@/components/MobileSearchOverlay.vue';
@@ -7,7 +8,8 @@ import NowPlayingHeader from '@/components/NowPlayingHeader.vue';
 import SessionStatus from '@/components/SessionStatus.vue';
 import TimeReadout from '@/components/TimeReadout.vue';
 import TransportControls from '@/components/TransportControls.vue';
-import WaveformTimeline from '@/components/WaveformTimeline.vue';
+import TrackTimeline from '@/components/TrackTimeline.vue';
+import { usePlayerKeyboard } from '@/composables/usePlayerKeyboard';
 import { usePlayerStore } from '@/stores/player';
 import type { Track } from '@/playback/types';
 
@@ -16,6 +18,13 @@ const emit = defineEmits<{ select: [track: Track] }>();
 
 const player = usePlayerStore();
 const searchOpen = ref(false);
+
+/*
+ * A phone-width window is not always a touch-only one, and PRODUCT.md makes the
+ * keyboard a requirement rather than a convenience. Handlers stand down while a
+ * search field has focus.
+ */
+usePlayerKeyboard();
 
 function onSelect(track: Track) {
   searchOpen.value = false;
@@ -29,24 +38,40 @@ function onSelect(track: Track) {
       <span class="phone__brand">Rewindify</span>
       <span class="phone__spacer" />
       <SessionStatus />
-      <button type="button" class="phone__search-button" @click="searchOpen = true">
-        <span class="phone__search-icon" aria-hidden="true">⌕</span>
-        <span class="phone__search-text">Search</span>
+      <button
+        type="button"
+        class="phone__search-button"
+        aria-label="Search"
+        @click="searchOpen = true"
+      >
+        <AppIcon name="search" :size="17" />
       </button>
     </header>
+
+    <!--
+      Playback trouble was reported on desktop only, and a phone is where a
+      device gets stolen by another Spotify client. It appears only when there
+      is something true to say.
+    -->
+    <p v-if="player.error !== null" class="phone__alert" role="alert">
+      <AppIcon name="alert" :size="15" />
+      <span>{{ player.error }}</span>
+    </p>
 
     <NowPlayingHeader :track="track" variant="mobile" />
 
     <section class="phone__panel">
       <TimeReadout variant="mobile" />
-      <WaveformTimeline :bar-count="56" :wave-height="76" variant="mobile" />
-      <footer class="phone__loop-status">
+      <TrackTimeline :bar-count="48" :field-height="94" variant="mobile" />
+      <footer class="phone__loop-status" :class="{ 'is-armed': player.loopOn }">
         <span class="phone__loop-state">{{ player.loopStatus }}</span>
         <span class="phone__loop-range">{{ player.loopRange }}</span>
       </footer>
     </section>
 
-    <TransportControls variant="mobile" />
+    <!-- The control group is bottom-anchored so the keys land under the thumb
+         rather than leaving an empty tail below the loop switch. -->
+    <TransportControls class="phone__transport" variant="mobile" />
     <LoopNudger variant="mobile" />
     <LoopToggle variant="mobile" />
 
@@ -59,33 +84,29 @@ function onSelect(track: Track) {
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/surfaces' as *;
+
 .phone {
   width: 100%;
   max-width: 430px;
   margin: 0 auto;
   min-height: 100dvh;
-  background: #ffffff;
-  border-left: 1px solid #d4d4d4;
-  border-right: 1px solid #d4d4d4;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    sans-serif;
-  color: #1a1a1a;
+  background: var(--surface-plate);
+  box-shadow: inset 1px 0 0 var(--surface-edge), inset -1px 0 0 var(--surface-edge);
+  color: var(--ink);
   position: relative;
   overflow: hidden;
   padding: 0 16px 28px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .phone__header {
   display: flex;
   align-items: center;
   gap: 12px;
-  height: 56px;
+  height: 60px;
   flex: none;
 }
 
@@ -94,76 +115,85 @@ function onSelect(track: Track) {
 }
 
 .phone__brand {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.018em;
 }
 
 .phone__search-button {
+  @include cap-light;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  color: var(--ink-body);
+}
+
+/* Inverted ink, not a second hue: the accent means the loop and nothing else. */
+.phone__alert {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 36px;
-  padding: 0 14px;
-  border: 1px solid #9a9a9a;
-  background: #ffffff;
-}
-
-.phone__search-icon {
+  gap: 9px;
+  margin: 0;
+  padding: 11px 13px;
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--ink-inverse);
   font-size: 13px;
-  color: #767676;
-}
-
-.phone__search-text {
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: #1a1a1a;
-  text-transform: uppercase;
+  line-height: 1.3;
 }
 
 .phone__panel {
-  border: 1px solid #9a9a9a;
-  background: #ffffff;
-  padding: 16px 16px 12px;
+  @include well(4px);
+  padding: 18px 16px 12px;
   flex: none;
 }
 
 .phone__loop-status {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  border-top: 1px solid #d4d4d4;
-  margin-top: 4px;
+  align-items: baseline;
+  gap: 10px;
+  box-shadow: inset 0 1px 0 var(--surface-edge);
+  margin-top: 12px;
   padding: 10px 2px 0;
 }
 
 .phone__loop-state {
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: #767676;
-  text-transform: uppercase;
+  @include legend(10px);
+  transition: color var(--arm-duration) var(--ease-out);
+
+  .phone__loop-status.is-armed & {
+    color: var(--accent-text);
+  }
 }
 
 .phone__loop-range {
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-  color: #4a4a4a;
+  @include figures;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-body);
+}
+
+.phone__transport {
+  margin-top: auto;
+  padding-top: 8px;
 }
 
 .phone__footer {
-  height: 36px;
+  height: 40px;
   flex: none;
-  margin: auto -16px -28px;
-  border-top: 1px solid #9a9a9a;
-  background: #f5f5f5;
+  margin: 4px -16px -28px;
+  box-shadow: inset 0 1px 0 var(--surface-edge);
+  background: var(--surface-well);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 20px;
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: #9a9a9a;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--ink-label);
 }
 </style>

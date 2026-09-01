@@ -1,47 +1,43 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import AppIcon from './AppIcon.vue';
 
 const props = withDefaults(
   defineProps<{
     src?: string;
     alt?: string;
     size: number;
-    /** Renders the `art` caption used on the now-playing artwork. */
+    /** Renders the drawn placeholder mark used on the now-playing artwork. */
     labelled?: boolean;
   }>(),
   { src: undefined, alt: '', labelled: false },
 );
 
-/** Larger artwork gets a coarser hatch so the placeholder reads at any size. */
-const hatchStep = computed(() => (props.size >= 64 ? 5 : 4));
+/** The mark keeps its proportion to the plate it sits in. */
+const markSize = () => Math.round(props.size * 0.42);
 </script>
 
 <template>
-  <div
-    class="artwork"
-    :style="{
-      width: `${size}px`,
-      height: `${size}px`,
-      '--hatch-step': `${hatchStep}px`,
-      '--hatch-period': `${hatchStep * 2}px`,
-    }"
-  >
+  <div class="artwork" :style="{ width: `${size}px`, height: `${size}px` }">
     <img v-if="src" class="artwork__image" :src="src" :alt="alt" />
-    <span v-else-if="labelled" class="artwork__label">art</span>
+    <AppIcon v-else-if="labelled" class="artwork__mark" name="disc" :size="markSize()" />
   </div>
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/surfaces' as *;
+
+/*
+ * Artwork is a plate cut into the surface, so a missing cover reads as an empty
+ * recess rather than as a broken image. The old hatch fill and its "art" caption
+ * were placeholder art in placeholder type.
+ */
 .artwork {
+  @include well(2px);
   position: relative;
   flex: none;
   overflow: hidden;
-  border: 1px solid #9a9a9a;
-  background: repeating-linear-gradient(
-    135deg,
-    #ffffff 0 var(--hatch-step),
-    #eaeaea var(--hatch-step) var(--hatch-period)
-  );
+  display: grid;
+  place-items: center;
 }
 
 .artwork__image {
@@ -51,14 +47,8 @@ const hatchStep = computed(() => (props.size >= 64 ? 5 : 4));
   object-fit: cover;
 }
 
-.artwork__label {
-  position: absolute;
-  inset: auto 0 4px;
-  text-align: center;
-  font-family: ui-monospace, monospace;
-  font-size: 7px;
-  letter-spacing: 0.1em;
-  color: #767676;
-  text-transform: uppercase;
+.artwork__mark {
+  color: var(--ink-label);
+  opacity: 0.55;
 }
 </style>

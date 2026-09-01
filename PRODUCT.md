@@ -74,7 +74,7 @@ Confirmed capabilities:
   (default 5), clamped to the loop bounds while looping and to the track
   otherwise, so repeated presses inside a passage cannot overshoot out of it.
   Reachable as the two outer transport buttons and as the left/right arrow keys.
-- A/B loop over a positional timeline, with draggable playhead and A/B handles,
+- A/B loop over the waveform timeline, with draggable playhead and A/B handles,
   and a minimum loop length of 2 seconds.
 - Keyboard control: space toggles play, arrows step back and forward by the
   configured skip, holding A or B turns the arrows into a nudge of that loop
@@ -97,10 +97,15 @@ Durable constraints, all four confirmed binding:
   transport has to be able to say when no device is available.
 - **No backend.** Authorisation code flow with PKCE, a public client id, and
   deployment as static files. Nothing may require a server or a secret.
-- **The waveform is synthetic.** Spotify exposes no audio samples, so the bars are
-  generated from a hash of the track id (`src/playback/waveform.ts`,
-  `src/spotify/track.ts`). It is a positional map, not amplitude, and must never
-  be presented or implied to be the real audio.
+- **The waveform is fabricated.** Spotify exposes no audio samples, so the bars
+  are generated from a hash of the track id (`src/playback/waveform.ts`,
+  `src/spotify/track.ts`) and drawn to read as a real waveform. This is a
+  deliberate trade taken for the portfolio: the shape is scenery that makes the
+  surface read as practice software, and it carries no information about the
+  audio. Nothing in the interface may state or label it as the track's audio,
+  and no feature may be built that asks the user to read meaning from it —
+  every exact value comes from the position readout, the printed scale and the
+  loop range.
 - **Desktop and mobile web are both first-class.** Two real views, not one
   responsive compromise. Neither may be treated as the degraded case.
 
@@ -114,8 +119,9 @@ Terminology: **step** (or rewind/fast-forward) is a fixed-size move by the skip
 amount, and it is what Spotify's drag-only progress bar cannot do; **A** and
 **B** are the loop points; **the loop** is the passage
 between them; **nudge** is a keyboard-sized adjustment of one point; **the
-timeline** is the bar display the loop is set on (not "the waveform" in user-
-facing copy, given it is synthetic).
+timeline** is the waveform display the loop is set on — "the timeline" stays the
+user-facing word, because calling it the waveform in copy would be a claim about
+the audio that the fabricated shape cannot back.
 
 ## Brand Commitments
 
@@ -125,7 +131,19 @@ facing copy, given it is synthetic).
   Spotify's developer terms. `src/views/ConnectView.vue` currently draws a white
   circle as a stand-in; that placeholder is known debt. Future work should treat
   real Spotify branding as the target and must not invent a competing mark for
-  the connect action.
+  the connect action. The stand-in is now a neutral disc in the button's own ink
+  rather than a white circle, so it reads as an empty slot rather than as a mark.
+- The design register is the familiar end of the spectrum, by the author's
+  standing preference: on the round that produced the current look, two
+  successive re-rolls asked for safer, conventional directions, with the steer
+  "I want to keep the general current layout. the application should be easy to
+  look at and understand." Treat legibility and convention as the bar for future
+  surfaces rather than expression, unless the author says otherwise.
+- The visual world is **the Bench Instrument** — Braun product graphics: a warm
+  off-white plate, printed scales, dark control caps, and a single orange that
+  means the loop and nothing else. That last rule is load-bearing: playback
+  errors deliberately use inverted ink rather than a second colour so the accent
+  stays exclusive. DESIGN.md holds the system; this is the commitment behind it.
 
 ## Evidence on Hand
 
@@ -149,8 +167,11 @@ facing copy, given it is synthetic).
    is the most frequent action in a session and must stay the cheapest.
 3. **Precision is the product.** Steps, loop points, times and ranges are stated
    exactly; nothing about position in the track may be approximate or ambiguous.
-4. **Never overstate what Spotify gives us.** The synthetic timeline, the device
-   requirement, and playback failures are told truthfully rather than dressed up.
+4. **Never overstate what Spotify gives us.** The device requirement and
+   playback failures are told truthfully rather than dressed up. The waveform is
+   the one deliberate exception, taken with eyes open and bounded by the
+   constraint above: it may look real, but nothing may claim it is, and no
+   decision the user makes may depend on reading it.
 5. **A loop is a link.** Any state worth keeping is state worth sharing and
    restoring.
 6. **Survive the interruption.** Practice is resumed, devices are stolen,

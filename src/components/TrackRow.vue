@@ -20,7 +20,7 @@ const props = withDefaults(
 
 defineEmits<{ select: [] }>();
 
-const artSize = computed(() => ({ sm: 36, md: 44, lg: 48 })[props.size]);
+const artSize = computed(() => ({ sm: 34, md: 40, lg: 46 })[props.size]);
 const durationLabel = computed(() => formatTime(props.track.duration));
 const agoLabel = computed(() => (props.playedAt === undefined ? null : formatAgo(props.playedAt)));
 </script>
@@ -34,42 +34,51 @@ const agoLabel = computed(() => (props.playedAt === undefined ? null : formatAgo
     @click="$emit('select')"
   >
     <TrackArtwork :src="track.artworkUrl" :alt="`${track.album} cover art`" :size="artSize" />
-    <span class="track-row__meta">
-      <span class="track-row__title">{{ track.title }}</span>
-      <span class="track-row__artist">{{ track.artist }}</span>
-    </span>
-    <span class="track-row__aside">
-      <span class="track-row__duration">{{ durationLabel }}</span>
-      <span v-if="agoLabel" class="track-row__ago">{{ agoLabel }}</span>
+    <span class="track-row__body">
+      <!-- A printed index: the leader carries the eye from the title to its
+           duration, which is what a list of times is for. -->
+      <span class="track-row__line">
+        <span class="track-row__title">{{ track.title }}</span>
+        <span class="track-row__leader" aria-hidden="true" />
+        <span class="track-row__duration">{{ durationLabel }}</span>
+      </span>
+      <span class="track-row__line">
+        <span class="track-row__artist">{{ track.artist }}</span>
+        <span v-if="agoLabel" class="track-row__ago">{{ agoLabel }}</span>
+      </span>
     </span>
   </button>
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/surfaces' as *;
+
 .track-row {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
+  gap: 11px;
+  padding: 9px 14px;
   text-align: left;
-  border-bottom: 1px solid #d4d4d4;
-  background: #ffffff;
+  background: transparent;
+  border-radius: 3px;
+  position: relative;
+
+  /* Hairline rules instead of outlined cards: this is an index, not a stack. */
+  & + & {
+    box-shadow: inset 0 1px 0 var(--surface-rule);
+  }
 
   &.is-active {
-    background: #eaeaea;
+    @include well;
   }
 
-  &.is-highlighted {
-    background: #f5f5f5;
-  }
-
-  &.is-active.is-highlighted {
-    background: #e0e0e0;
+  &.is-highlighted:not(.is-active) {
+    background: var(--surface-raised);
   }
 }
 
-.track-row__meta {
+.track-row__body {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -77,51 +86,68 @@ const agoLabel = computed(() => (props.playedAt === undefined ? null : formatAgo
   gap: 3px;
 }
 
-.track-row__title {
-  font-size: 14px;
-  font-weight: 500;
-  color: #1a1a1a;
-}
-
-.track-row__artist {
-  font-size: 12px;
-  color: #767676;
-}
-
-.track-row__aside {
-  flex: none;
+.track-row__line {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 3px;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.track-row__title {
+  flex: none;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  color: var(--ink);
+}
+
+.track-row__leader {
+  flex: 1;
+  min-width: 10px;
+  border-bottom: 1px dotted var(--surface-edge);
+  transform: translateY(-3px);
 }
 
 .track-row__duration {
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-  color: #767676;
+  @include figures;
+  flex: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-label);
+}
+
+.track-row__artist {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  color: var(--ink-body);
 }
 
 .track-row__ago {
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  color: #9a9a9a;
+  @include figures;
+  flex: none;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-label);
 }
 
 .track-row--sm {
-  gap: 10px;
-  padding: 9px 12px;
-  border-bottom-color: #eaeaea;
-
-  .track-row__meta {
-    gap: 2px;
-  }
+  gap: 9px;
+  padding: 8px 12px;
 
   .track-row__title {
     font-size: 13px;
   }
 
-  .track-row__artist {
+  .track-row__artist,
+  .track-row__duration {
     font-size: 11px;
   }
 }
@@ -135,8 +161,8 @@ const agoLabel = computed(() => (props.playedAt === undefined ? null : formatAgo
 }
 
 @media (hover: hover) {
-  .track-row:hover {
-    background: #f5f5f5;
+  .track-row:not(.is-active):hover {
+    background: var(--surface-raised);
   }
 }
 </style>

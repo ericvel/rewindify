@@ -28,20 +28,18 @@ onMounted(async () => {
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/surfaces' as *;
+
 .callback {
   width: 100%;
   min-height: 100dvh;
-  background: #ffffff;
+  background: var(--surface-plate);
   display: grid;
   place-items: center;
 }
 
 .callback__status {
+  @include legend(11px);
   margin: 0;
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: #767676;
-  text-transform: uppercase;
 }
 </style>

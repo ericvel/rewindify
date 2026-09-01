@@ -1,21 +1,75 @@
+@use 'tokens';
+@use 'surfaces' as *;
+
 html,
 body {
   margin: 0;
   padding: 0;
-  background: #efefef;
+  background: var(--surface-plate);
 }
 
 * {
   box-sizing: border-box;
 }
 
+body {
+  font-family: var(--face);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+ * Browser surfaces. The caret, the selection, the scrollbars and the focus ring
+ * ship with defaults that belong to no design system; on a surface this quiet
+ * they are the loudest wrong note.
+ *
+ * All of them are ink, never accent: the accent means the loop and nothing else,
+ * and that rule has to hold in the source, not just in what happens to render
+ * today. `accent-color` paints native checkboxes, radios, ranges and progress
+ * bars, and the link rules paint underlines and hover — none of which exist on
+ * these screens yet, so a leak here would have shipped invisibly and surfaced
+ * as a contradiction the first time someone added a link.
+ */
+::selection {
+  background: var(--ink);
+  color: var(--ink-inverse);
+}
+
+:root {
+  color-scheme: light;
+  accent-color: var(--ink);
+  caret-color: var(--ink);
+  scrollbar-color: var(--surface-edge) transparent;
+  scrollbar-width: thin;
+}
+
+/*
+ * Keyboard-complete is a product requirement, not a courtesy: the primary user's
+ * hands are on an instrument. This project shipped with no focus styling at all,
+ * so the ring is defined once here for every interactive element and inherited
+ * everywhere. Ink, not accent — see above.
+ */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Dark caps need the ring in plate, or it disappears into the cap. */
+.cap-surface:focus-visible {
+  outline-color: var(--surface-raised);
+  outline-offset: 3px;
+}
+
 a {
-  color: #1a1a1a;
-  text-decoration: underline;
+  color: var(--ink);
+  text-decoration-color: var(--surface-edge);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
 
   @media (hover: hover) {
     &:hover {
-      color: #767676;
+      color: var(--ink-body);
     }
   }
 }
@@ -31,4 +85,12 @@ button {
 
 input {
   font: inherit;
+}
+
+/* Every quantity in this product is exact, so no digit may ever shift width. */
+input,
+output,
+time,
+kbd {
+  @include figures;
 }

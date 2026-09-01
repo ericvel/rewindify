@@ -1,0 +1,669 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-01T00:00:00Z",
+  "title": "Design System: Rewindify",
+  "extensions": {
+    "colorMeta": {
+      "accent": {
+        "role": "primary",
+        "displayName": "Loop Orange",
+        "canonical": "oklch(62.5% 0.192 39.6)",
+        "note": "Graphics duty only, 3.20:1 on the plate. Means the loop and nothing else.",
+        "tonalRamp": [
+          "oklch(18% 0.192 39.6)",
+          "oklch(29% 0.192 39.6)",
+          "oklch(40% 0.192 39.6)",
+          "oklch(51% 0.192 39.6)",
+          "oklch(62% 0.192 39.6)",
+          "oklch(73% 0.192 39.6)",
+          "oklch(84% 0.192 39.6)",
+          "oklch(95% 0.192 39.6)"
+        ]
+      },
+      "accent-strong": {
+        "role": "primary",
+        "displayName": "Loop Orange Deep",
+        "canonical": "oklch(55.6% 0.172 39.4)",
+        "note": "Carries white text at 5.12:1. A/B markers and nudger chips.",
+        "tonalRamp": [
+          "oklch(18% 0.172 39.4)",
+          "oklch(29% 0.172 39.4)",
+          "oklch(40% 0.172 39.4)",
+          "oklch(51% 0.172 39.4)",
+          "oklch(62% 0.172 39.4)",
+          "oklch(73% 0.172 39.4)",
+          "oklch(84% 0.172 39.4)",
+          "oklch(95% 0.172 39.4)"
+        ]
+      },
+      "accent-text": {
+        "role": "primary",
+        "displayName": "Loop Orange Ink",
+        "canonical": "oklch(51.0% 0.155 40.5)",
+        "note": "Accent-coloured text: 5.10:1 on plate, 4.64:1 on well.",
+        "tonalRamp": [
+          "oklch(18% 0.155 40.5)",
+          "oklch(29% 0.155 40.5)",
+          "oklch(40% 0.155 40.5)",
+          "oklch(51% 0.155 40.5)",
+          "oklch(62% 0.155 40.5)",
+          "oklch(73% 0.155 40.5)",
+          "oklch(84% 0.155 40.5)",
+          "oklch(95% 0.155 40.5)"
+        ]
+      },
+      "accent-wash": {
+        "role": "primary",
+        "displayName": "Loop Wash",
+        "canonical": "rgba(226, 81, 15, 0.11)",
+        "note": "The armed span tint. Paints behind the timeline bars, never over them."
+      },
+      "surface-plate": {
+        "role": "neutral",
+        "displayName": "Warm Plate",
+        "canonical": "oklch(93.5% 0.010 81.8)",
+        "note": "The ground for every screen, the browser theme-color, and the popover.",
+        "tonalRamp": [
+          "oklch(18% 0.010 81.8)",
+          "oklch(29% 0.010 81.8)",
+          "oklch(40% 0.010 81.8)",
+          "oklch(51% 0.010 81.8)",
+          "oklch(62% 0.010 81.8)",
+          "oklch(73% 0.010 81.8)",
+          "oklch(84% 0.010 81.8)",
+          "oklch(95% 0.010 81.8)"
+        ]
+      },
+      "surface-raised": {
+        "role": "neutral",
+        "displayName": "Raised Plate",
+        "canonical": "oklch(95.9% 0.010 87.5)",
+        "note": "The lit top of a light cap; hover and keyboard-highlight on an index row.",
+        "tonalRamp": [
+          "oklch(18% 0.010 87.5)",
+          "oklch(29% 0.010 87.5)",
+          "oklch(40% 0.010 87.5)",
+          "oklch(51% 0.010 87.5)",
+          "oklch(62% 0.010 87.5)",
+          "oklch(73% 0.010 87.5)",
+          "oklch(84% 0.010 87.5)",
+          "oklch(95% 0.010 87.5)"
+        ]
+      },
+      "surface-well": {
+        "role": "neutral",
+        "displayName": "Well",
+        "canonical": "oklch(90.4% 0.013 86.8)",
+        "note": "Every recess. The binding surface for text contrast in this system.",
+        "tonalRamp": [
+          "oklch(18% 0.013 86.8)",
+          "oklch(29% 0.013 86.8)",
+          "oklch(40% 0.013 86.8)",
+          "oklch(51% 0.013 86.8)",
+          "oklch(62% 0.013 86.8)",
+          "oklch(73% 0.013 86.8)",
+          "oklch(84% 0.013 86.8)",
+          "oklch(95% 0.013 86.8)"
+        ]
+      },
+      "surface-well-deep": {
+        "role": "neutral",
+        "displayName": "Deep Well",
+        "canonical": "oklch(88.0% 0.016 86.4)",
+        "note": "A recess inside a recess: switch track off, disarmed chip, disabled action.",
+        "tonalRamp": [
+          "oklch(18% 0.016 86.4)",
+          "oklch(29% 0.016 86.4)",
+          "oklch(40% 0.016 86.4)",
+          "oklch(51% 0.016 86.4)",
+          "oklch(62% 0.016 86.4)",
+          "oklch(73% 0.016 86.4)",
+          "oklch(84% 0.016 86.4)",
+          "oklch(95% 0.016 86.4)"
+        ]
+      },
+      "surface-edge": {
+        "role": "neutral",
+        "displayName": "Plate Edge",
+        "canonical": "oklch(85.2% 0.017 88.0)",
+        "note": "The 1px hairline that makes every structural edge. Most-used token in the build.",
+        "tonalRamp": [
+          "oklch(18% 0.017 88.0)",
+          "oklch(29% 0.017 88.0)",
+          "oklch(40% 0.017 88.0)",
+          "oklch(51% 0.017 88.0)",
+          "oklch(62% 0.017 88.0)",
+          "oklch(73% 0.017 88.0)",
+          "oklch(84% 0.017 88.0)",
+          "oklch(95% 0.017 88.0)"
+        ]
+      },
+      "surface-rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "oklch(88.0% 0.016 86.4)",
+        "note": "The hairline between peers. Same value as Deep Well; a separate role because a divider and a recess floor change independently."
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(28.9% 0.002 106.5)",
+        "note": "All primary text (10.66:1 on the well), played bars, playhead, focus ring, ::selection, alert ground.",
+        "tonalRamp": [
+          "oklch(18% 0.002 106.5)",
+          "oklch(29% 0.002 106.5)",
+          "oklch(40% 0.002 106.5)",
+          "oklch(51% 0.002 106.5)",
+          "oklch(62% 0.002 106.5)",
+          "oklch(73% 0.002 106.5)",
+          "oklch(84% 0.002 106.5)",
+          "oklch(95% 0.002 106.5)"
+        ]
+      },
+      "ink-body": {
+        "role": "neutral",
+        "displayName": "Body Ink",
+        "canonical": "oklch(44.2% 0.010 91.6)",
+        "note": "Secondary text at 5.78:1 on the well.",
+        "tonalRamp": [
+          "oklch(18% 0.010 91.6)",
+          "oklch(29% 0.010 91.6)",
+          "oklch(40% 0.010 91.6)",
+          "oklch(51% 0.010 91.6)",
+          "oklch(62% 0.010 91.6)",
+          "oklch(73% 0.010 91.6)",
+          "oklch(84% 0.010 91.6)",
+          "oklch(95% 0.010 91.6)"
+        ]
+      },
+      "ink-label": {
+        "role": "neutral",
+        "displayName": "Label Ink",
+        "canonical": "oklch(47.5% 0.012 87.5)",
+        "note": "The floor for text in this system, at 5.02:1 on the well. Nothing quieter carries text.",
+        "tonalRamp": [
+          "oklch(18% 0.012 87.5)",
+          "oklch(29% 0.012 87.5)",
+          "oklch(40% 0.012 87.5)",
+          "oklch(51% 0.012 87.5)",
+          "oklch(62% 0.012 87.5)",
+          "oklch(73% 0.012 87.5)",
+          "oklch(84% 0.012 87.5)",
+          "oklch(95% 0.012 87.5)"
+        ]
+      },
+      "ink-inverse": {
+        "role": "neutral",
+        "displayName": "Inverse Ink",
+        "canonical": "oklch(95.9% 0.010 87.5)",
+        "note": "Text on ink: the alert chip, the held key. 12.56:1."
+      },
+      "cap-top": {
+        "role": "neutral",
+        "displayName": "Cap Top",
+        "canonical": "oklch(35.8% 0.008 106.8)",
+        "note": "Upper stop of the dark cap gradient.",
+        "tonalRamp": [
+          "oklch(18% 0.008 106.8)",
+          "oklch(29% 0.008 106.8)",
+          "oklch(40% 0.008 106.8)",
+          "oklch(51% 0.008 106.8)",
+          "oklch(62% 0.008 106.8)",
+          "oklch(73% 0.008 106.8)",
+          "oklch(84% 0.008 106.8)",
+          "oklch(95% 0.008 106.8)"
+        ]
+      },
+      "cap-bottom": {
+        "role": "neutral",
+        "displayName": "Cap Bottom",
+        "canonical": "oklch(28.4% 0.005 106.7)",
+        "note": "Lower stop of the dark cap gradient."
+      },
+      "cap-ink": {
+        "role": "neutral",
+        "displayName": "Cap Ink",
+        "canonical": "oklch(95.3% 0.010 87.5)",
+        "note": "The mark on a dark cap, at 9.51:1."
+      },
+      "cap-edge": {
+        "role": "neutral",
+        "displayName": "Cap Edge",
+        "canonical": "oklch(23.9% 0.004 106.7)",
+        "note": "The shadow colour a cap sits in. Declared but unreferenced; its value is in live use as a literal inside the three shadow tokens."
+      },
+      "timeline-bar": {
+        "role": "neutral",
+        "displayName": "Timeline Bar",
+        "canonical": "oklch(58.8% 0.018 82.8)",
+        "note": "An unplayed graduation, 3.11:1 against the well.",
+        "tonalRamp": [
+          "oklch(18% 0.018 82.8)",
+          "oklch(29% 0.018 82.8)",
+          "oklch(40% 0.018 82.8)",
+          "oklch(51% 0.018 82.8)",
+          "oklch(62% 0.018 82.8)",
+          "oklch(73% 0.018 82.8)",
+          "oklch(84% 0.018 82.8)",
+          "oklch(95% 0.018 82.8)"
+        ]
+      },
+      "timeline-bar-in-loop": {
+        "role": "neutral",
+        "displayName": "Timeline Bar In Loop",
+        "canonical": "oklch(56.4% 0.021 86.2)",
+        "note": "An unplayed graduation inside the armed span: 3.04:1 against the washed ground, 3.10:1 against the played bar."
+      },
+      "on-accent": {
+        "role": "primary",
+        "displayName": "On Accent",
+        "canonical": "#ffffff",
+        "note": "Marks and text sitting on an accent surface: the A/B markers and armed nudger chips, 5.12:1 over accent-strong. Exists so no component carries a raw #ffffff."
+      },
+      "surface-hi": {
+        "role": "neutral",
+        "displayName": "Highlight",
+        "canonical": "#ffffff",
+        "note": "Only ever the top stop of a hovered light cap's gradient. A lift, not a surface: nothing is filled with it."
+      }
+    },
+    "typographyMeta": {
+      "position": {
+        "displayName": "Position",
+        "desktop": "64px",
+        "phone": "46px",
+        "purpose": "The playback position, tabular, top-left of the recessed panel. The single largest object on any screen; nothing else is set at either size."
+      },
+      "view-title": {
+        "displayName": "View Title",
+        "desktop": "29px",
+        "phone": "25px",
+        "purpose": "The h1 on Connect and Start."
+      },
+      "track-title": {
+        "displayName": "Track Title",
+        "desktop": "24px",
+        "phone": "19px",
+        "purpose": "What is loaded, in the now-playing header. Deliberately a step below Position: what you are playing, not what you are working on."
+      },
+      "readout": {
+        "displayName": "Readout",
+        "desktop": "16px",
+        "phone": "18px",
+        "purpose": "The A and B times in the nudger rows. Inverted: smaller on desktop, where the row is compact. Flagged in Open as possibly not a real step."
+      },
+      "brand": {
+        "displayName": "Brand",
+        "desktop": "15px",
+        "phone": "17px",
+        "purpose": "'Rewindify' in every header. Inverted: smaller on desktop, where it sits in a dense 56px chassis."
+      },
+      "body": {
+        "displayName": "Body",
+        "desktop": "15px",
+        "phone": "14px",
+        "purpose": "Explanatory copy and the artist line, in Body Ink. Its smallest step is 13px, at the alert chips and the desktop search input."
+      },
+      "row-title": {
+        "displayName": "Row Title",
+        "desktop": "14px",
+        "phone": "14px",
+        "purpose": "Track titles in the printed index. Steps with the row size prop, not the breakpoint: 13px at sm, 15px at lg."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "desktop": "12px",
+        "phone": "12px",
+        "purpose": "Every quantity that is not Position or Readout. A band, not one step: 14/13px beside the position, 12px at the loop range and row durations, 11px at the smaller variants and A/B markers, 10px at keycaps and phone tick labels."
+      },
+      "meta": {
+        "displayName": "Meta",
+        "desktop": "12px",
+        "phone": "12px",
+        "purpose": "Album, session name, loop hint, empty-state text. 11px at the credit line."
+      },
+      "legend": {
+        "displayName": "Legend",
+        "desktop": "10px",
+        "phone": "10px",
+        "purpose": "The legend() mixin. Printed nomenclature; the only small type in the system. One exception: legend(11px) on the callback screen."
+      }
+    },
+    "shadows": [
+      {
+        "name": "well",
+        "value": "inset 0 1px 2px rgba(88,80,64,0.16), inset 0 0 0 1px var(--surface-edge)",
+        "purpose": "Anything cut into the plate: panels, inputs, artwork, the active index row, the switch track. Edge ring and depth in one declaration."
+      },
+      {
+        "name": "cap",
+        "value": "0 1px 1px rgba(31,31,29,0.3), 0 2px 5px rgba(31,31,29,0.16), inset 0 1px 0 rgba(255,255,255,0.13)",
+        "purpose": "Any raised pressable control. The white inset highlight along the top edge is what makes it read as lit rather than as a card."
+      },
+      {
+        "name": "cap-pressed",
+        "value": "0 1px 1px rgba(31,31,29,0.34), inset 0 1px 3px rgba(0,0,0,0.34)",
+        "purpose": "The :active state of a dark cap, paired with translateY(1px)."
+      },
+      {
+        "name": "key-held",
+        "value": "inset 0 1px 3px rgba(0,0,0,0.45)",
+        "purpose": "A held A/B keycap. Same convention as cap-pressed, one step deeper, because a held key is pressed and stays pressed rather than momentarily."
+      },
+      {
+        "name": "cap-light",
+        "value": "0 1px 1px rgba(88,80,64,0.16), 0 2px 4px rgba(88,80,64,0.1), inset 0 0 0 1px var(--surface-edge)",
+        "purpose": "A raised light control: secondary actions that must not read as primary."
+      },
+      {
+        "name": "cap-light-pressed",
+        "value": "inset 0 1px 3px rgba(88,80,64,0.26), inset 0 0 0 1px var(--surface-edge)",
+        "purpose": "The :active state of a light cap."
+      },
+      {
+        "name": "popover",
+        "value": "0 1px 2px rgba(72,66,54,0.16), 0 10px 28px rgba(72,66,54,0.18)",
+        "purpose": "The desktop search results plate, and nothing else. Exactly one thing in this product leaves the surface."
+      },
+      {
+        "name": "hairline-edge",
+        "value": "inset 0 -1px 0 var(--surface-edge)",
+        "purpose": "Every structural edge in the product. Direction and axis vary; the mechanism never does. Never a CSS border."
+      },
+      {
+        "name": "hairline-rule",
+        "value": "inset 0 1px 0 var(--surface-rule)",
+        "purpose": "The divider between peers: index rows, list headers."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The system's only easing curve. Exponential, not a linear fade."
+      },
+      {
+        "name": "arm-duration",
+        "value": "320ms",
+        "purpose": "The one authored moment: arming the loop sweeps the span open from its centre. Zeroed under prefers-reduced-motion."
+      },
+      {
+        "name": "press-duration",
+        "value": "110ms",
+        "purpose": "A cap press. Everything not the loop arming is either this or instant. Zeroed under prefers-reduced-motion."
+      },
+      {
+        "name": "grip-delay",
+        "value": "120ms",
+        "purpose": "The A/B grips fade in behind the span sweep."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "screen-desktop",
+        "value": "900px"
+      }
+    ],
+    "roundedMeta": {
+      "hair": {
+        "canonical": "0.5px",
+        "purpose": "Timeline bars only, so a 1px graduation is not a hard rectangle."
+      },
+      "tight": {
+        "canonical": "2px",
+        "purpose": "Printed-on things: A/B markers and chips, keycaps, the artwork recess, the search clear button."
+      },
+      "default": {
+        "canonical": "3px",
+        "purpose": "Every control and every recess unless stated otherwise. The system's resting radius."
+      },
+      "panel": {
+        "canonical": "4px",
+        "purpose": "The one recessed working panel on each layout, and the search popover."
+      },
+      "switch-track-desktop": {
+        "canonical": "13px",
+        "purpose": "Derived, not chosen: half the 25px desktop switch track, rounded up. See the Half-Height Pill Rule."
+      },
+      "switch-track-phone": {
+        "canonical": "14px",
+        "purpose": "Derived, not chosen: half the 28px phone switch track. See the Half-Height Pill Rule."
+      },
+      "pill": {
+        "canonical": "50%",
+        "role": "pill",
+        "purpose": "True circles only: transport keys, playhead knob, switch knob, the Connect placeholder disc."
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Transport Key",
+      "kind": "button",
+      "refersTo": "key-transport",
+      "description": "The dark raised cap. Three identical circles, because a transport row on real gear has equal keys and stepping back is the most frequent action in a practice session.",
+      "html": "<div style='display:flex;gap:16px;align-items:center'><button class='ds-key-transport' aria-label='Rewind 5 seconds'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' aria-hidden='true'><path d='M11 7.5 6.5 12 11 16.5M17.5 7.5 13 12 17.5 16.5' stroke='currentColor' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/></svg><span class='ds-key-transport__step'>5s</span></button><button class='ds-key-transport' aria-label='Play'><svg width='24' height='24' viewBox='0 0 24 24' fill='none' aria-hidden='true'><path d='M8 5.4v13.2a.7.7 0 0 0 1.07.6l10.4-6.6a.7.7 0 0 0 0-1.2L9.07 4.8A.7.7 0 0 0 8 5.4Z' fill='currentColor'/></svg></button><button class='ds-key-transport' aria-label='Fast forward 5 seconds'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' aria-hidden='true'><path d='M6.5 7.5 11 12 6.5 16.5M13 7.5 17.5 12 13 16.5' stroke='currentColor' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/></svg></button></div>",
+      "css": ".ds-key-transport { width: 60px; height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 0; cursor: pointer; border-radius: 50%; background: linear-gradient(var(--cap-top, #3d3d38), var(--cap-bottom, #2a2a27)); color: var(--cap-ink, #f2efe8); box-shadow: 0 1px 1px rgba(31,31,29,0.3), 0 2px 5px rgba(31,31,29,0.16), inset 0 1px 0 rgba(255,255,255,0.13); transition: box-shadow 110ms ease, transform 110ms ease; } .ds-key-transport__step { font: 500 10px/1 'Archivo Variable', Archivo, ui-sans-serif, system-ui, sans-serif; letter-spacing: 0.01em; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; color: rgba(242,239,232,0.62); } .ds-key-transport:hover { background: linear-gradient(#474741, var(--cap-top, #3d3d38)); } .ds-key-transport:focus-visible { outline: 2px solid var(--surface-raised, #f4f1ea); outline-offset: 3px; } .ds-key-transport:active { transform: translateY(1px); box-shadow: 0 1px 1px rgba(31,31,29,0.34), inset 0 1px 3px rgba(0,0,0,0.34); }"
+    },
+    {
+      "name": "Nudge Key",
+      "kind": "button",
+      "refersTo": "button-light",
+      "description": "The raised light cap: a secondary action that must not read as primary. 40px square on the phone because the user is holding an instrument.",
+      "html": "<div style='display:flex;gap:6px'><button class='ds-key-light' aria-label='Nudge A back 1 second'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' aria-hidden='true'><path d='M5.5 12h13' stroke='currentColor' stroke-width='1.75' stroke-linecap='round'/></svg></button><button class='ds-key-light' aria-label='Nudge A forward 1 second'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' aria-hidden='true'><path d='M5.5 12h13M12 5.5v13' stroke='currentColor' stroke-width='1.75' stroke-linecap='round'/></svg></button></div>",
+      "css": ".ds-key-light { width: 40px; height: 40px; display: grid; place-items: center; border: 0; cursor: pointer; border-radius: 3px; background: linear-gradient(var(--surface-raised, #f4f1ea), var(--surface-plate, #ede9e2)); color: var(--ink, #2b2b2a); box-shadow: 0 1px 1px rgba(88,80,64,0.16), 0 2px 4px rgba(88,80,64,0.1), inset 0 0 0 1px var(--surface-edge, #d3cec2); transition: box-shadow 110ms ease, transform 110ms ease; } .ds-key-light:hover { background: linear-gradient(#ffffff, var(--surface-raised, #f4f1ea)); } .ds-key-light:focus-visible { outline: 2px solid var(--ink, #2b2b2a); outline-offset: 2px; } .ds-key-light:active { transform: translateY(1px); box-shadow: inset 0 1px 3px rgba(88,80,64,0.26), inset 0 0 0 1px var(--surface-edge, #d3cec2); }"
+    },
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "A full-width dark cap for the one committing action on a screen. The neutral disc is a placeholder slot for Spotify's official mark and must never become an invented mark.",
+      "html": "<button class='ds-action'><span class='ds-action__mark' aria-hidden='true'></span><span class='ds-action__label'>Continue with Spotify</span></button>",
+      "css": ".ds-action { width: 100%; max-width: 420px; height: 50px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 0; cursor: pointer; border-radius: 3px; background: linear-gradient(var(--cap-top, #3d3d38), var(--cap-bottom, #2a2a27)); color: var(--cap-ink, #f2efe8); box-shadow: 0 1px 1px rgba(31,31,29,0.3), 0 2px 5px rgba(31,31,29,0.16), inset 0 1px 0 rgba(255,255,255,0.13); transition: box-shadow 110ms ease, transform 110ms ease; } .ds-action__mark { width: 14px; height: 14px; flex: none; border-radius: 50%; background: currentcolor; opacity: 0.55; } .ds-action__label { font: 600 14px/1 'Archivo Variable', Archivo, ui-sans-serif, system-ui, sans-serif; letter-spacing: 0.005em; } .ds-action:hover { background: linear-gradient(#474741, var(--cap-top, #3d3d38)); } .ds-action:focus-visible { outline: 2px solid var(--surface-raised, #f4f1ea); outline-offset: 3px; } .ds-action:active { transform: translateY(1px); box-shadow: 0 1px 1px rgba(31,31,29,0.34), inset 0 1px 3px rgba(0,0,0,0.34); }"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "A recess cut into the plate. No border, no outline: the well is the field. The drawn search mark leads in Label Ink.",
+      "html": "<div class='ds-field'><svg class='ds-field__icon' width='16' height='16' viewBox='0 0 24 24' fill='none' aria-hidden='true'><path d='M15.5 15.5 20 20M17 11a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z' stroke='currentColor' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/></svg><input class='ds-field__input' type='text' placeholder='Search your library' aria-label='Search your library'></div>",
+      "css": ".ds-field { width: 320px; height: 34px; display: flex; align-items: center; gap: 8px; padding: 0 9px; border-radius: 3px; background: var(--surface-well, #e3dfd6); box-shadow: inset 0 1px 2px rgba(88,80,64,0.16), inset 0 0 0 1px var(--surface-edge, #d3cec2); } .ds-field__icon { flex: none; color: var(--ink-label, #5f5c55); } .ds-field__input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--ink, #2b2b2a); font: 400 13px/1.2 'Archivo Variable', Archivo, ui-sans-serif, system-ui, sans-serif; font-variant-numeric: tabular-nums; } .ds-field__input::placeholder { color: var(--ink-label, #5f5c55); } .ds-field:focus-within { box-shadow: inset 0 1px 2px rgba(88,80,64,0.16), inset 0 0 0 1px var(--surface-edge, #d3cec2), 0 0 0 2px var(--ink, #2b2b2a); }"
+    },
+    {
+      "name": "Index Row",
+      "kind": "nav",
+      "refersTo": "row-index",
+      "description": "A printed index, not a stack of cards. Hairline rules between siblings; a dotted leader carries the title to its duration; the loaded track becomes a recess.",
+      "html": "<div class='ds-index'><button class='ds-row is-active' aria-current='true'><span class='ds-row__art'></span><span class='ds-row__body'><span class='ds-row__line'><span class='ds-row__title'>Prelude in C</span><span class='ds-row__leader'></span><span class='ds-row__duration'>2:22</span></span><span class='ds-row__line'><span class='ds-row__artist'>Ana Vestergaard</span><span class='ds-row__ago'>now</span></span></span></button><button class='ds-row'><span class='ds-row__art'></span><span class='ds-row__body'><span class='ds-row__line'><span class='ds-row__title'>Blue Interval</span><span class='ds-row__leader'></span><span class='ds-row__duration'>3:33</span></span><span class='ds-row__line'><span class='ds-row__artist'>The Long Room</span><span class='ds-row__ago'>11m</span></span></span></button></div>",
+      "css": ".ds-index { width: 300px; display: flex; flex-direction: column; font-family: 'Archivo Variable', Archivo, ui-sans-serif, system-ui, sans-serif; } .ds-row { width: 100%; display: flex; align-items: center; gap: 11px; padding: 9px 14px; border: 0; cursor: pointer; text-align: left; background: transparent; border-radius: 3px; } .ds-row + .ds-row { box-shadow: inset 0 1px 0 var(--surface-rule, #dcd7cc); } .ds-row.is-active { background: var(--surface-well, #e3dfd6); box-shadow: inset 0 1px 2px rgba(88,80,64,0.16), inset 0 0 0 1px var(--surface-edge, #d3cec2); } .ds-row:not(.is-active):hover { background: var(--surface-raised, #f4f1ea); } .ds-row:focus-visible { outline: 2px solid var(--ink, #2b2b2a); outline-offset: 2px; } .ds-row__art { flex: none; width: 40px; height: 40px; border-radius: 2px; background: var(--surface-well, #e3dfd6); box-shadow: inset 0 1px 2px rgba(88,80,64,0.16), inset 0 0 0 1px var(--surface-edge, #d3cec2); } .ds-row__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; } .ds-row__line { display: flex; align-items: baseline; gap: 8px; min-width: 0; } .ds-row__title { flex: none; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; font-weight: 600; letter-spacing: -0.006em; color: var(--ink, #2b2b2a); } .ds-row__leader { flex: 1; min-width: 10px; border-bottom: 1px dotted var(--surface-edge, #d3cec2); transform: translateY(-3px); } .ds-row__duration { flex: none; font-size: 12px; font-weight: 500; color: var(--ink-label, #5f5c55); font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; } .ds-row__artist { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; color: var(--ink-body, #55534d); } .ds-row__ago { flex: none; font-size: 11px; font-weight: 500; color: var(--ink-label, #5f5c55); font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }"
+    },
+    {
+      "name": "Loop Switch",
+      "kind": "custom",
+      "refersTo": "button-light",
+      "description": "The only place the accent is allowed to arm. A well cut into a light cap with a raised dark knob riding in it \u2014 the system's one compound recess-inside-a-cap.",
+      "html": "<div style='display:flex;flex-direction:column;gap:10px'><button class='ds-loop' aria-pressed='false'><span class='ds-loop__label'>Loop</span><span class='ds-loop__switch' aria-hidden='true'><span class='ds-loop__knob'></span></span></button><button class='ds-loop is-on' aria-pressed='true'><span class='ds-loop__label'>Loop</span><span class='ds-loop__switch' aria-hidden='true'><span class='ds-loop__knob'></span></span></button></div>",
+      "css": ".ds-loop { height: 52px; display: flex; align-items: center; gap: 14px; padding: 0 12px 0 15px; border: 0; cursor: pointer; text-align: left; border-radius: 3px; background: linear-gradient(var(--surface-raised, #f4f1ea), var(--surface-plate, #ede9e2)); color: var(--ink, #2b2b2a); box-shadow: 0 1px 1px rgba(88,80,64,0.16), 0 2px 4px rgba(88,80,64,0.1), inset 0 0 0 1px var(--surface-edge, #d3cec2); transition: box-shadow 110ms ease, transform 110ms ease; } .ds-loop__label { font: 600 12px/1 'Archivo Variable', Archivo, ui-sans-serif, system-ui, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink, #2b2b2a); transition: color 320ms cubic-bezier(0.16,1,0.3,1); } .ds-loop.is-on .ds-loop__label { color: var(--accent-text, #ab3d07); } .ds-loop__switch { position: relative; flex: none; width: 46px; height: 25px; border-radius: 13px; background: var(--surface-well-deep, #dcd7cc); box-shadow: inset 0 1px 2px rgba(88,80,64,0.16), inset 0 0 0 1px var(--surface-edge, #d3cec2); transition: background-color 320ms cubic-bezier(0.16,1,0.3,1); } .ds-loop.is-on .ds-loop__switch { background: var(--accent, #e2510f); } .ds-loop__knob { position: absolute; top: 3px; left: 3px; width: 19px; height: 19px; border-radius: 50%; background: linear-gradient(var(--cap-top, #3d3d38), var(--cap-bottom, #2a2a27)); box-shadow: 0 1px 1px rgba(31,31,29,0.3), 0 2px 5px rgba(31,31,29,0.16), inset 0 1px 0 rgba(255,255,255,0.13); transition: left 320ms cubic-bezier(0.16,1,0.3,1); } .ds-loop.is-on .ds-loop__knob { left: 24px; } .ds-loop:focus-visible { outline: 2px solid var(--ink, #2b2b2a); outline-offset: 2px; } .ds-loop:active { transform: translateY(1px); box-shadow: inset 0 1px 3px rgba(88,80,64,0.26), inset 0 0 0 1px var(--surface-edge, #d3cec2); }"
+    },
+    {
+      "name": "Loop Point Chip",
+      "kind": "chip",
+      "refersTo": "chip-loop-point",
+      "description": "The signature chip, drawn at two scales so the timeline marker and the nudger row read as one control. Takes the accent only while the loop is armed.",
+      "html": "<div style='display:flex;gap:10px;align-items:center'><span class='ds-chip is-armed'>A</span><span class='ds-chip is-armed'>B</span><span class='ds-chip'>A</span><span class='ds-chip'>B</span></div>",
+      "css": ".ds-chip { display: flex; align-items: center; justify-content: center; flex: none; width: 24px; height: 20px; border-radius: 2px; font: 700 12px/1 'Archivo Variable', Archivo, ui-sans-serif, system-ui, sans-serif; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; background: var(--surface-well-deep, #dcd7cc); color: var(--ink-label, #5f5c55); transition: background-color 320ms cubic-bezier(0.16,1,0.3,1), color 320ms cubic-bezier(0.16,1,0.3,1); } .ds-chip.is-armed { background: var(--accent-strong, #c24309); color: #ffffff; box-shadow: 0 1px 2px rgba(31,31,29,0.28); }"
+    },
+    {
+      "name": "Alert Chip",
+      "kind": "chip",
+      "refersTo": "chip-alert",
+      "description": "The whole alert register: inverted ink with the drawn alert mark. There is no red in this system, because the accent means the loop and the next strongest signal is ink.",
+      "html": "<p class='ds-alert' role='alert'><svg width='15' height='15' viewBox='0 0 24 24' fill='none' aria-hidden='true'><path d='M12 4.5 2.8 20.5h18.4L12 4.5ZM12 10v4.4M12 17.4v.2' stroke='currentColor' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/></svg><span>Playback moved to another Spotify device.</span></p>",
+      "css": ".ds-alert { display: flex; align-items: center; gap: 9px; margin: 0; padding: 11px 13px; border-radius: 3px; background: var(--ink, #2b2b2a); color: var(--ink-inverse, #f4f1ea); font: 400 13px/1.3 'Archivo Variable', Archivo, ui-sans-serif, system-ui, sans-serif; } .ds-alert svg { flex: none; }"
+    },
+    {
+      "name": "Keycap",
+      "kind": "chip",
+      "refersTo": "keycap",
+      "description": "Keyboard legends screened onto the engraved chassis strip. The held state inverts to ink and presses down, because holding A or B is a real machine state.",
+      "html": "<div class='ds-keys'><span class='ds-keys__group'><kbd class='ds-keycap'>SPACE</kbd><span class='ds-keys__label'>Play</span></span><span class='ds-keys__group'><kbd class='ds-keycap ds-keycap--narrow is-held'>A</kbd><kbd class='ds-keycap ds-keycap--narrow'>B</kbd><span class='ds-keys__plus'>+</span><kbd class='ds-keycap ds-keycap--narrow'>&#8592;</kbd><kbd class='ds-keycap ds-keycap--narrow'>&#8594;</kbd><span class='ds-keys__label'>Move loop</span></span></div>",
+      "css": ".ds-keys { height: 40px; display: flex; align-items: center; gap: 22px; padding: 0 20px; background: var(--surface-well, #e3dfd6); box-shadow: inset 0 1px 0 var(--surface-edge, #d3cec2); font-family: 'Archivo Variable', Archivo, ui-sans-serif, system-ui, sans-serif; } .ds-keys__group { display: flex; align-items: center; gap: 7px; } .ds-keycap { min-width: 20px; padding: 4px 5px; text-align: center; border-radius: 2px; font-size: 10px; font-weight: 600; line-height: 1; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; color: var(--ink-body, #55534d); background: linear-gradient(var(--surface-raised, #f4f1ea), var(--surface-plate, #ede9e2)); box-shadow: 0 1px 1px rgba(88,80,64,0.16), 0 2px 4px rgba(88,80,64,0.1), inset 0 0 0 1px var(--surface-edge, #d3cec2); } .ds-keycap--narrow { min-width: 22px; } .ds-keycap.is-held { background: var(--ink, #2b2b2a); color: var(--ink-inverse, #f4f1ea); box-shadow: inset 0 1px 3px rgba(0,0,0,0.45); transform: translateY(1px); } .ds-keys__plus { font-size: 10px; font-weight: 500; color: var(--ink-label, #5f5c55); } .ds-keys__label { font-size: 10px; font-weight: 600; line-height: 1; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-label, #5f5c55); }"
+    },
+    {
+      "name": "Loop Timeline",
+      "kind": "custom",
+      "refersTo": "panel-well",
+      "description": "The signature surface: a positional map printed on the plate with a graduated scale beneath it, the armed span washed behind the bars, and the position numeral dominant above.",
+      "html": "<section class='ds-panel'><div class='ds-panel__head'><output class='ds-panel__now'>0:28</output><span class='ds-panel__end'>&#8722;1:54</span></div><div class='ds-timeline'><div class='ds-timeline__region'><span class='ds-timeline__fill'></span></div><div class='ds-timeline__bars'><i style='height:62px'></i><i style='height:70px'></i><i style='height:58px'></i><i style='height:66px'></i><i style='height:74px'></i><i style='height:60px'></i><i class='ds-in-loop' style='height:68px'></i><i class='ds-in-loop' style='height:56px'></i><i class='ds-in-loop' style='height:72px'></i><i class='ds-in-loop' style='height:64px'></i><i style='height:59px'></i><i style='height:71px'></i><i style='height:63px'></i><i style='height:67px'></i></div><div class='ds-timeline__scale'><span class='ds-tick is-major' style='left:0'><span class='ds-tick__label'>0:00</span></span><span class='ds-tick is-minor' style='left:25%'></span><span class='ds-tick is-major' style='left:50%'><span class='ds-tick__label'>1:00</span></span><span class='ds-tick is-minor' style='left:75%'></span></div><div class='ds-timeline__playhead' style='left:36%'></div><span class='ds-timeline__marker' style='left:calc(43% - 24px)'>A</span><span class='ds-timeline__marker' style='left:71%'>B</span></div><footer class='ds-panel__foot'><span class='ds-panel__state'>Looping A &#8594; B</span><span class='ds-panel__range'>0:28 &#8211; 1:00 &#183; 32s</span></footer></section>",
+      "css": ".ds-panel { font-family: 'Archivo Variable', Archivo, ui-sans-serif, system-ui, sans-serif; max-width: 620px; padding: 22px 22px 14px; border-radius: 4px; background: var(--surface-well, #e3dfd6); box-shadow: inset 0 1px 2px rgba(88,80,64,0.16), inset 0 0 0 1px var(--surface-edge, #d3cec2); } .ds-panel__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 18px; } .ds-panel__now { font-size: 64px; font-weight: 500; line-height: 0.9; letter-spacing: -0.03em; color: var(--ink, #2b2b2a); font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; } .ds-panel__end { font-size: 14px; font-weight: 500; letter-spacing: 0.01em; color: var(--ink-label, #5f5c55); font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; } .ds-timeline { position: relative; height: 138px; } .ds-timeline__bars { position: absolute; inset: 18px 0 26px; display: flex; align-items: center; gap: 3px; } .ds-timeline__bars i { flex: 1; min-width: 1px; border-radius: 0.5px; background: var(--timeline-bar, #827c71); } .ds-timeline__bars i:nth-child(-n+5) { background: var(--ink, #2b2b2a); } .ds-timeline__bars i.ds-in-loop { background: var(--timeline-bar-in-loop, #7b7568); } .ds-timeline__region { position: absolute; top: 18px; left: 43%; width: 28%; height: 94px; pointer-events: none; } .ds-timeline__fill { display: block; height: 100%; background: var(--accent-wash, rgba(226,81,15,0.11)); border-left: 1px solid var(--accent, #e2510f); border-right: 1px solid var(--accent, #e2510f); } .ds-timeline__scale { position: absolute; inset: auto 0 0; height: 26px; border-top: 1px solid var(--surface-edge, #d3cec2); } .ds-tick { position: absolute; top: 0; width: 1px; background: var(--surface-edge, #d3cec2); } .ds-tick.is-major { height: 6px; background: var(--ink-label, #5f5c55); } .ds-tick.is-minor { height: 3px; } .ds-tick__label { position: absolute; top: 8px; left: 0; font-size: 11px; font-weight: 500; line-height: 1; letter-spacing: 0.01em; color: var(--ink-label, #5f5c55); white-space: nowrap; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; } .ds-timeline__playhead { position: absolute; top: 6px; bottom: 22px; width: 2px; margin-left: -1px; background: var(--ink, #2b2b2a); } .ds-timeline__marker { position: absolute; bottom: 29px; display: flex; align-items: center; justify-content: center; width: 24px; height: 20px; border-radius: 2px; background: var(--accent-strong, #c24309); color: #ffffff; font-size: 12px; font-weight: 700; letter-spacing: 0.02em; box-shadow: 0 1px 2px rgba(31,31,29,0.28); font-variant-numeric: tabular-nums; } .ds-panel__foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; box-shadow: inset 0 1px 0 var(--surface-edge, #d3cec2); margin-top: 14px; padding: 11px 2px 0; } .ds-panel__state { font-size: 10px; font-weight: 600; line-height: 1; letter-spacing: 0.09em; text-transform: uppercase; color: var(--accent-text, #ab3d07); } .ds-panel__range { font-size: 12px; font-weight: 500; color: var(--ink-body, #55534d); font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Bench Instrument",
+    "overview": "Rewindify is practice hardware, not a media player. It presents as one warm machined plate with things cut into it, things raised off it, and things printed on it \u2014 the visual grammar of Braun product graphics rather than of a streaming app. The category ships dark rounded cards floating over blurred cover art; this system refuses that outright. There is one plate, one ink, and one orange, and the orange means the loop.\n\nThe density is instrument density: exact quantities, generous tap targets, and no ornament competing with the one number the user came to read. The position readout is the largest object on the surface at 64px (46px on the phone) because the story is a musician holding an instrument who glances once, reads the exact position, steps back five seconds, and pins the passage as a loop. Everything downstream of that glance \u2014 the graduated timeline, the equal-weight step keys, the printed recently-played index \u2014 is arranged so nothing has to be hunted for.\n\nDepth is real but shallow, the way a panel is. Surfaces are wells (recessed), caps (raised, pressable, dark), or print (labels and hairline rules). Nothing floats except the one popover, and nothing is outlined. The system is built to switch to an anthracite plate by redefining one token block, which is why no consumer anywhere reads a hex value.",
+    "keyCharacteristics": [
+      "One warm plate (#EDE9E2), one ink (#2B2B2A), one rationed orange (#E2510F).",
+      "Every edge is a recess, a raised cap, or a 1px hairline. There are no outlined boxes.",
+      "Archivo throughout, with tabular figures on every quantity and no monospace anywhere.",
+      "Icons drawn on one 24-unit grid at a single 1.75px stroke; no glyph or Unicode stand-ins.",
+      "One authored motion moment (arming the loop). No position value is ever eased.",
+      "Keyboard-complete at both breakpoints; neither is the degraded case.",
+      "Role-named tokens only, so a second plate is a token swap and not a refactor."
+    ],
+    "rules": [
+      {
+        "name": "The One Orange Rule",
+        "body": "accent, accent-strong, accent-text and accent-wash are one hue split by contrast duty, and they mean the loop. Nothing else on any surface may take orange \u2014 not a play button, not a link, not a brand mark, not a chart, not an error. This is why playback failures use an inverted-ink chip instead of red, why the focus ring is ink, and why ::selection is ink. If a new element wants the accent, the question to answer first is whether it is the loop.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink Alert Rule",
+        "body": "The alert register is inverted ink: ink ground, ink-inverse text, 3px radius, with the drawn alert mark. There is no red, amber or green in this system, and adding one would be a second colour with a meaning \u2014 which is what the One Orange Rule exists to prevent.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reserved Band Rule",
+        "body": "No generated, placeholder or decorative fill may land in HSL hue 5-45deg, the band the accent occupies (#E2510F is ~19deg). src/fake/catalogue.ts constrains fixture artwork to 70-300deg for exactly this reason, and computes its inner disc as hue + 40 so neither the ground nor the disc can wrap into the band. Any future generated imagery inherits this constraint.",
+        "section": "colors"
+      },
+      {
+        "name": "The Floor Rule",
+        "body": "The well, not the plate, is the binding surface: tick labels, legends, durations and the loop range all sit on it. ink-label at 5.02:1 there is the floor. A new text colour earns its place by measurement on the well, not by looking about right on the plate.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Figures Rule",
+        "body": "Every figure the user reads as a quantity carries font-variant-numeric: tabular-nums and font-feature-settings: 'tnum' 1, applied through the figures() mixin and globally to input, output, time and kbd. Quantities never shift width as they tick. The corollary is absolute: no monospace face anywhere \u2014 the grotesque's own tabular figures do this job, and a mono face would read as a code editor, not an instrument.",
+        "section": "typography"
+      },
+      {
+        "name": "The Printed Legend Rule",
+        "body": "Small text is set through legend() \u2014 bold, tracked, uppercase, Label Ink \u2014 or it is not set small. There is no 10px sentence case in this system. Legends may be carried to their value on a dotted leader (surface-edge, 1px, dotted), the way a printed index carries a title to its duration.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Numeral Rule",
+        "body": "Position is set larger than the track title, always. The build this replaced had a 20px clock beside a 22px title and consequently no focal point at all.",
+        "section": "typography"
+      },
+      {
+        "name": "The Two Steps Rule",
+        "body": "A role has a desktop step and a phone step, switched at the single 900px breakpoint \u2014 never a fluid clamp() or a vw term. A new size that is not one of the 15 documented steps is drift, and a new role must declare both of its steps before it ships.",
+        "section": "typography"
+      },
+      {
+        "name": "The Inverted Pair Rule",
+        "body": "Exactly two roles get smaller on desktop rather than larger: Brand (17->15) and Readout (18->16). Both sit in dense desktop chrome \u2014 a 56px header and a compact 52px nudger row \u2014 where the phone gives them a whole column. Every other role scales up. A third inversion needs a reason of the same kind, or it is a mistake.",
+        "section": "typography"
+      },
+      {
+        "name": "The Single Source Breakpoint Rule",
+        "body": "The 900px boundary lives in SCSS and is exported to TS. Never hard-code a media query width in a component, and never restate the number in JavaScript.",
+        "section": "layout"
+      },
+      {
+        "name": "The Keyboard Parity Rule",
+        "body": "src/composables/usePlayerKeyboard.ts is mounted by both player views. Space, arrow-step, L, and A/B-hold nudge work at every width; the phone layout is not the degraded case. A phone-width window is not necessarily a touch-only one, and the primary user's hands are on an instrument. Any new control that gains a keyboard path gains it in the shared composable, not in one view.",
+        "section": "layout"
+      },
+      {
+        "name": "The Three Edges Rule",
+        "body": "well(), cap() and cap-light() in src/styles/surfaces.scss are the only ways to make an edge, alongside a printed hairline. There are no outlined boxes in this system \u2014 no border: 1px solid, no card outline, no ring. This one constraint is what makes eleven components and five views read as a single machined surface, and it is the first thing an accidental change will break.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Offset-Plus-Blur Rule",
+        "body": "Every shadow has a vertical offset. A zero-offset halo (0 0 Npx) is a glow, belongs to a different world, and is not used here.",
+        "section": "elevation"
+      },
+      {
+        "name": "The One Popover Rule",
+        "body": "Exactly one thing in this product leaves the surface: the desktop search results, anchored with CSS anchor positioning and rendered on a plate-coloured ground. Everything else is in the plate. A second floating layer would break the 'one panel' reading.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Half-Height Pill Rule",
+        "body": "A track that a knob rides in takes a radius of half its own height, rounded up \u2014 never a fixed step from the radius scale and never 9999px. The loop switch is the only such track today, at both its sizes: 28px tall -> 14px, 25px tall -> 13px (12.5 rounded up). Those two values are derived, not chosen; resize the track and the radius follows it. A true circle uses 50% instead.",
+        "section": "shapes"
+      },
+      {
+        "name": "The Drawn Mark Rule",
+        "body": "New icons are drawn on the 24-unit grid at 1.75 stroke in AppIcon.vue. Importing an icon package, or shipping a glyph as an icon, breaks the set \u2014 the whole point is that a step key and a search field read as parts of one machine.",
+        "section": "shapes"
+      },
+      {
+        "name": "The One Variable Per Channel Rule",
+        "body": "On the timeline, bar tone carries played-versus-unplayed and the accent carries the loop \u2014 through the span wash, the edge rules, the A/B markers, the nudger chips, the legend and the switch. Painting played bars accent inside the span was tried and reverted: it collapsed played against unplayed to 1.24:1, making progress through the passage the least readable thing on screen in the one region this product exists for. Never give one channel two jobs.",
+        "section": "components"
+      },
+      {
+        "name": "The Wash Behind Bars Rule",
+        "body": ".timeline__region must precede .timeline__bars in the template, so the span wash paints behind the bars. As a later sibling it tinted every bar it covered, and no bar tone could then clear 3:1 against both the washed ground and the played bar \u2014 the window was shut by 7%. Behind the bars, both pairs clear: played/unplayed 3.10:1, unplayed/ground 3.04:1. Reordering those two elements is a silent accessibility regression.",
+        "section": "components"
+      },
+      {
+        "name": "The Positional Map Rule",
+        "body": "The timeline is a positional map, never audio. src/playback/positionMap.ts contains no term depending on bar index \u2014 a previous sine term over the index drew a loud opening, a quiet middle and a closing swell, which a musician reads as the track's waveform. Any function of position across the field is an envelope, whatever its shape. A regression test in src/playback/__tests__/playback.spec.ts compares the means of the field's thirds and fails if they diverge by more than 0.05. The user-facing word is 'the timeline'; 'waveform' is retired throughout the product.",
+        "section": "components"
+      },
+      {
+        "name": "The One Authored Moment Rule",
+        "body": "Arming the loop is the only designed motion in the build: the span sweeps open from its centre over --arm-duration (320ms) on --ease-out (cubic-bezier(0.16, 1, 0.3, 1), exponential, not a linear fade), and the grips fade in 120ms behind it. The region is mounted whether or not the loop is on, so the span sweeps rather than appears. Everything else is instant or a 110ms cap press. prefers-reduced-motion: reduce zeroes both durations at :root, which disables every transition in the system at once \u2014 new motion must be expressed through these two tokens so it inherits that.",
+        "section": "components"
+      },
+      {
+        "name": "The Never-Eased Position Rule",
+        "body": "No position value is ever animated or interpolated. The playhead, the A/B handles and the span's left/width follow their values instantly; only the fill is animated. An eased playhead would be a lie about where the music is.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do read a role token. Every consumer reads var(--surface-well) or var(--ink-label), including the two whites \u2014 --on-accent for marks on an accent surface and --surface-hi for a hovered cap's top stop. Four colour literals remain, all in shadow or hover positions. This is the reason an anthracite plate is close to a one-block change.",
+      "Do make edges with well(), cap(), cap-light() or an inset hairline. Those four devices cover every surface in the product.",
+      "Do measure a new text colour against surface-well, not the plate \u2014 the well is the binding case, and ink-label at 5.02:1 is the floor.",
+      "Do put every quantity through figures(), and every small label through legend().",
+      "Do state amounts in labels: 'Rewind 5 seconds', 'Nudge B forward 1 second'. Numbers in the interface are exact, and so are the words about them.",
+      "Do add keyboard paths in usePlayerKeyboard.ts so both breakpoints get them.",
+      "Do draw new icons on the 24-unit grid at 1.75 stroke in AppIcon.vue.",
+      "Do express new motion through --arm-duration and --press-duration so prefers-reduced-motion keeps working.",
+      "Do keep the position readout the largest thing on the surface."
+    ],
+    "donts": [
+      "Don't put orange on anything that is not the loop. Not a play button, not a link, not a brand mark, not a percentage, not an error.",
+      "Don't introduce a second signal colour. Red, amber and green do not exist here; the alert register is inverted ink.",
+      "Don't draw an outlined box. No border: 1px solid, no card outline, no ring \u2014 a thing is recessed, raised, or printed.",
+      "Don't ship a zero-offset shadow. Every shadow has a vertical offset; a halo is a different world.",
+      "Don't use a monospace face for figures, or anywhere else. Archivo's tabular figures are the mechanism.",
+      "Don't add a term depending on bar index to positionMap.ts, and don't call the timeline a waveform.",
+      "Don't move .timeline__region after .timeline__bars.",
+      "Don't paint played bars with the accent inside the armed span.",
+      "Don't ease a position value, and don't interpolate the playhead.",
+      "Don't hard-code a breakpoint width; import it from styles/breakpoints.",
+      "Don't give the A/B timeline grips their own keyboard path \u2014 LoopNudger owns those values as real buttons.",
+      "Don't invent a Spotify mark. ConnectView's neutral disc is a placeholder slot for the official asset, not a design decision to defend.",
+      "Don't let a pointer affordance under 40px ship on the phone. The nudge keys are 40px square because the user is holding an instrument.",
+      "Don't invent a font size. The ramp is 15 documented steps and every role declares a desktop and a phone step; there is no fluid type in this build.",
+      "Don't pick a radius for a switch track. It is half the track height, rounded up."
+    ]
+  }
+}

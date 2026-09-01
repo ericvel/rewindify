@@ -20,7 +20,7 @@ export interface SpotifyTrackObject {
 }
 
 /**
- * Waveform seed for a track.
+ * Position-map seed for a track.
  *
  * Spotify withdrew `audio-analysis` and `audio-features` from new applications
  * in November 2024, so there is no per-sample amplitude to draw and no feature

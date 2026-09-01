@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import AppIcon from './AppIcon.vue';
 import TrackRow from './TrackRow.vue';
 import { useLibraryStore } from '@/stores/library';
 import { usePlayerStore } from '@/stores/player';
@@ -96,7 +97,7 @@ function clearQuery() {
 <template>
   <div class="search">
     <div class="search__field">
-      <span class="search__icon" aria-hidden="true">⌕</span>
+      <AppIcon class="search__icon" name="search" :size="16" />
       <input
         ref="inputEl"
         v-model="query"
@@ -121,7 +122,7 @@ function clearQuery() {
         aria-label="Clear search"
         @click="clearQuery"
       >
-        ✕
+        <AppIcon name="close" :size="14" />
       </button>
     </div>
 
@@ -136,7 +137,7 @@ function clearQuery() {
     >
       <div class="search__popover-header">
         <span>{{ resultsLabel }}</span>
-        <span>↵ to play</span>
+        <span class="search__hint">Enter to play</span>
       </div>
       <TrackRow
         v-for="(track, index) in results"
@@ -156,26 +157,26 @@ function clearQuery() {
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/surfaces' as *;
+
 .search {
   position: relative;
   width: 320px;
 }
 
 .search__field {
+  @include well;
   // Anchor for the top-layer popover below.
   anchor-name: --rewindify-search;
-  height: 32px;
-  border: 1px solid #9a9a9a;
+  height: 34px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 10px;
-  background: #ffffff;
+  padding: 0 9px;
 }
 
 .search__icon {
-  font-size: 12px;
-  color: #767676;
+  color: var(--ink-label);
 }
 
 .search__input {
@@ -184,17 +185,31 @@ function clearQuery() {
   background: none;
   border: 0;
   outline: none;
-  color: #1a1a1a;
+  color: var(--ink);
   font-size: 13px;
+
+  &::placeholder {
+    color: var(--ink-label);
+  }
 }
 
 .search__clear {
-  font-size: 13px;
-  color: #767676;
-  line-height: 1;
-  padding: 2px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 2px;
+  color: var(--ink-label);
+
+  @media (hover: hover) {
+    &:hover {
+      color: var(--ink);
+      background: var(--surface-well-deep);
+    }
+  }
 }
 
+/* The popover is a plate lifted off the surface, not an outlined box. */
 .search__popover {
   position: fixed;
   position-anchor: --rewindify-search;
@@ -202,11 +217,12 @@ function clearQuery() {
   position-try-fallbacks: flip-block;
   width: anchor-size(--rewindify-search width);
   margin: 0;
-  margin-block-start: 1px;
-  padding: 0;
-  border: 1px solid #9a9a9a;
-  background: #ffffff;
-  box-shadow: 0 6px 20px rgba(26, 26, 26, 0.12);
+  margin-block-start: 5px;
+  padding: 4px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--surface-plate);
+  box-shadow: var(--shadow-popover);
   max-height: 340px;
   overflow-y: auto;
 }
@@ -215,19 +231,24 @@ function clearQuery() {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding: 8px 12px;
-  border-bottom: 1px solid #d4d4d4;
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: #767676;
-  text-transform: uppercase;
+  gap: 10px;
+  padding: 7px 10px 9px;
+  margin-bottom: 2px;
+  box-shadow: inset 0 -1px 0 var(--surface-rule);
+  @include legend(10px);
+}
+
+.search__hint {
+  flex: none;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: none;
 }
 
 .search__empty {
   margin: 0;
-  padding: 14px 12px;
+  padding: 14px 10px;
   font-size: 12px;
-  color: #767676;
+  color: var(--ink-body);
 }
 </style>

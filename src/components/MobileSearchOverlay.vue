@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
+import AppIcon from './AppIcon.vue';
 import TrackRow from './TrackRow.vue';
 import { useLibraryStore } from '@/stores/library';
 import { usePlayerStore } from '@/stores/player';
@@ -41,7 +42,7 @@ onMounted(() => inputEl.value?.focus());
   <div class="search-overlay" role="dialog" aria-label="Search">
     <div class="search-overlay__bar">
       <div class="search-overlay__field">
-        <span class="search-overlay__icon" aria-hidden="true">⌕</span>
+        <AppIcon class="search-overlay__icon" name="search" :size="17" />
         <input
           ref="inputEl"
           v-model="query"
@@ -51,7 +52,14 @@ onMounted(() => inputEl.value?.focus());
           aria-label="Search Spotify"
         />
       </div>
-      <button type="button" class="search-overlay__close" @click="emit('close')">Close</button>
+      <button
+        type="button"
+        class="search-overlay__close"
+        aria-label="Close search"
+        @click="emit('close')"
+      >
+        <AppIcon name="close" :size="17" />
+      </button>
     </div>
 
     <p class="search-overlay__label">{{ resultsLabel }}</p>
@@ -74,11 +82,13 @@ onMounted(() => inputEl.value?.focus());
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/surfaces' as *;
+
 .search-overlay {
   position: absolute;
   inset: 0;
   z-index: 20;
-  background: #ffffff;
+  background: var(--surface-plate);
   display: flex;
   flex-direction: column;
   padding: 0 16px 20px;
@@ -88,22 +98,21 @@ onMounted(() => inputEl.value?.focus());
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 56px;
+  height: 60px;
 }
 
 .search-overlay__field {
+  @include well;
   flex: 1;
-  height: 40px;
-  border: 1px solid #9a9a9a;
+  height: 42px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   padding: 0 12px;
 }
 
 .search-overlay__icon {
-  font-size: 13px;
-  color: #767676;
+  color: var(--ink-label);
 }
 
 .search-overlay__input {
@@ -112,40 +121,47 @@ onMounted(() => inputEl.value?.focus());
   background: none;
   border: 0;
   outline: none;
-  color: #1a1a1a;
+  color: var(--ink);
   font-size: 15px;
+
+  &::placeholder {
+    color: var(--ink-label);
+  }
+
+  /* The type=search clear affordance belongs to no design system. */
+  &::-webkit-search-cancel-button {
+    appearance: none;
+  }
 }
 
 .search-overlay__close {
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: #1a1a1a;
-  text-transform: uppercase;
-  padding: 0 4px;
+  @include cap-light;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: var(--ink-body);
 }
 
 .search-overlay__label {
+  @include legend(10px);
   margin: 0;
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: #767676;
-  text-transform: uppercase;
-  padding: 6px 2px 10px;
+  padding: 8px 2px 10px;
 }
 
 .search-overlay__results {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  border-top: 1px solid #d4d4d4;
+  padding-top: 2px;
+  box-shadow: inset 0 1px 0 var(--surface-rule);
 }
 
 .search-overlay__empty {
   margin: 0;
-  padding: 14px 8px;
+  padding: 16px 8px;
   font-size: 13px;
-  color: #767676;
+  color: var(--ink-body);
 }
 </style>

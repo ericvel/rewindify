@@ -71,7 +71,6 @@ export const usePlayerStore = defineStore('player', () => {
       : `−${formatTime(duration.value - position.value)}`,
   );
   const skipLabel = computed(() => `${skipSeconds.value}s`);
-  const playGlyph = computed(() => (isPlaying.value ? '❚❚' : '▶'));
   const loopStatus = computed(() => (loopOn.value ? 'Looping A → B' : 'Loop off'));
   const loopRange = computed(() => {
     if (!loopOn.value) return `${formatTime(0)} – ${formatTime(duration.value)}`;
@@ -224,7 +223,6 @@ export const usePlayerStore = defineStore('player', () => {
     nowLabel,
     endLabel,
     skipLabel,
-    playGlyph,
     loopStatus,
     loopRange,
     statusLabel,

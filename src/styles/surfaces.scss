@@ -1,0 +1,69 @@
+/*
+ * The plate-and-recess system.
+ *
+ * This world has no outlined boxes. Things are either cut into the plate (a
+ * well), sitting on top of it (a cap), or printed on it (a label or a rule).
+ * These three mixins are the only ways to make an edge, which is what keeps
+ * eleven components reading as one machined surface.
+ */
+
+/** A region cut into the plate. Panels, lists, inputs, artwork. */
+@mixin well($radius: 3px) {
+  background: var(--surface-well);
+  border-radius: $radius;
+  box-shadow: var(--shadow-well);
+}
+
+/** A raised, pressable dark control. Transport keys, primary actions. */
+@mixin cap($radius: 3px) {
+  background: linear-gradient(var(--cap-top), var(--cap-bottom));
+  border-radius: $radius;
+  box-shadow: var(--shadow-cap);
+  color: var(--cap-ink);
+  transition:
+    box-shadow var(--press-duration) ease,
+    transform var(--press-duration) ease;
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow: var(--shadow-cap-pressed);
+  }
+}
+
+/** A raised light control, for secondary actions that must not read as primary. */
+@mixin cap-light($radius: 3px) {
+  background: linear-gradient(var(--surface-raised), var(--surface-plate));
+  border-radius: $radius;
+  box-shadow:
+    0 1px 1px rgba(88, 80, 64, 0.16), 0 2px 4px rgba(88, 80, 64, 0.1),
+    inset 0 0 0 1px var(--surface-edge);
+  color: var(--ink);
+  transition:
+    box-shadow var(--press-duration) ease,
+    transform var(--press-duration) ease;
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow:
+      inset 0 1px 3px rgba(88, 80, 64, 0.26), inset 0 0 0 1px var(--surface-edge);
+  }
+}
+
+/**
+ * A printed label. Small, tracked, never monospace — the grotesque at a size
+ * and tracking that reads as screen-printed legend rather than as body copy.
+ */
+@mixin legend($size: 10px) {
+  font-size: $size;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ink-label);
+}
+
+/** Any figure the user reads as a quantity. Tabular, so digits never shift. */
+@mixin figures {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}

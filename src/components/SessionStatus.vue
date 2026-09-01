@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import AppIcon from './AppIcon.vue';
 import { useSessionStore } from '@/stores/session';
 
 const router = useRouter();
@@ -25,9 +26,9 @@ async function disconnect() {
       :aria-label="`Disconnect ${session.session?.displayName}`"
       @click="disconnect()"
     >
-      <!-- Narrow headers get the glyph alone; the word arrives with the room
+      <!-- Narrow headers get the mark alone; the word arrives with the room
            for it at desktop width. -->
-      <span class="session__icon" aria-hidden="true">⏏</span>
+      <AppIcon name="eject" :size="16" />
       <span class="session__label">Disconnect</span>
     </button>
   </div>
@@ -35,6 +36,7 @@ async function disconnect() {
 
 <style scoped lang="scss">
 @use '@/styles/media-queries' as *;
+@use '@/styles/surfaces' as *;
 
 .session {
   min-width: 0;
@@ -44,11 +46,10 @@ async function disconnect() {
 }
 
 .session__name {
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: #767676;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--ink-label);
   // A long Spotify display name is clipped rather than pushing the header
   // apart. `overflow: hidden` also lets the flex item shrink past its text, so
   // a narrow header squeezes this before it squeezes the search button.
@@ -59,39 +60,21 @@ async function disconnect() {
 }
 
 .session__disconnect {
+  @include cap-light;
   flex: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  // Square enough to be a comfortable tap target where only the glyph shows.
-  width: 36px;
-  height: 36px;
-  border: 1px solid #9a9a9a;
-  background: #ffffff;
+  gap: 7px;
+  // Square enough to be a comfortable tap target where only the mark shows.
+  width: 38px;
+  height: 38px;
+  color: var(--ink-body);
 
   @include screen-desktop {
     width: auto;
-    height: 24px;
+    height: 28px;
     padding: 0 10px;
-  }
-
-  @media (hover: hover) {
-    &:hover {
-      border-color: #1a1a1a;
-    }
-  }
-
-  &:active {
-    background: #f5f5f5;
-  }
-}
-
-.session__icon {
-  font-size: 13px;
-  color: #1a1a1a;
-
-  @include screen-desktop {
-    display: none;
   }
 }
 
@@ -100,11 +83,18 @@ async function disconnect() {
 
   @include screen-desktop {
     display: block;
-    font-family: ui-monospace, monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: #1a1a1a;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
+    color: var(--ink);
+  }
+}
+
+@media (hover: hover) {
+  .session__disconnect:hover {
+    color: var(--ink);
+    background: linear-gradient(var(--surface-hi), var(--surface-raised));
   }
 }
 </style>

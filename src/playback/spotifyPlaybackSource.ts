@@ -43,7 +43,7 @@ function describe(cause: unknown): string {
  * it, and browsers will not start audio away from a user gesture — so nothing is
  * sent to Spotify until the first press of play. Until then the track's own
  * metadata supplies the duration and the playhead is local, which is enough for
- * the waveform, the readouts and picking a loop before hearing a note.
+ * the timeline, the readouts and picking a loop before hearing a note.
  *
  * And the SDK reports a position only when something changes, so between events
  * the playhead is interpolated against a wall-clock anchor, as the mock did.

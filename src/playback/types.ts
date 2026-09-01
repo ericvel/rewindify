@@ -10,7 +10,7 @@ export interface Track {
   album: string;
   /** Track length in seconds. */
   duration: number;
-  /** Seed for the synthetic waveform; hashed from `id`. See `spotify/track.ts`. */
+  /** Seed for the synthetic position map; hashed from `id`. See `spotify/track.ts`. */
   seed: number;
   artworkUrl?: string;
 }

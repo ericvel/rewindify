@@ -1,120 +1,141 @@
 <script setup lang="ts">
 import { usePlayerStore } from '@/stores/player';
 
-withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), { variant: 'mobile' });
+const props = withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), {
+  variant: 'mobile',
+});
 
 const player = usePlayerStore();
+
+/*
+ * PRODUCT.md's vocabulary: the passage is what sits between A and B, and the
+ * loop is what repeats it. "Segment" and "loop mode" were neither.
+ */
+const hint = () =>
+  player.loopOn ? 'Drag A and B on the timeline' : 'Repeat a passage between A and B';
 </script>
 
 <template>
   <button
     type="button"
-    class="loop-toggle"
-    :class="[`loop-toggle--${variant}`, { 'is-on': player.loopOn }]"
+    class="loop"
+    :class="[`loop--${props.variant}`, { 'is-on': player.loopOn }]"
     :aria-pressed="player.loopOn"
     @click="player.toggleLoop()"
   >
-    <span class="loop-toggle__text">
-      <span class="loop-toggle__label">{{ variant === 'desktop' ? 'LOOP' : 'LOOP MODE' }}</span>
-      <span v-if="variant === 'mobile'" class="loop-toggle__hint">
-        {{ player.loopOn ? 'Drag A and B on the timeline' : 'Tap to repeat a segment' }}
-      </span>
+    <span class="loop__text">
+      <span class="loop__label">Loop</span>
+      <span v-if="props.variant === 'mobile'" class="loop__hint">{{ hint() }}</span>
     </span>
-    <span class="loop-toggle__switch" aria-hidden="true">
-      <span class="loop-toggle__knob" />
+    <span class="loop__switch" aria-hidden="true">
+      <span class="loop__knob" />
     </span>
   </button>
 </template>
 
 <style scoped lang="scss">
-.loop-toggle {
+@use '@/styles/surfaces' as *;
+
+.loop {
+  @include cap-light;
   display: flex;
   align-items: center;
-  border: 1px solid #9a9a9a;
-  background: #ffffff;
   flex: none;
-
-  &.is-on {
-    background: #eaeaea;
-  }
+  text-align: left;
 }
 
-.loop-toggle--mobile {
+.loop--mobile {
   width: 100%;
-  height: 60px;
+  height: 62px;
   justify-content: space-between;
-  padding: 0 16px 0 18px;
+  padding: 0 12px 0 16px;
 }
 
-.loop-toggle--desktop {
-  height: 48px;
+.loop--desktop {
+  height: 52px;
   gap: 14px;
-  padding: 0 14px;
+  padding: 0 12px 0 15px;
 }
 
-.loop-toggle__text {
+.loop__text {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 3px;
+  gap: 4px;
 }
 
-.loop-toggle__label {
-  font-family: ui-monospace, monospace;
+.loop__label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ink);
+  transition: color var(--arm-duration) var(--ease-out);
+}
+
+.is-on .loop__label {
+  color: var(--accent-text);
+}
+
+.loop__hint {
   font-size: 12px;
-  letter-spacing: 0.12em;
-  color: #1a1a1a;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--ink-label);
 }
 
-.loop-toggle__hint {
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  color: #767676;
-}
-
-.loop-toggle__switch {
+/* A slide switch: a well cut into the cap, with a raised knob riding in it. */
+.loop__switch {
   position: relative;
   flex: none;
-  width: 58px;
-  height: 32px;
-  border: 1px solid #1a1a1a;
-  background: #ffffff;
+  width: 52px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--surface-well-deep);
+  box-shadow: var(--shadow-well);
+  transition: background-color var(--arm-duration) var(--ease-out);
 }
 
-.loop-toggle__knob {
+.is-on .loop__switch {
+  background: var(--accent);
+}
+
+.loop__knob {
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 24px;
-  height: 24px;
-  border: 1px solid #1a1a1a;
-  background: #ffffff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(var(--cap-top), var(--cap-bottom));
+  box-shadow: var(--shadow-cap);
+  transition: left var(--arm-duration) var(--ease-out);
 }
 
-.is-on .loop-toggle__knob {
-  left: 31px;
-  background: #1a1a1a;
+.is-on .loop__knob {
+  left: 27px;
 }
 
-.loop-toggle--desktop {
-  .loop-toggle__label {
-    font-size: 11px;
+.loop--desktop {
+  .loop__label {
+    font-size: 12px;
   }
 
-  .loop-toggle__switch {
-    width: 52px;
-    height: 26px;
+  .loop__switch {
+    width: 46px;
+    height: 25px;
+    border-radius: 13px;
   }
 
-  .loop-toggle__knob {
-    top: 2px;
-    left: 2px;
-    width: 20px;
-    height: 20px;
+  .loop__knob {
+    top: 3px;
+    width: 19px;
+    height: 19px;
   }
 
-  &.is-on .loop-toggle__knob {
-    left: 28px;
+  &.is-on .loop__knob {
+    left: 24px;
   }
 }
 </style>

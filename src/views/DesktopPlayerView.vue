@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import TrackTimeline from '@/components/TrackTimeline.vue';
+import AppIcon from '@/components/AppIcon.vue';
 import DesktopSearchField from '@/components/DesktopSearchField.vue';
 import LoopNudger from '@/components/LoopNudger.vue';
 import LoopToggle from '@/components/LoopToggle.vue';
@@ -8,7 +9,7 @@ import SessionStatus from '@/components/SessionStatus.vue';
 import TimeReadout from '@/components/TimeReadout.vue';
 import TrackRow from '@/components/TrackRow.vue';
 import TransportControls from '@/components/TransportControls.vue';
-import WaveformTimeline from '@/components/WaveformTimeline.vue';
+import { usePlayerKeyboard } from '@/composables/usePlayerKeyboard';
 import { useLibraryStore } from '@/stores/library';
 import { usePlayerStore } from '@/stores/player';
 import type { Track } from '@/playback/types';
@@ -19,62 +20,8 @@ const emit = defineEmits<{ select: [track: Track] }>();
 const library = useLibraryStore();
 const player = usePlayerStore();
 
-/** Elements that own these keys themselves; the global shortcut stands down. */
-const INTERACTIVE = new Set(['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A']);
-
-function ownsKeyboard(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) return false;
-  return INTERACTIVE.has(target.tagName) || target.isContentEditable;
-}
-
-/** A or B held down turns the arrows into a nudge of that loop point. */
-const LOOP_KEYS: Record<string, 'a' | 'b'> = { a: 'a', b: 'b' };
-const NUDGE_SECONDS = 1;
-
-const heldPoint = ref<'a' | 'b' | null>(null);
-
-function onKeydown(event: KeyboardEvent) {
-  if (ownsKeyboard(event.target)) return;
-  const point = LOOP_KEYS[event.key.toLowerCase()];
-  if (point) {
-    event.preventDefault();
-    heldPoint.value = point;
-  } else if (event.key === ' ' || event.code === 'Space') {
-    event.preventDefault();
-    void player.togglePlay();
-  } else if (event.key === 'ArrowLeft') {
-    event.preventDefault();
-    if (heldPoint.value) player.nudge(heldPoint.value, -NUDGE_SECONDS);
-    else void player.rewind();
-  } else if (event.key === 'ArrowRight') {
-    event.preventDefault();
-    if (heldPoint.value) player.nudge(heldPoint.value, NUDGE_SECONDS);
-    else void player.forward();
-  } else if (event.key.toLowerCase() === 'l') {
-    event.preventDefault();
-    player.toggleLoop();
-  }
-}
-
-function onKeyup(event: KeyboardEvent) {
-  if (LOOP_KEYS[event.key.toLowerCase()] === heldPoint.value) heldPoint.value = null;
-}
-
-/** A key released while the window is away never reaches us; drop the hold. */
-function onBlur() {
-  heldPoint.value = null;
-}
-
-onMounted(() => {
-  window.addEventListener('keydown', onKeydown);
-  window.addEventListener('keyup', onKeyup);
-  window.addEventListener('blur', onBlur);
-});
-onUnmounted(() => {
-  window.removeEventListener('keydown', onKeydown);
-  window.removeEventListener('keyup', onKeyup);
-  window.removeEventListener('blur', onBlur);
-});
+/** Shared with the mobile view; the statusbar legends light from `heldPoint`. */
+const { heldPoint } = usePlayerKeyboard();
 </script>
 
 <template>
@@ -84,7 +31,17 @@ onUnmounted(() => {
       <span class="desktop__divider" />
       <DesktopSearchField @select="emit('select', $event)" />
       <span class="desktop__spacer" />
-      <span class="desktop__status">{{ player.statusLabel }}</span>
+      <!-- Doubles as where playback trouble is reported. An error inverts the
+           chip rather than reaching for a second colour: the accent means the
+           loop and nothing else, so the strongest remaining signal is ink. -->
+      <span
+        class="desktop__status"
+        :class="{ 'is-alert': player.error !== null }"
+        :role="player.error !== null ? 'alert' : undefined"
+      >
+        <AppIcon v-if="player.error !== null" name="alert" :size="14" />
+        {{ player.statusLabel }}
+      </span>
       <span class="desktop__divider" />
       <SessionStatus />
     </header>
@@ -110,8 +67,8 @@ onUnmounted(() => {
 
         <section class="desktop__panel">
           <TimeReadout variant="desktop" />
-          <WaveformTimeline :bar-count="96" :wave-height="140" variant="desktop" />
-          <footer class="desktop__loop-status">
+          <TrackTimeline :bar-count="96" :field-height="152" variant="desktop" />
+          <footer class="desktop__loop-status" :class="{ 'is-armed': player.loopOn }">
             <span class="desktop__loop-state">{{ player.loopStatus }}</span>
             <span class="desktop__loop-range">{{ player.loopRange }}</span>
           </footer>
@@ -120,8 +77,7 @@ onUnmounted(() => {
         <div class="desktop__controls">
           <TransportControls variant="desktop" />
           <LoopNudger variant="desktop" />
-          <span class="desktop__spacer" />
-          <LoopToggle variant="desktop" />
+          <LoopToggle class="desktop__loop" variant="desktop" />
         </div>
       </main>
     </div>
@@ -163,45 +119,44 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/surfaces' as *;
+
 .desktop {
   width: 100%;
   /*
    * A fixed height, not a minimum: the sidebar's play log is as long as the
    * history is, and it is the list that has to scroll. Left to grow, it takes
-   * the page with it and drags the waveform off screen.
+   * the page with it and drags the timeline off screen.
    */
   height: 100dvh;
   overflow: hidden;
-  background: #ffffff;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    sans-serif;
-  color: #1a1a1a;
+  background: var(--surface-plate);
+  color: var(--ink);
   display: flex;
   flex-direction: column;
 }
 
+/* Every edge on this surface is a hairline in the plate, never a drawn border. */
 .desktop__header {
-  height: 52px;
+  height: 56px;
   flex: none;
-  border-bottom: 1px solid #9a9a9a;
+  box-shadow: inset 0 -1px 0 var(--surface-edge);
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   padding: 0 20px;
 }
 
 .desktop__brand {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 .desktop__divider {
   width: 1px;
-  height: 22px;
-  background: #d4d4d4;
+  height: 20px;
+  background: var(--surface-edge);
 }
 
 .desktop__spacer {
@@ -209,11 +164,21 @@ onUnmounted(() => {
 }
 
 .desktop__status {
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: #767676;
-  text-transform: uppercase;
+  @include legend(10px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+
+  &.is-alert {
+    padding: 5px 9px;
+    border-radius: 3px;
+    background: var(--ink);
+    color: var(--ink-inverse);
+    letter-spacing: 0.05em;
+    text-transform: none;
+    font-size: 11px;
+  }
 }
 
 .desktop__body {
@@ -224,130 +189,151 @@ onUnmounted(() => {
 }
 
 .desktop__sidebar {
-  border-right: 1px solid #9a9a9a;
+  box-shadow: inset -1px 0 0 var(--surface-edge);
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
 .desktop__sidebar-title {
+  @include legend(10px);
   margin: 0;
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  color: #767676;
-  text-transform: uppercase;
-  padding: 16px 18px 10px;
+  padding: 18px 18px 11px;
 }
 
 .desktop__sidebar-list {
   flex: 1;
   overflow-y: auto;
-  border-top: 1px solid #d4d4d4;
+  padding: 2px 8px 12px;
+  box-shadow: inset 0 1px 0 var(--surface-rule);
 }
 
+/*
+ * `safe center` settles the working block between the header and the chassis
+ * strip, so a tall window does not leave 200px of dead plate under the
+ * controls. The `safe` keyword matters: plain centring makes overflow
+ * unreachable off the top edge on short windows, and this column scrolls.
+ */
 .desktop__main {
   display: flex;
   flex-direction: column;
+  justify-content: safe center;
   min-width: 0;
   overflow-y: auto;
-  padding: 24px 32px 0;
+  padding: 26px 32px;
   gap: 24px;
 }
 
+/* The panel is cut into the plate. It is the one region that must be found
+   without looking for it, so it is the only recess on the main column. */
 .desktop__panel {
-  border: 1px solid #9a9a9a;
-  padding: 20px 20px 12px;
+  @include well(4px);
+  padding: 22px 22px 14px;
   flex: none;
 }
 
 .desktop__loop-status {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  border-top: 1px solid #d4d4d4;
-  margin-top: 8px;
-  padding: 10px 2px 0;
+  align-items: baseline;
+  gap: 12px;
+  box-shadow: inset 0 1px 0 var(--surface-edge);
+  margin-top: 14px;
+  padding: 11px 2px 0;
 }
 
 .desktop__loop-state {
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: #767676;
-  text-transform: uppercase;
+  @include legend(10px);
+  transition: color var(--arm-duration) var(--ease-out);
+
+  .desktop__loop-status.is-armed & {
+    color: var(--accent-text);
+  }
 }
 
 .desktop__loop-range {
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-  color: #4a4a4a;
+  @include figures;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-body);
 }
 
+/*
+ * Wraps rather than overflowing: at the 900px breakpoint the three groups need
+ * more room than the main column has, and an unwrapped row scrolled the whole
+ * column sideways. The loop switch keeps to the right edge of whichever line
+ * it lands on.
+ */
 .desktop__controls {
   display: flex;
   align-items: center;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 16px 22px;
   flex: none;
-  padding-bottom: 24px;
 }
 
+.desktop__loop {
+  margin-left: auto;
+}
+
+/* An engraved chassis strip: recessed a shade below the plate, with the
+   keyboard legends screened onto it. */
 .desktop__statusbar {
-  height: 36px;
+  height: 40px;
   flex: none;
-  border-top: 1px solid #9a9a9a;
-  background: #f5f5f5;
+  box-shadow: inset 0 1px 0 var(--surface-edge);
+  background: var(--surface-well);
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 22px;
   padding: 0 20px;
 }
 
 .desktop__shortcut {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
 }
 
 .desktop__key {
+  @include figures;
+  @include cap-light(2px);
+  min-width: 20px;
   text-align: center;
-  font-family: ui-monospace, monospace;
   font-size: 10px;
+  font-weight: 600;
   line-height: 1;
-  color: #4a4a4a;
-  border: 1px solid #d4d4d4;
-  padding: 3px 5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-body);
+  padding: 4px 5px;
 }
 
 .desktop__key--narrow {
   min-width: 22px;
 }
 
+/* Holding A or B is a real machine state, so the key reads as held down. */
 .desktop__key--held {
-  color: #ffffff;
-  background: #1a1a1a;
-  border-color: #1a1a1a;
+  background: var(--ink);
+  color: var(--ink-inverse);
+  box-shadow: var(--shadow-key-held);
+  transform: translateY(1px);
 }
 
 .desktop__shortcut-plus {
-  font-family: ui-monospace, monospace;
   font-size: 10px;
-  color: #9a9a9a;
+  font-weight: 500;
+  color: var(--ink-label);
 }
 
 .desktop__shortcut-label {
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: #767676;
-  text-transform: uppercase;
+  @include legend(10px);
 }
 
 .desktop__credit {
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: #9a9a9a;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--ink-label);
 }
 </style>

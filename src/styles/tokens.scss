@@ -1,0 +1,101 @@
+/*
+ * Role tokens for the Bench Instrument world (Braun product graphics).
+ *
+ * Every consumer reads a role, never a hex value. The plate is warm off-white
+ * today; an anthracite plate is native to this world and can be switched on by
+ * redefining this one block behind an attribute selector, without touching a
+ * single component. That is the whole reason the names describe jobs
+ * (`--surface-well`, `--ink-label`) rather than appearances (`--grey-3`).
+ *
+ * Contrast: every ink role is checked against the surface it is used on, and
+ * the well (not the plate) is the binding case — tick labels, loop legends and
+ * durations all sit on it. `--ink-label` is the floor at 5.0:1 there, and
+ * `--accent-text` clears 4.6:1; nothing quieter than these carries text.
+ */
+:root {
+  /* ---- Plate: the ground and the depths cut into it ---- */
+  --surface-plate: #ede9e2;
+  --surface-raised: #f4f1ea;
+  --surface-well: #e3dfd6;
+  --surface-well-deep: #dcd7cc;
+  --surface-edge: #d3cec2;
+  /* The brightest lift, for the top stop of a hovered light cap. */
+  --surface-hi: #ffffff;
+  --surface-rule: #dcd7cc;
+
+  /*
+   * Timeline bars: a positional map printed on the plate, never audio. At
+   * #c9c3b5 the unplayed field was 1.32:1 on the well — invisible at 0:00,
+   * which is exactly when the whole map is unplayed and is the surface the
+   * loop gets dragged on. 3.1:1 clears the non-text floor.
+   */
+  --timeline-bar: #827c71;
+  /*
+   * Inside the armed span the ground is lightened by the accent wash, so the
+   * unplayed bar needs its own slightly darker tone to hold 3:1 against it
+   * (3.04:1) and against the played bar (3.10:1).
+   */
+  --timeline-bar-in-loop: #7b7568;
+
+  /* ---- Ink ---- */
+  --ink: #2b2b2a;
+  --ink-body: #55534d;
+  --ink-label: #5f5c55;
+  --ink-inverse: #f4f1ea;
+
+  /* ---- Control caps: the dark, raised, pressable things ---- */
+  --cap-top: #3d3d38;
+  --cap-bottom: #2a2a27;
+  --cap-ink: #f2efe8;
+  --cap-edge: #1f1f1d;
+
+  /*
+   * ---- Accent ----
+   * One hue, three jobs, and it means the loop and nothing else. Split by
+   * contrast duty rather than by taste: `--accent` is graphics only (3.2:1 on
+   * plate, fine for rules and fills, not for text), `--accent-strong` carries
+   * white text at 5.1:1, `--accent-text` is accent-coloured text on the plate
+   * at 4.6:1.
+   */
+  --accent: #e2510f;
+  --accent-strong: #c24309;
+  --accent-text: #ab3d07;
+  --accent-wash: rgba(226, 81, 15, 0.11);
+  /* Marks and text sitting on an accent surface. */
+  --on-accent: #ffffff;
+
+  /* ---- Depth: offset plus blur, never a zero-offset halo ---- */
+  --shadow-cap:
+    0 1px 1px rgba(31, 31, 29, 0.3), 0 2px 5px rgba(31, 31, 29, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.13);
+  --shadow-cap-pressed:
+    0 1px 1px rgba(31, 31, 29, 0.34), inset 0 1px 3px rgba(0, 0, 0, 0.34);
+  /*
+   * A held A/B key is pressed and stays pressed, so it sinks deeper than a
+   * momentary press. Same convention as above, one step further in.
+   */
+  --shadow-key-held: inset 0 1px 3px rgba(0, 0, 0, 0.45);
+  --shadow-well:
+    inset 0 1px 2px rgba(88, 80, 64, 0.16), inset 0 0 0 1px var(--surface-edge);
+  --shadow-popover:
+    0 1px 2px rgba(72, 66, 54, 0.16), 0 10px 28px rgba(72, 66, 54, 0.18);
+
+  /* ---- Type ---- */
+  --face:
+    'Archivo Variable', 'Archivo', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* ---- Motion ----
+   * One authored moment: arming the loop. Everything else is instant or a
+   * 110ms cap press. `--ease-out` is exponential, not a linear fade.
+   */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --arm-duration: 320ms;
+  --press-duration: 110ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --arm-duration: 0ms;
+    --press-duration: 0ms;
+  }
+}

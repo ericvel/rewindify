@@ -82,7 +82,7 @@ describe('toTracks', () => {
 });
 
 describe('seedFromId', () => {
-  it('is stable for an id, so a track always draws the same waveform', () => {
+  it('is stable for an id, so a track always draws the same field', () => {
     expect(seedFromId('3n3Ppam7vgaVa1iaRUc9Lp')).toBe(seedFromId('3n3Ppam7vgaVa1iaRUc9Lp'));
   });
 

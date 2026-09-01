@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
+import AppIcon from '@/components/AppIcon.vue';
 import SessionStatus from '@/components/SessionStatus.vue';
 import { resolveRedirectTarget } from '@/auth/redirect';
 import { IS_CONFIGURED } from '@/spotify/config';
@@ -34,12 +35,13 @@ async function connect() {
         </p>
 
         <p v-if="session.failureMessage" class="connect__failure" role="alert">
-          {{ session.failureMessage }}
+          <AppIcon name="alert" :size="15" />
+          <span>{{ session.failureMessage }}</span>
         </p>
 
         <button
           type="button"
-          class="connect__action"
+          class="connect__action cap-surface"
           aria-describedby="connect-requirement"
           :disabled="!IS_CONFIGURED"
           @click="connect()"
@@ -60,39 +62,36 @@ async function connect() {
 
 <style scoped lang="scss">
 @use '@/styles/media-queries' as *;
+@use '@/styles/surfaces' as *;
 
 .connect {
   width: 100%;
   min-height: 100dvh;
-  background: #ffffff;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    sans-serif;
-  color: #1a1a1a;
+  background: var(--surface-plate);
+  color: var(--ink);
   display: flex;
   flex-direction: column;
 }
 
 .connect__header {
-  height: 56px;
+  height: 60px;
   flex: none;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   padding: 0 16px;
 
   @include screen-desktop {
-    height: 52px;
-    border-bottom: 1px solid #9a9a9a;
+    height: 56px;
+    box-shadow: inset 0 -1px 0 var(--surface-edge);
     padding: 0 20px;
   }
 }
 
 .connect__brand {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.018em;
 
   @include screen-desktop {
     font-size: 15px;
@@ -119,98 +118,100 @@ async function connect() {
 
 .connect__title {
   margin: 0;
-  font-size: 24px;
+  font-size: 25px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  line-height: 1.14;
+  letter-spacing: -0.022em;
+  text-wrap: pretty;
 
   @include screen-desktop {
-    font-size: 28px;
+    font-size: 29px;
   }
 }
 
 .connect__copy {
-  margin: 14px 0 0;
+  margin: 13px 0 0;
   font-size: 15px;
-  line-height: 1.4;
-  color: #4a4a4a;
+  line-height: 1.45;
+  color: var(--ink-body);
 }
 
 /* Only ever the truth about the last attempt, so it sits above the button
-   rather than replacing the invitation to try again. */
+   rather than replacing the invitation to try again. Inverted ink is the
+   product's alert register; the accent is reserved for the loop. */
 .connect__failure {
-  margin: 24px 0 0;
-  border-left: 3px solid #1a1a1a;
-  padding: 2px 0 2px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 22px 0 0;
+  padding: 12px 13px;
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--ink-inverse);
   font-size: 13px;
   line-height: 1.45;
-  color: #1a1a1a;
 }
 
 .connect__action {
-  margin-top: 30px;
+  @include cap;
+  margin-top: 28px;
   width: 100%;
-  height: 48px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  border: 1px solid #1a1a1a;
-  background: #1a1a1a;
-
-  &:active {
-    background: #4a4a4a;
-    border-color: #4a4a4a;
-  }
 
   // A build without a client id has nowhere to send anyone.
   &:disabled {
-    background: #9a9a9a;
-    border-color: #9a9a9a;
+    background: var(--surface-well-deep);
+    box-shadow: var(--shadow-well);
+    color: var(--ink-label);
+    cursor: not-allowed;
+    transform: none;
   }
 }
 
-/* Stands in for the Spotify mark, in the same register as the app's other
-   placeholder art. */
+/*
+ * Known debt, recorded in PRODUCT.md: Spotify's developer terms require the
+ * official mark and a "content from Spotify" attribution. This is a neutral
+ * stand-in, deliberately not a competing mark, and it is not a design decision
+ * to defend — it is a slot waiting for the real asset.
+ */
 .connect__mark {
   width: 14px;
   height: 14px;
   flex: none;
   border-radius: 50%;
-  background: #ffffff;
+  background: currentcolor;
+  opacity: 0.55;
 }
 
 .connect__action-label {
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  letter-spacing: 0.005em;
 }
 
 .connect__requirement {
-  // The doubled hairline reads as a caption rule rather than a divider.
-  border-top: 3px double #d4d4d4;
-  margin: 10px 0 0;
-  padding-top: 12px;
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  color: #767676;
-  text-transform: uppercase;
+  @include legend(10px);
+  box-shadow: inset 0 1px 0 var(--surface-edge);
+  margin: 14px 0 0;
+  padding-top: 13px;
 }
 
 .connect__footer {
-  height: 36px;
+  height: 40px;
   flex: none;
-  border-top: 1px solid #9a9a9a;
-  background: #f5f5f5;
+  box-shadow: inset 0 1px 0 var(--surface-edge);
+  background: var(--surface-well);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 20px;
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: #9a9a9a;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-label);
 
   @include screen-desktop {
     justify-content: flex-start;

@@ -55,9 +55,47 @@ describe('generateWaveform', () => {
     const bars = generateWaveform(51, 96);
     expect(bars).toHaveLength(96);
     for (const bar of bars) {
-      expect(bar).toBeGreaterThanOrEqual(0.14);
+      expect(bar).toBeGreaterThanOrEqual(0.04);
       expect(bar).toBeLessThanOrEqual(1);
     }
+  });
+
+  it('peaks at the top of the field', () => {
+    expect(Math.max(...generateWaveform(51, 400))).toBe(1);
+  });
+
+  /*
+   * The point of the field is that it reads as audio, and audio has an
+   * arrangement: thirds of a real render do not converge on one mean. This is
+   * the inverse of the assertion the positional map carried, and it is
+   * deliberate — see the honesty note in waveform.ts.
+   */
+  it('carries an arrangement rather than flat noise', () => {
+    const bars = generateWaveform(51, 900);
+    const third = bars.length / 3;
+    const mean = (from: number) =>
+      bars.slice(from, from + third).reduce((sum, bar) => sum + bar, 0) / third;
+    const means = [mean(0), mean(third), mean(third * 2)];
+    expect(Math.max(...means) - Math.min(...means)).toBeGreaterThan(0.05);
+  });
+
+  /*
+   * Neighbouring bins correlate in a real render. Independent per-bar noise is
+   * what made the old field look broken, so the mean step between neighbours
+   * has to stay well under the field's own spread.
+   */
+  it('correlates neighbouring bars', () => {
+    const bars = generateWaveform(7, 600);
+    const steps = bars.slice(1).map((bar, i) => Math.abs(bar - (bars[i] ?? bar)));
+    const meanStep = steps.reduce((sum, step) => sum + step, 0) / steps.length;
+    const spread = Math.max(...bars) - Math.min(...bars);
+    expect(meanStep).toBeLessThan(spread * 0.25);
+  });
+
+  it('opens and closes on air', () => {
+    const bars = generateWaveform(19, 400);
+    expect(bars[0]).toBeLessThan(0.2);
+    expect(bars[bars.length - 1]).toBeLessThan(0.2);
   });
 });
 

@@ -8,40 +8,54 @@ const player = usePlayerStore();
 
 <template>
   <div class="time-readout" :class="`time-readout--${variant}`">
-    <span class="time-readout__now">{{ player.nowLabel }}</span>
+    <output class="time-readout__now" aria-label="Current position">{{ player.nowLabel }}</output>
     <span class="time-readout__end">{{ player.endLabel }}</span>
   </div>
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/surfaces' as *;
+
+/*
+ * Position is the dominant object on the whole surface. It was 20px next to a
+ * 22px track title, which is why nothing on the old panel told the eye where to
+ * look; at this size it is readable at arm's length from a music stand and
+ * across a desk without hunting for it.
+ */
 .time-readout {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding: 0 2px 12px;
+  gap: 12px;
+  padding-bottom: 14px;
 }
 
 .time-readout__now {
-  font-family: ui-monospace, monospace;
-  font-size: 20px;
-  color: #1a1a1a;
+  @include figures;
+  font-size: 46px;
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  color: var(--ink);
 }
 
 .time-readout__end {
-  font-family: ui-monospace, monospace;
-  font-size: 12px;
-  color: #767676;
+  @include figures;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--ink-label);
 }
 
 .time-readout--desktop {
-  padding-bottom: 16px;
+  padding-bottom: 18px;
 
   .time-readout__now {
-    font-size: 26px;
+    font-size: 64px;
   }
 
   .time-readout__end {
-    font-size: 13px;
+    font-size: 14px;
   }
 }
 </style>

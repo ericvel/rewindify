@@ -21,7 +21,7 @@ function elapsedSince(mark: number): number {
  *
  * The Web Playback SDK needs Premium and a real Spotify session, so a fixture
  * run has no device to register. This advances a playhead on a timer instead:
- * silent, but the store's loop rules, the transport and the waveform all react
+ * silent, but the store's loop rules, the transport and the timeline all react
  * to position exactly as they would to the real thing.
  */
 export function createFakePlaybackSource(): PlaybackSource {

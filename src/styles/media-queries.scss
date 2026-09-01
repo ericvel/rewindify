@@ -1,4 +1,4 @@
-// The width where the 300px sidebar plus a workable waveform fit. Consumed by
+// The width where the 300px sidebar plus a workable timeline fit. Consumed by
 // SCSS through the mixin below and by TS through `breakpoints.module.scss`, so
 // the layout boundary is stated exactly once.
 $screen-desktop: 900;
