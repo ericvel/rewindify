@@ -1,10 +1,32 @@
 import { computed, onScopeDispose, ref } from 'vue';
 import { defineStore } from 'pinia';
-import { fetchRecentlyPlayed, fetchTrack, searchTracks } from '@/spotify/api';
+import {
+  fetchRecentlyPlayed as spotifyRecentlyPlayed,
+  fetchTrack as spotifyTrack,
+  searchTracks as spotifySearch,
+} from '@/spotify/api';
+import {
+  fetchRecentlyPlayed as fakeRecentlyPlayed,
+  fetchTrack as fakeTrack,
+  searchTracks as fakeSearch,
+} from '@/fake/fakeApi';
+import { IS_FAKE_SPOTIFY } from '@/fake/enabled';
 import { AuthLostError } from '@/spotify/tokens';
 import type { RecentEntry, Track } from '@/playback/types';
 
-const RECENT_LIMIT = 8;
+/**
+ * The Web API, or the fixtures standing in for it. See `fake/enabled.ts`.
+ *
+ * Bound one at a time rather than as a namespace: the flag is a build-time
+ * constant, and only these single-binding ternaries let the bundler fold it and
+ * leave the fixtures out of a production build.
+ */
+const fetchRecentlyPlayed = IS_FAKE_SPOTIFY ? fakeRecentlyPlayed : spotifyRecentlyPlayed;
+const fetchTrack = IS_FAKE_SPOTIFY ? fakeTrack : spotifyTrack;
+const searchTracks = IS_FAKE_SPOTIFY ? fakeSearch : spotifySearch;
+
+/** The whole page Spotify hands back, collapsed: the lists all scroll. */
+const RECENT_LIMIT = 50;
 
 /** Long enough that typing a word is one request, short enough to feel live. */
 const SEARCH_DEBOUNCE_MS = 250;

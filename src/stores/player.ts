@@ -1,6 +1,8 @@
 import { computed, onScopeDispose, ref, watch } from 'vue';
 import { defineStore } from 'pinia';
 import { createSpotifyPlaybackSource } from '@/playback/spotifyPlaybackSource';
+import { IS_FAKE_SPOTIFY } from '@/fake/enabled';
+import { createFakePlaybackSource } from '@/fake/fakePlaybackSource';
 import { resolveLoopTransition } from '@/playback/loop';
 import { formatTime } from '@/playback/time';
 import { useLocalStorage } from '@/composables/useLocalStorage';
@@ -34,7 +36,7 @@ function clampLoop(a: number, b: number, duration: number) {
 export const usePlayerStore = defineStore('player', () => {
   const library = useLibraryStore();
   const session = useSessionStore();
-  const source = createSpotifyPlaybackSource();
+  const source = IS_FAKE_SPOTIFY ? createFakePlaybackSource() : createSpotifyPlaybackSource();
   onScopeDispose(() => source.dispose());
 
   const currentTrack = ref<Track | null>(null);

@@ -29,6 +29,26 @@ app needs no server of its own. It lives in `.env.local` (git-ignored) so a fork
 points at its own Spotify app rather than inheriting this one's user allowlist
 and rate limit.
 
+## Running without Spotify
+
+`npm run dev:fake` starts the app on fixtures at `http://127.0.0.1:5174` — no
+account, no client id, no tokens, no network. It stands in for the three things
+that need Spotify, each behind an interface the app already had:
+
+| Real                        | Fixture                       |
+| --------------------------- | ----------------------------- |
+| `createSpotifyAuthSource`   | `createFakeAuthSource`        |
+| `createSpotifyPlaybackSource` | `createFakePlaybackSource`  |
+| `spotify/api`               | `fake/fakeApi`                |
+
+The app boots already connected, the recently played list and search read a
+thirty-track fixture catalogue, and the playhead advances on a timer — silent,
+but the loop, transport and waveform behave as they do against a real device.
+
+Useful for UI work, for a browser agent driving the app, and for anyone without
+Premium. It is a development flag: `VITE_FAKE_SPOTIFY` unset folds to `false` at
+build time, and the fixtures are dropped from the bundle with it.
+
 ## Development
 
 ### Recommended IDE Setup

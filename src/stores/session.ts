@@ -2,9 +2,11 @@ import { computed } from 'vue';
 import { defineStore } from 'pinia';
 import { AUTH_FAILURE_MESSAGES } from '@/auth/failures';
 import { createSpotifyAuthSource } from '@/auth/spotifyAuthSource';
+import { IS_FAKE_SPOTIFY } from '@/fake/enabled';
+import { createFakeAuthSource } from '@/fake/fakeAuthSource';
 
 export const useSessionStore = defineStore('session', () => {
-  const source = createSpotifyAuthSource();
+  const source = IS_FAKE_SPOTIFY ? createFakeAuthSource() : createSpotifyAuthSource();
 
   const session = computed(() => source.session.value);
   const isConnected = computed(() => session.value !== null);

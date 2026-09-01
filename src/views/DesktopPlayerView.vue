@@ -165,7 +165,13 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .desktop {
   width: 100%;
-  min-height: 100dvh;
+  /*
+   * A fixed height, not a minimum: the sidebar's play log is as long as the
+   * history is, and it is the list that has to scroll. Left to grow, it takes
+   * the page with it and drags the waveform off screen.
+   */
+  height: 100dvh;
+  overflow: hidden;
   background: #ffffff;
   font-family:
     ui-sans-serif,
@@ -245,6 +251,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow-y: auto;
   padding: 24px 32px 0;
   gap: 24px;
 }
