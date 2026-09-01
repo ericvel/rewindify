@@ -4,6 +4,7 @@ import LoopNudger from '@/components/LoopNudger.vue'
 import LoopToggle from '@/components/LoopToggle.vue'
 import MobileSearchOverlay from '@/components/MobileSearchOverlay.vue'
 import NowPlayingHeader from '@/components/NowPlayingHeader.vue'
+import SessionStatus from '@/components/SessionStatus.vue'
 import TimeReadout from '@/components/TimeReadout.vue'
 import TransportControls from '@/components/TransportControls.vue'
 import WaveformTimeline from '@/components/WaveformTimeline.vue'
@@ -26,6 +27,8 @@ function onSelect(track: Track) {
   <div class="phone">
     <header class="phone__header">
       <span class="phone__brand">Rewindify</span>
+      <span class="phone__spacer" />
+      <SessionStatus />
       <button type="button" class="phone__search-button" @click="searchOpen = true">
         <span class="phone__search-icon" aria-hidden="true">⌕</span>
         <span class="phone__search-text">Search</span>
@@ -81,9 +84,13 @@ function onSelect(track: Track) {
 .phone__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
   height: 56px;
   flex: none;
+}
+
+.phone__spacer {
+  flex: 1;
 }
 
 .phone__brand {

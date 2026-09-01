@@ -2,6 +2,7 @@ import { onScopeDispose, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePlayerStore } from '@/stores/player'
 import type { LoopRequest } from '@/stores/player'
+import type { LocationQuery, LocationQueryRaw } from 'vue-router'
 
 /** Coalesces bursts of nudges into a single history-free URL write. */
 const DEBOUNCE_MS = 150
@@ -30,10 +31,33 @@ export function readLoopFromQuery(query: Record<string, unknown>): LoopRequest {
   }
 }
 
+/** Rounds to a tenth of a second: finer than that is noise in a shared link. */
+function toParam(seconds: number) {
+  return String(Math.round(seconds * 10) / 10)
+}
+
+/**
+ * The loop params written over whatever else the route carries. Off means the
+ * three keys are absent, not `loop=false` — the reader treats both the same.
+ */
+export function loopQuery(
+  query: LocationQuery,
+  loopOn: boolean,
+  a: number,
+  b: number,
+): LocationQueryRaw {
+  const { a: _a, b: _b, loop: _loop, ...rest } = query
+  if (!loopOn) return rest
+  return { ...rest, a: toParam(a), b: toParam(b), loop: 'true' }
+}
+
 /**
  * Mirrors the loop into the URL so a practice segment can be shared and
  * survives a refresh. Writes with `replace` and only on committed changes —
  * dragging updates scrub state, not `loopA`/`loopB`.
+ *
+ * With the loop off there is no segment to describe, so `a`/`b`/`loop` leave
+ * the URL entirely rather than lingering as dead state in a shared link.
  */
 export function useLoopUrlSync() {
   const route = useRoute()
@@ -54,12 +78,7 @@ export function useLoopUrlSync() {
         void router.replace({
           name: 'track',
           params: route.params,
-          query: {
-            ...route.query,
-            a: String(Math.round(player.loopA * 10) / 10),
-            b: String(Math.round(player.loopB * 10) / 10),
-            loop: String(player.loopOn),
-          },
+          query: loopQuery(route.query, player.loopOn, player.loopA, player.loopB),
         })
       }, DEBOUNCE_MS)
     },

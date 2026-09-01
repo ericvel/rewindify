@@ -1,0 +1,7 @@
+@use 'media-queries' as *;
+
+// ICSS `:export` hands the SCSS values to `breakpoints.ts`. Values arrive as
+// strings, so the TS side parses them.
+:export {
+  screen-desktop: $screen-desktop;
+}

@@ -4,6 +4,7 @@ import DesktopSearchField from '@/components/DesktopSearchField.vue'
 import LoopNudger from '@/components/LoopNudger.vue'
 import LoopToggle from '@/components/LoopToggle.vue'
 import NowPlayingHeader from '@/components/NowPlayingHeader.vue'
+import SessionStatus from '@/components/SessionStatus.vue'
 import TimeReadout from '@/components/TimeReadout.vue'
 import TrackRow from '@/components/TrackRow.vue'
 import TransportControls from '@/components/TransportControls.vue'
@@ -55,6 +56,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
       <DesktopSearchField @select="emit('select', $event)" />
       <span class="desktop__spacer" />
       <span class="desktop__status">{{ player.statusLabel }}</span>
+      <span class="desktop__divider" />
+      <SessionStatus />
     </header>
 
     <div class="desktop__body">

@@ -5,6 +5,7 @@ import { resolveLoopTransition } from '@/playback/loop'
 import { formatTime } from '@/playback/time'
 import { useLocalStorage } from '@/composables/useLocalStorage'
 import { useLibraryStore } from './library'
+import { useSessionStore } from './session'
 import type { Track } from '@/playback/types'
 
 /** A loop shorter than this is unusable, and lets A and B swap past each other. */
@@ -32,6 +33,7 @@ function clampLoop(a: number, b: number, duration: number) {
 
 export const usePlayerStore = defineStore('player', () => {
   const library = useLibraryStore()
+  const session = useSessionStore()
   const source = createMockPlaybackSource()
   onScopeDispose(() => source.dispose())
 
@@ -159,6 +161,18 @@ export const usePlayerStore = defineStore('player', () => {
     if (kind === 'head') await source.seek(value)
     else setLoopPoint(kind, value)
   }
+
+  /**
+   * The store outlives the view that created it, so losing the session has to
+   * stop the clock explicitly: without this the mock keeps ticking behind the
+   * connect screen and reconnecting resumes mid-track, seconds further on.
+   */
+  watch(
+    () => session.isConnected,
+    (connected) => {
+      if (!connected) void source.pause()
+    },
+  )
 
   // Loop wrap and end-of-track, driven by whatever the source reports.
   watch(
