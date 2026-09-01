@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useSessionStore } from '@/stores/session'
+import { watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useSessionStore } from '@/stores/session';
 
-const route = useRoute()
-const router = useRouter()
-const session = useSessionStore()
+const route = useRoute();
+const router = useRouter();
+const session = useSessionStore();
 
 /**
  * A session can now end without anyone asking — a refresh token Spotify no
@@ -16,10 +16,10 @@ const session = useSessionStore()
 watch(
   () => session.isConnected,
   (isConnected) => {
-    if (isConnected || route.name === 'connect' || route.name === 'callback') return
-    void router.replace({ name: 'connect' })
+    if (isConnected || route.name === 'connect' || route.name === 'callback') return;
+    void router.replace({ name: 'connect' });
   },
-)
+);
 </script>
 
 <template>

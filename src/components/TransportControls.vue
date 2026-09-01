@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { usePlayerStore } from '@/stores/player'
+import { usePlayerStore } from '@/stores/player';
 
-withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), { variant: 'mobile' })
+withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), { variant: 'mobile' });
 
-const player = usePlayerStore()
+const player = usePlayerStore();
 </script>
 
 <template>

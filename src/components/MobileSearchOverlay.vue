@@ -1,40 +1,40 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import TrackRow from './TrackRow.vue'
-import { useLibraryStore } from '@/stores/library'
-import { usePlayerStore } from '@/stores/player'
-import type { Track } from '@/playback/types'
+import { computed, onMounted, ref, watch } from 'vue';
+import TrackRow from './TrackRow.vue';
+import { useLibraryStore } from '@/stores/library';
+import { usePlayerStore } from '@/stores/player';
+import type { Track } from '@/playback/types';
 
-const emit = defineEmits<{ close: []; select: [track: Track] }>()
+const emit = defineEmits<{ close: []; select: [track: Track] }>();
 
-const library = useLibraryStore()
-const player = usePlayerStore()
+const library = useLibraryStore();
+const player = usePlayerStore();
 
-const query = ref('')
-const inputEl = ref<HTMLInputElement | null>(null)
+const query = ref('');
+const inputEl = ref<HTMLInputElement | null>(null);
 
-const trimmed = computed(() => query.value.trim())
-const matches = computed(() => library.searchResults)
+const trimmed = computed(() => query.value.trim());
+const matches = computed(() => library.searchResults);
 
 // Results now arrive after the keystroke that asked for them.
-watch(query, (next) => library.search(next))
+watch(query, (next) => library.search(next));
 
 /** With no query the overlay doubles as the recently-played list. */
 const rows = computed(() =>
   trimmed.value
     ? matches.value.map((track) => ({ track, playedAt: undefined }))
     : library.recentTracks.map((entry) => ({ track: entry.track, playedAt: entry.playedAt })),
-)
+);
 
 const resultsLabel = computed(() => {
-  if (library.error) return library.error
-  if (!trimmed.value) return 'Recently played'
-  if (library.isSearching) return 'Searching…'
-  const count = matches.value.length
-  return `${count} ${count === 1 ? 'track' : 'tracks'}`
-})
+  if (library.error) return library.error;
+  if (!trimmed.value) return 'Recently played';
+  if (library.isSearching) return 'Searching…';
+  const count = matches.value.length;
+  return `${count} ${count === 1 ? 'track' : 'tracks'}`;
+});
 
-onMounted(() => inputEl.value?.focus())
+onMounted(() => inputEl.value?.focus());
 </script>
 
 <template>

@@ -1,9 +1,9 @@
 export interface LoopState {
-  position: number
-  duration: number
-  loopOn: boolean
-  loopA: number
-  loopB: number
+  position: number;
+  duration: number;
+  loopOn: boolean;
+  loopA: number;
+  loopB: number;
 }
 
 /**
@@ -13,8 +13,8 @@ export interface LoopState {
  * left playing forever. Kept pure so the rule is testable without a clock.
  */
 export function resolveLoopTransition(state: LoopState): 'wrap' | 'end' | null {
-  const { position, duration, loopOn, loopA, loopB } = state
-  if (loopOn && loopB > loopA && position >= loopB) return 'wrap'
-  if (!loopOn && duration > 0 && position >= duration) return 'end'
-  return null
+  const { position, duration, loopOn, loopA, loopB } = state;
+  if (loopOn && loopB > loopA && position >= loopB) return 'wrap';
+  if (!loopOn && duration > 0 && position >= duration) return 'end';
+  return null;
 }

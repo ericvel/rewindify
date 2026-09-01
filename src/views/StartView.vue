@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import DesktopSearchField from '@/components/DesktopSearchField.vue'
-import MobileSearchOverlay from '@/components/MobileSearchOverlay.vue'
-import SessionStatus from '@/components/SessionStatus.vue'
-import { useIsDesktop } from '@/composables/useBreakpoint'
-import { useLibraryStore } from '@/stores/library'
-import type { Track } from '@/playback/types'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import DesktopSearchField from '@/components/DesktopSearchField.vue';
+import MobileSearchOverlay from '@/components/MobileSearchOverlay.vue';
+import SessionStatus from '@/components/SessionStatus.vue';
+import { useIsDesktop } from '@/composables/useBreakpoint';
+import { useLibraryStore } from '@/stores/library';
+import type { Track } from '@/playback/types';
 
-const router = useRouter()
-const library = useLibraryStore()
-const isDesktop = useIsDesktop()
-const searchOpen = ref(false)
+const router = useRouter();
+const library = useLibraryStore();
+const isDesktop = useIsDesktop();
+const searchOpen = ref(false);
 
 function open(track: Track) {
-  searchOpen.value = false
-  void router.push({ name: 'track', params: { trackId: track.id } })
+  searchOpen.value = false;
+  void router.push({ name: 'track', params: { trackId: track.id } });
 }
 </script>
 

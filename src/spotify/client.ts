@@ -1,13 +1,13 @@
-import { API_BASE } from './config'
-import { getAccessToken } from './tokens'
+import { API_BASE } from './config';
+import { getAccessToken } from './tokens';
 
 export class SpotifyApiError extends Error {
   constructor(
     readonly status: number,
     message: string,
   ) {
-    super(message)
-    this.name = 'SpotifyApiError'
+    super(message);
+    this.name = 'SpotifyApiError';
   }
 }
 
@@ -16,45 +16,45 @@ export class SpotifyApiError extends Error {
  * Two retries covers the incidental burst — a search racing a track fetch —
  * without holding a click hostage to a genuinely throttled account.
  */
-const MAX_RATE_LIMIT_RETRIES = 2
-const MAX_RATE_LIMIT_WAIT_MS = 10_000
+const MAX_RATE_LIMIT_RETRIES = 2;
+const MAX_RATE_LIMIT_WAIT_MS = 10_000;
 
 export interface SpotifyRequest {
-  method?: 'GET' | 'PUT' | 'POST' | 'DELETE'
-  query?: Record<string, string | number | undefined>
-  body?: unknown
-  signal?: AbortSignal
+  method?: 'GET' | 'PUT' | 'POST' | 'DELETE';
+  query?: Record<string, string | number | undefined>;
+  body?: unknown;
+  signal?: AbortSignal;
 }
 
 interface ApiErrorBody {
-  error?: { status?: number; message?: string }
+  error?: { status?: number; message?: string };
 }
 
 function buildUrl(path: string, query: SpotifyRequest['query']): string {
-  const url = new URL(`${API_BASE}${path}`)
+  const url = new URL(`${API_BASE}${path}`);
   for (const [key, value] of Object.entries(query ?? {})) {
-    if (value !== undefined) url.searchParams.set(key, String(value))
+    if (value !== undefined) url.searchParams.set(key, String(value));
   }
-  return url.toString()
+  return url.toString();
 }
 
 function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /** `Retry-After` is in seconds; a missing or junk header falls back to a second. */
 function retryAfterMs(response: Response): number {
-  const seconds = Number(response.headers.get('Retry-After'))
-  return Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : 1000
+  const seconds = Number(response.headers.get('Retry-After'));
+  return Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : 1000;
 }
 
 async function toApiError(response: Response): Promise<SpotifyApiError> {
-  const body: unknown = await response.json().catch(() => null)
-  const message = (body as ApiErrorBody | null)?.error?.message
+  const body: unknown = await response.json().catch(() => null);
+  const message = (body as ApiErrorBody | null)?.error?.message;
   return new SpotifyApiError(
     response.status,
     message ?? `Spotify request failed (${response.status}).`,
-  )
+  );
 }
 
 /**
@@ -72,44 +72,44 @@ async function toApiError(response: Response): Promise<SpotifyApiError> {
  * only call those with `T` as `void`.
  */
 export async function spotifyRequest<T>(path: string, request: SpotifyRequest = {}): Promise<T> {
-  const { method = 'GET', query, body, signal } = request
-  const url = buildUrl(path, query)
+  const { method = 'GET', query, body, signal } = request;
+  const url = buildUrl(path, query);
 
-  let hasRefreshed = false
-  let forceRefresh = false
-  let rateLimitRetries = 0
+  let hasRefreshed = false;
+  let forceRefresh = false;
+  let rateLimitRetries = 0;
 
   for (;;) {
-    const token = await getAccessToken(forceRefresh)
-    forceRefresh = false
+    const token = await getAccessToken(forceRefresh);
+    forceRefresh = false;
 
-    const headers: Record<string, string> = { Authorization: `Bearer ${token}` }
-    if (body !== undefined) headers['Content-Type'] = 'application/json'
+    const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+    if (body !== undefined) headers['Content-Type'] = 'application/json';
 
     const response = await fetch(url, {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
       signal,
-    })
+    });
 
     if (response.status === 401 && !hasRefreshed) {
-      hasRefreshed = true
-      forceRefresh = true
-      continue
+      hasRefreshed = true;
+      forceRefresh = true;
+      continue;
     }
 
     if (response.status === 429 && rateLimitRetries < MAX_RATE_LIMIT_RETRIES) {
-      const wait = retryAfterMs(response)
+      const wait = retryAfterMs(response);
       if (wait <= MAX_RATE_LIMIT_WAIT_MS) {
-        rateLimitRetries++
-        await delay(wait)
-        continue
+        rateLimitRetries++;
+        await delay(wait);
+        continue;
       }
     }
 
-    if (!response.ok) throw await toApiError(response)
-    if (response.status === 204) return undefined as T
-    return (await response.json()) as T
+    if (!response.ok) throw await toApiError(response);
+    if (response.status === 204) return undefined as T;
+    return (await response.json()) as T;
   }
 }

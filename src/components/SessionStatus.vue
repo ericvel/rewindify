@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import { useSessionStore } from '@/stores/session'
+import { useRouter } from 'vue-router';
+import { useSessionStore } from '@/stores/session';
 
-const router = useRouter()
-const session = useSessionStore()
+const router = useRouter();
+const session = useSessionStore();
 
 /** Leaving the connect screen is the guard's job once the session is gone. */
 async function disconnect() {
-  await session.disconnect()
-  await router.replace({ name: 'connect' })
+  await session.disconnect();
+  await router.replace({ name: 'connect' });
 }
 </script>
 

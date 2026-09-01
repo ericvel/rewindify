@@ -1,4 +1,4 @@
-import type { AuthFailure } from './types'
+import type { AuthFailure } from './types';
 
 /**
  * What the gate says about a connection attempt that produced no session.
@@ -16,4 +16,4 @@ export const AUTH_FAILURE_MESSAGES: Record<AuthFailure, string> = {
   'free-account':
     'That account is on Spotify Free. Playback in the browser is a Premium feature, so Rewindify cannot stream to it.',
   expired: 'The Spotify session expired. Please connect again.',
-}
+};

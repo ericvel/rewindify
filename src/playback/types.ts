@@ -1,23 +1,23 @@
-import type { Ref } from 'vue'
+import type { Ref } from 'vue';
 
 export interface Track {
   /** Spotify track id, which is also what the route carries. */
-  id: string
+  id: string;
   /** Spotify uri, which is what the player is asked to play. */
-  uri: string
-  title: string
-  artist: string
-  album: string
+  uri: string;
+  title: string;
+  artist: string;
+  album: string;
   /** Track length in seconds. */
-  duration: number
+  duration: number;
   /** Seed for the synthetic waveform; hashed from `id`. See `spotify/track.ts`. */
-  seed: number
-  artworkUrl?: string
+  seed: number;
+  artworkUrl?: string;
 }
 
 export interface RecentEntry {
-  trackId: string
-  playedAt: number
+  trackId: string;
+  playedAt: number;
 }
 
 /**
@@ -32,14 +32,14 @@ export interface RecentEntry {
  * the transport has to be able to say so instead of silently doing nothing.
  */
 export interface PlaybackSource {
-  position: Readonly<Ref<number>>
-  duration: Readonly<Ref<number>>
-  isPlaying: Readonly<Ref<boolean>>
-  isReady: Readonly<Ref<boolean>>
-  error: Readonly<Ref<string | null>>
-  load(track: Track): Promise<void>
-  play(): Promise<void>
-  pause(): Promise<void>
-  seek(seconds: number): Promise<void>
-  dispose(): void
+  position: Readonly<Ref<number>>;
+  duration: Readonly<Ref<number>>;
+  isPlaying: Readonly<Ref<boolean>>;
+  isReady: Readonly<Ref<boolean>>;
+  error: Readonly<Ref<string | null>>;
+  load(track: Track): Promise<void>;
+  play(): Promise<void>;
+  pause(): Promise<void>;
+  seek(seconds: number): Promise<void>;
+  dispose(): void;
 }

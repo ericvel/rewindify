@@ -1,95 +1,95 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import TrackRow from './TrackRow.vue'
-import { useLibraryStore } from '@/stores/library'
-import { usePlayerStore } from '@/stores/player'
-import type { Track } from '@/playback/types'
+import { computed, ref, watch } from 'vue';
+import TrackRow from './TrackRow.vue';
+import { useLibraryStore } from '@/stores/library';
+import { usePlayerStore } from '@/stores/player';
+import type { Track } from '@/playback/types';
 
-const emit = defineEmits<{ select: [track: Track] }>()
+const emit = defineEmits<{ select: [track: Track] }>();
 
-const library = useLibraryStore()
-const player = usePlayerStore()
+const library = useLibraryStore();
+const player = usePlayerStore();
 
-const query = ref('')
-const inputEl = ref<HTMLInputElement | null>(null)
-const popoverEl = ref<HTMLElement | null>(null)
-const isOpen = ref(false)
-const activeIndex = ref(0)
+const query = ref('');
+const inputEl = ref<HTMLInputElement | null>(null);
+const popoverEl = ref<HTMLElement | null>(null);
+const isOpen = ref(false);
+const activeIndex = ref(0);
 
-const trimmed = computed(() => query.value.trim())
+const trimmed = computed(() => query.value.trim());
 
 /** With no query the popover doubles as the recently-played list. */
 const results = computed(() =>
   trimmed.value ? library.searchResults : library.recentTracks.map((entry) => entry.track),
-)
-const activeTrack = computed(() => results.value[activeIndex.value])
+);
+const activeTrack = computed(() => results.value[activeIndex.value]);
 const activeOptionId = computed(() =>
   activeTrack.value ? `search-option-${activeTrack.value.id}` : undefined,
-)
+);
 const resultsLabel = computed(() => {
-  if (library.error) return library.error
-  if (!trimmed.value) return 'Recently played'
-  if (library.isSearching) return 'Searching…'
-  const count = results.value.length
-  return `${count} ${count === 1 ? 'match' : 'matches'}`
-})
+  if (library.error) return library.error;
+  if (!trimmed.value) return 'Recently played';
+  if (library.isSearching) return 'Searching…';
+  const count = results.value.length;
+  return `${count} ${count === 1 ? 'match' : 'matches'}`;
+});
 
 // Results now arrive after the keystroke that asked for them, so the store is
 // told about the query and the rows follow when Spotify answers.
-watch(query, (next) => library.search(next))
+watch(query, (next) => library.search(next));
 
 // A fresh query invalidates whatever the arrow keys had landed on.
 watch(results, () => {
-  activeIndex.value = 0
-})
+  activeIndex.value = 0;
+});
 
 function open() {
-  const el = popoverEl.value
-  if (!el || el.matches(':popover-open')) return
-  el.showPopover()
+  const el = popoverEl.value;
+  if (!el || el.matches(':popover-open')) return;
+  el.showPopover();
 }
 
 function close() {
-  const el = popoverEl.value
-  if (!el || !el.matches(':popover-open')) return
-  el.hidePopover()
+  const el = popoverEl.value;
+  if (!el || !el.matches(':popover-open')) return;
+  el.hidePopover();
 }
 
 function pick(track: Track) {
-  query.value = ''
-  close()
-  inputEl.value?.blur()
-  emit('select', track)
+  query.value = '';
+  close();
+  inputEl.value?.blur();
+  emit('select', track);
 }
 
 function moveActive(delta: number) {
-  if (!results.value.length) return
-  const count = results.value.length
-  activeIndex.value = (activeIndex.value + delta + count) % count
+  if (!results.value.length) return;
+  const count = results.value.length;
+  activeIndex.value = (activeIndex.value + delta + count) % count;
 }
 
 function onKeydown(event: KeyboardEvent) {
   if (event.key === 'ArrowDown') {
-    event.preventDefault()
-    open()
-    moveActive(1)
+    event.preventDefault();
+    open();
+    moveActive(1);
   } else if (event.key === 'ArrowUp') {
-    event.preventDefault()
-    open()
-    moveActive(-1)
+    event.preventDefault();
+    open();
+    moveActive(-1);
   } else if (event.key === 'Enter') {
-    event.preventDefault()
-    const track = activeTrack.value ?? results.value[0]
-    if (track) pick(track)
+    event.preventDefault();
+    const track = activeTrack.value ?? results.value[0];
+    if (track) pick(track);
   } else if (event.key === 'Escape') {
-    close()
-    inputEl.value?.blur()
+    close();
+    inputEl.value?.blur();
   }
 }
 
 function clearQuery() {
-  query.value = ''
-  inputEl.value?.focus()
+  query.value = '';
+  inputEl.value?.focus();
 }
 </script>
 

@@ -1,4 +1,4 @@
-import type { Track } from '../types'
+import type { Track } from '../types';
 
 /** A track in the shape `spotify/track.ts` produces, for tests that need one. */
 export const TEST_TRACK: Track = {
@@ -9,7 +9,7 @@ export const TEST_TRACK: Track = {
   album: 'Hot Fuss',
   duration: 222,
   seed: 12,
-}
+};
 
 export const OTHER_TEST_TRACK: Track = {
   id: '1301WleyT98MSxVHPZCA6M',
@@ -19,4 +19,4 @@ export const OTHER_TEST_TRACK: Track = {
   album: 'Hot Fuss',
   duration: 197,
   seed: 37,
-}
+};

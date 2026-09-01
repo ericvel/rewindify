@@ -1,38 +1,38 @@
-import { spotifyRequest, SpotifyApiError } from './client'
-import { toTrack, toTracks, type SpotifyTrackObject } from './track'
-import type { Session } from '@/auth/types'
-import type { RecentEntry, Track } from '@/playback/types'
+import { spotifyRequest, SpotifyApiError } from './client';
+import { toTrack, toTracks, type SpotifyTrackObject } from './track';
+import type { Session } from '@/auth/types';
+import type { RecentEntry, Track } from '@/playback/types';
 
 /**
  * `from_token` resolves the market from the access token, which is what makes
  * `is_playable` meaningful: without a market Spotify returns catalogue entries
  * this account cannot stream, and picking one would fail at the player.
  */
-const MARKET = 'from_token'
+const MARKET = 'from_token';
 
 interface ProfileResponse {
-  display_name: string | null
-  product: string
+  display_name: string | null;
+  product: string;
 }
 
 export async function fetchProfile(): Promise<Session> {
-  const profile = await spotifyRequest<ProfileResponse>('/me')
+  const profile = await spotifyRequest<ProfileResponse>('/me');
   return {
     displayName: profile.display_name?.trim() || 'Spotify user',
     // `free` and `open` both mean the same thing here: no Web Playback SDK.
     product: profile.product === 'premium' ? 'premium' : 'free',
-  }
+  };
 }
 
 /** Enough results to fill the popover twice over; more is scroll nobody reads. */
-const SEARCH_LIMIT = 20
+const SEARCH_LIMIT = 20;
 
 export async function searchTracks(query: string, signal?: AbortSignal): Promise<Track[]> {
   const body = await spotifyRequest<{ tracks?: { items?: SpotifyTrackObject[] } }>('/search', {
     query: { q: query, type: 'track', limit: SEARCH_LIMIT, market: MARKET },
     signal,
-  })
-  return toTracks(body.tracks?.items ?? [])
+  });
+  return toTracks(body.tracks?.items ?? []);
 }
 
 /**
@@ -43,25 +43,25 @@ export async function fetchTrack(id: string): Promise<Track | null> {
   try {
     const body = await spotifyRequest<SpotifyTrackObject>(`/tracks/${encodeURIComponent(id)}`, {
       query: { market: MARKET },
-    })
-    return body.is_playable === false ? null : toTrack(body)
+    });
+    return body.is_playable === false ? null : toTrack(body);
   } catch (error) {
     if (error instanceof SpotifyApiError && (error.status === 404 || error.status === 400)) {
-      return null
+      return null;
     }
-    throw error
+    throw error;
   }
 }
 
 interface RecentlyPlayedResponse {
-  items?: { track: SpotifyTrackObject; played_at: string }[]
+  items?: { track: SpotifyTrackObject; played_at: string }[];
 }
 
 export interface RecentlyPlayed {
   /** Newest first, one entry per track. */
-  entries: RecentEntry[]
+  entries: RecentEntry[];
   /** The tracks those entries refer to, for the caller to cache. */
-  tracks: Track[]
+  tracks: Track[];
 }
 
 /**
@@ -74,27 +74,27 @@ export interface RecentlyPlayed {
 export async function fetchRecentlyPlayed(limit = 50): Promise<RecentlyPlayed> {
   const body = await spotifyRequest<RecentlyPlayedResponse>('/me/player/recently-played', {
     query: { limit },
-  })
+  });
 
-  const entries: RecentEntry[] = []
-  const tracks: Track[] = []
-  const seen = new Set<string>()
+  const entries: RecentEntry[] = [];
+  const tracks: Track[] = [];
+  const seen = new Set<string>();
 
   for (const item of body.items ?? []) {
-    const track = toTrack(item.track)
-    if (!track || seen.has(track.id)) continue
-    const playedAt = Date.parse(item.played_at)
-    seen.add(track.id)
-    tracks.push(track)
-    entries.push({ trackId: track.id, playedAt: Number.isNaN(playedAt) ? Date.now() : playedAt })
+    const track = toTrack(item.track);
+    if (!track || seen.has(track.id)) continue;
+    const playedAt = Date.parse(item.played_at);
+    seen.add(track.id);
+    tracks.push(track);
+    entries.push({ trackId: track.id, playedAt: Number.isNaN(playedAt) ? Date.now() : playedAt });
   }
 
-  return { entries, tracks }
+  return { entries, tracks };
 }
 
 /** A device that has only just announced itself is not always routable yet. */
-const DEVICE_RETRIES = 3
-const DEVICE_RETRY_MS = 400
+const DEVICE_RETRIES = 3;
+const DEVICE_RETRY_MS = 400;
 
 /**
  * Starts a single track on our own SDK device, which also makes it the active
@@ -111,12 +111,12 @@ export async function startPlayback(deviceId: string, uri: string, positionMs = 
         method: 'PUT',
         query: { device_id: deviceId },
         body: { uris: [uri], position_ms: Math.max(0, Math.round(positionMs)) },
-      })
-      return
+      });
+      return;
     } catch (error) {
-      const isMissingDevice = error instanceof SpotifyApiError && error.status === 404
-      if (!isMissingDevice || attempt >= DEVICE_RETRIES - 1) throw error
-      await new Promise((resolve) => setTimeout(resolve, DEVICE_RETRY_MS))
+      const isMissingDevice = error instanceof SpotifyApiError && error.status === 404;
+      if (!isMissingDevice || attempt >= DEVICE_RETRIES - 1) throw error;
+      await new Promise((resolve) => setTimeout(resolve, DEVICE_RETRY_MS));
     }
   }
 }

@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import LoopNudger from '@/components/LoopNudger.vue'
-import LoopToggle from '@/components/LoopToggle.vue'
-import MobileSearchOverlay from '@/components/MobileSearchOverlay.vue'
-import NowPlayingHeader from '@/components/NowPlayingHeader.vue'
-import SessionStatus from '@/components/SessionStatus.vue'
-import TimeReadout from '@/components/TimeReadout.vue'
-import TransportControls from '@/components/TransportControls.vue'
-import WaveformTimeline from '@/components/WaveformTimeline.vue'
-import { usePlayerStore } from '@/stores/player'
-import type { Track } from '@/playback/types'
+import { ref } from 'vue';
+import LoopNudger from '@/components/LoopNudger.vue';
+import LoopToggle from '@/components/LoopToggle.vue';
+import MobileSearchOverlay from '@/components/MobileSearchOverlay.vue';
+import NowPlayingHeader from '@/components/NowPlayingHeader.vue';
+import SessionStatus from '@/components/SessionStatus.vue';
+import TimeReadout from '@/components/TimeReadout.vue';
+import TransportControls from '@/components/TransportControls.vue';
+import WaveformTimeline from '@/components/WaveformTimeline.vue';
+import { usePlayerStore } from '@/stores/player';
+import type { Track } from '@/playback/types';
 
-defineProps<{ track: Track }>()
-const emit = defineEmits<{ select: [track: Track] }>()
+defineProps<{ track: Track }>();
+const emit = defineEmits<{ select: [track: Track] }>();
 
-const player = usePlayerStore()
-const searchOpen = ref(false)
+const player = usePlayerStore();
+const searchOpen = ref(false);
 
 function onSelect(track: Track) {
-  searchOpen.value = false
-  emit('select', track)
+  searchOpen.value = false;
+  emit('select', track);
 }
 </script>
 

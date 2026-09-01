@@ -1,17 +1,17 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
 
-import '@/styles/base.scss'
-import App from './App.vue'
-import router from './router'
-import { useSessionStore } from '@/stores/session'
+import '@/styles/base.scss';
+import App from './App.vue';
+import router from './router';
+import { useSessionStore } from '@/stores/session';
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(createPinia())
-app.use(router)
+app.use(createPinia());
+app.use(router);
 
-app.mount('#app')
+app.mount('#app');
 
 /**
  * A session restored from storage is a claim until Spotify agrees with it. This
@@ -19,4 +19,4 @@ app.mount('#app')
  * tick it takes, and holding the first paint for a round trip would make every
  * reload feel like a cold start.
  */
-void useSessionStore().revalidate()
+void useSessionStore().revalidate();

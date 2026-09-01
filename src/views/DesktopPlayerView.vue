@@ -1,80 +1,80 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
-import DesktopSearchField from '@/components/DesktopSearchField.vue'
-import LoopNudger from '@/components/LoopNudger.vue'
-import LoopToggle from '@/components/LoopToggle.vue'
-import NowPlayingHeader from '@/components/NowPlayingHeader.vue'
-import SessionStatus from '@/components/SessionStatus.vue'
-import TimeReadout from '@/components/TimeReadout.vue'
-import TrackRow from '@/components/TrackRow.vue'
-import TransportControls from '@/components/TransportControls.vue'
-import WaveformTimeline from '@/components/WaveformTimeline.vue'
-import { useLibraryStore } from '@/stores/library'
-import { usePlayerStore } from '@/stores/player'
-import type { Track } from '@/playback/types'
+import { onMounted, onUnmounted, ref } from 'vue';
+import DesktopSearchField from '@/components/DesktopSearchField.vue';
+import LoopNudger from '@/components/LoopNudger.vue';
+import LoopToggle from '@/components/LoopToggle.vue';
+import NowPlayingHeader from '@/components/NowPlayingHeader.vue';
+import SessionStatus from '@/components/SessionStatus.vue';
+import TimeReadout from '@/components/TimeReadout.vue';
+import TrackRow from '@/components/TrackRow.vue';
+import TransportControls from '@/components/TransportControls.vue';
+import WaveformTimeline from '@/components/WaveformTimeline.vue';
+import { useLibraryStore } from '@/stores/library';
+import { usePlayerStore } from '@/stores/player';
+import type { Track } from '@/playback/types';
 
-defineProps<{ track: Track }>()
-const emit = defineEmits<{ select: [track: Track] }>()
+defineProps<{ track: Track }>();
+const emit = defineEmits<{ select: [track: Track] }>();
 
-const library = useLibraryStore()
-const player = usePlayerStore()
+const library = useLibraryStore();
+const player = usePlayerStore();
 
 /** Elements that own these keys themselves; the global shortcut stands down. */
-const INTERACTIVE = new Set(['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A'])
+const INTERACTIVE = new Set(['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A']);
 
 function ownsKeyboard(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) return false
-  return INTERACTIVE.has(target.tagName) || target.isContentEditable
+  if (!(target instanceof HTMLElement)) return false;
+  return INTERACTIVE.has(target.tagName) || target.isContentEditable;
 }
 
 /** A or B held down turns the arrows into a nudge of that loop point. */
-const LOOP_KEYS: Record<string, 'a' | 'b'> = { a: 'a', b: 'b' }
-const NUDGE_SECONDS = 1
+const LOOP_KEYS: Record<string, 'a' | 'b'> = { a: 'a', b: 'b' };
+const NUDGE_SECONDS = 1;
 
-const heldPoint = ref<'a' | 'b' | null>(null)
+const heldPoint = ref<'a' | 'b' | null>(null);
 
 function onKeydown(event: KeyboardEvent) {
-  if (ownsKeyboard(event.target)) return
-  const point = LOOP_KEYS[event.key.toLowerCase()]
+  if (ownsKeyboard(event.target)) return;
+  const point = LOOP_KEYS[event.key.toLowerCase()];
   if (point) {
-    event.preventDefault()
-    heldPoint.value = point
+    event.preventDefault();
+    heldPoint.value = point;
   } else if (event.key === ' ' || event.code === 'Space') {
-    event.preventDefault()
-    void player.togglePlay()
+    event.preventDefault();
+    void player.togglePlay();
   } else if (event.key === 'ArrowLeft') {
-    event.preventDefault()
-    if (heldPoint.value) player.nudge(heldPoint.value, -NUDGE_SECONDS)
-    else void player.rewind()
+    event.preventDefault();
+    if (heldPoint.value) player.nudge(heldPoint.value, -NUDGE_SECONDS);
+    else void player.rewind();
   } else if (event.key === 'ArrowRight') {
-    event.preventDefault()
-    if (heldPoint.value) player.nudge(heldPoint.value, NUDGE_SECONDS)
-    else void player.forward()
+    event.preventDefault();
+    if (heldPoint.value) player.nudge(heldPoint.value, NUDGE_SECONDS);
+    else void player.forward();
   } else if (event.key.toLowerCase() === 'l') {
-    event.preventDefault()
-    player.toggleLoop()
+    event.preventDefault();
+    player.toggleLoop();
   }
 }
 
 function onKeyup(event: KeyboardEvent) {
-  if (LOOP_KEYS[event.key.toLowerCase()] === heldPoint.value) heldPoint.value = null
+  if (LOOP_KEYS[event.key.toLowerCase()] === heldPoint.value) heldPoint.value = null;
 }
 
 /** A key released while the window is away never reaches us; drop the hold. */
 function onBlur() {
-  heldPoint.value = null
+  heldPoint.value = null;
 }
 
 onMounted(() => {
-  window.addEventListener('keydown', onKeydown)
-  window.addEventListener('keyup', onKeyup)
-  window.addEventListener('blur', onBlur)
-})
+  window.addEventListener('keydown', onKeydown);
+  window.addEventListener('keyup', onKeyup);
+  window.addEventListener('blur', onBlur);
+});
 onUnmounted(() => {
-  window.removeEventListener('keydown', onKeydown)
-  window.removeEventListener('keyup', onKeyup)
-  window.removeEventListener('blur', onBlur)
-})
+  window.removeEventListener('keydown', onKeydown);
+  window.removeEventListener('keyup', onKeyup);
+  window.removeEventListener('blur', onBlur);
+});
 </script>
 
 <template>

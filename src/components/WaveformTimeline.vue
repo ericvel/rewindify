@@ -1,78 +1,78 @@
 <script setup lang="ts">
-import { computed, onScopeDispose, ref } from 'vue'
-import { usePlayerStore, type ScrubKind } from '@/stores/player'
-import { generateWaveform } from '@/playback/waveform'
+import { computed, onScopeDispose, ref } from 'vue';
+import { usePlayerStore, type ScrubKind } from '@/stores/player';
+import { generateWaveform } from '@/playback/waveform';
 
 const props = withDefaults(
   defineProps<{
-    barCount: number
-    waveHeight: number
-    variant?: 'mobile' | 'desktop'
+    barCount: number;
+    waveHeight: number;
+    variant?: 'mobile' | 'desktop';
   }>(),
   { variant: 'mobile' },
-)
+);
 
-const player = usePlayerStore()
-const trackEl = ref<HTMLElement | null>(null)
+const player = usePlayerStore();
+const trackEl = ref<HTMLElement | null>(null);
 
 /** Recomputed per track, not per frame: the playhead only changes bar classes. */
 const barHeights = computed(() => {
-  const track = player.currentTrack
-  if (!track) return []
+  const track = player.currentTrack;
+  if (!track) return [];
   return generateWaveform(track.seed, props.barCount).map(
     (level) => `${Math.round(level * props.waveHeight)}px`,
-  )
-})
+  );
+});
 
 /** A bar sits at fraction `(i + 0.5) / barCount` of the track. */
 function barAt(seconds: number) {
-  if (player.duration <= 0) return 0
-  return (seconds / player.duration) * props.barCount - 0.5
+  if (player.duration <= 0) return 0;
+  return (seconds / player.duration) * props.barCount - 0.5;
 }
 
-const playedBarIndex = computed(() => Math.floor(barAt(player.position)))
-const loopStartBar = computed(() => Math.ceil(barAt(player.displayLoopA)))
-const loopEndBar = computed(() => Math.floor(barAt(player.displayLoopB)))
+const playedBarIndex = computed(() => Math.floor(barAt(player.position)));
+const loopStartBar = computed(() => Math.ceil(barAt(player.displayLoopA)));
+const loopEndBar = computed(() => Math.floor(barAt(player.displayLoopB)));
 
 function percent(seconds: number) {
-  if (player.duration <= 0) return '0%'
-  return `${(seconds / player.duration) * 100}%`
+  if (player.duration <= 0) return '0%';
+  return `${(seconds / player.duration) * 100}%`;
 }
 
-const headLeft = computed(() => percent(player.position))
-const loopLeft = computed(() => percent(player.displayLoopA))
-const loopRight = computed(() => percent(player.displayLoopB))
-const loopWidth = computed(() => percent(player.displayLoopB - player.displayLoopA))
+const headLeft = computed(() => percent(player.position));
+const loopLeft = computed(() => percent(player.displayLoopA));
+const loopRight = computed(() => percent(player.displayLoopB));
+const loopWidth = computed(() => percent(player.displayLoopB - player.displayLoopA));
 
 function fractionFromEvent(event: PointerEvent) {
-  const el = trackEl.value
-  if (!el) return 0
-  const rect = el.getBoundingClientRect()
-  return Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width))
+  const el = trackEl.value;
+  if (!el) return 0;
+  const rect = el.getBoundingClientRect();
+  return Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
 }
 
 function onMove(event: PointerEvent) {
-  player.updateScrub(fractionFromEvent(event))
+  player.updateScrub(fractionFromEvent(event));
 }
 
 function onUp() {
-  window.removeEventListener('pointermove', onMove)
-  window.removeEventListener('pointerup', onUp)
-  void player.endScrub()
+  window.removeEventListener('pointermove', onMove);
+  window.removeEventListener('pointerup', onUp);
+  void player.endScrub();
 }
 
 function startDrag(kind: ScrubKind, event: PointerEvent) {
-  event.preventDefault()
-  event.stopPropagation()
-  player.beginScrub(kind, fractionFromEvent(event))
-  window.addEventListener('pointermove', onMove)
-  window.addEventListener('pointerup', onUp)
+  event.preventDefault();
+  event.stopPropagation();
+  player.beginScrub(kind, fractionFromEvent(event));
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
 }
 
 onScopeDispose(() => {
-  window.removeEventListener('pointermove', onMove)
-  window.removeEventListener('pointerup', onUp)
-})
+  window.removeEventListener('pointermove', onMove);
+  window.removeEventListener('pointerup', onUp);
+});
 </script>
 
 <template>

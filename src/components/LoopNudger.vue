@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { usePlayerStore } from '@/stores/player'
-import { formatTime } from '@/playback/time'
+import { computed } from 'vue';
+import { usePlayerStore } from '@/stores/player';
+import { formatTime } from '@/playback/time';
 
-withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), { variant: 'mobile' })
+withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), { variant: 'mobile' });
 
-const player = usePlayerStore()
+const player = usePlayerStore();
 
 const points = computed(() => [
   { key: 'a' as const, label: 'A', time: formatTime(player.displayLoopA) },
   { key: 'b' as const, label: 'B', time: formatTime(player.displayLoopB) },
-])
+]);
 </script>
 
 <template>

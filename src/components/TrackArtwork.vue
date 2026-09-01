@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from 'vue';
 
 const props = withDefaults(
   defineProps<{
-    src?: string
-    alt?: string
-    size: number
+    src?: string;
+    alt?: string;
+    size: number;
     /** Renders the `art` caption used on the now-playing artwork. */
-    labelled?: boolean
+    labelled?: boolean;
   }>(),
   { src: undefined, alt: '', labelled: false },
-)
+);
 
 /** Larger artwork gets a coarser hatch so the placeholder reads at any size. */
-const hatchStep = computed(() => (props.size >= 64 ? 5 : 4))
+const hatchStep = computed(() => (props.size >= 64 ? 5 : 4));
 </script>
 
 <template>

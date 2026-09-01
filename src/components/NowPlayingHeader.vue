@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import TrackArtwork from './TrackArtwork.vue'
-import type { Track } from '@/playback/types'
+import TrackArtwork from './TrackArtwork.vue';
+import type { Track } from '@/playback/types';
 
 withDefaults(defineProps<{ track: Track; variant?: 'mobile' | 'desktop' }>(), {
   variant: 'mobile',
-})
+});
 </script>
 
 <template>

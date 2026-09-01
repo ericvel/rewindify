@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import SessionStatus from '@/components/SessionStatus.vue'
-import { resolveRedirectTarget } from '@/auth/redirect'
-import { IS_CONFIGURED } from '@/spotify/config'
-import { useSessionStore } from '@/stores/session'
+import { useRoute } from 'vue-router';
+import SessionStatus from '@/components/SessionStatus.vue';
+import { resolveRedirectTarget } from '@/auth/redirect';
+import { IS_CONFIGURED } from '@/spotify/config';
+import { useSessionStore } from '@/stores/session';
 
-const route = useRoute()
-const session = useSessionStore()
+const route = useRoute();
+const session = useSessionStore();
 
 /**
  * Hands the browser to Spotify, carrying the path the gate turned away so the
@@ -14,7 +14,7 @@ const session = useSessionStore()
  * this runs on this page: the answer arrives on `/callback`.
  */
 async function connect() {
-  await session.connect(resolveRedirectTarget(route.query.redirect))
+  await session.connect(resolveRedirectTarget(route.query.redirect));
 }
 </script>
 

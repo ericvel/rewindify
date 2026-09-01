@@ -1,9 +1,9 @@
-import type { Ref } from 'vue'
+import type { Ref } from 'vue';
 
 export interface Session {
-  displayName: string
+  displayName: string;
   /** Playback needs Premium; a free account can authorise but not stream. */
-  product: 'premium' | 'free'
+  product: 'premium' | 'free';
 }
 
 /**
@@ -17,7 +17,7 @@ export type AuthFailure =
   | 'invalid-callback'
   | 'exchange-failed'
   | 'free-account'
-  | 'expired'
+  | 'expired';
 
 /**
  * Everything the app needs from whatever actually holds the Spotify session.
@@ -29,13 +29,13 @@ export type AuthFailure =
  * answer arrives later, at `completeRedirect`.
  */
 export interface AuthSource {
-  session: Readonly<Ref<Session | null>>
-  failure: Readonly<Ref<AuthFailure | null>>
+  session: Readonly<Ref<Session | null>>;
+  failure: Readonly<Ref<AuthFailure | null>>;
   /** Sends the browser to Spotify. Resolves only if the redirect never happens. */
-  connect(redirectTo: string): Promise<void>
+  connect(redirectTo: string): Promise<void>;
   /** Finishes the flow. Returns where to go next, or null if it failed. */
-  completeRedirect(params: URLSearchParams): Promise<string | null>
-  disconnect(): Promise<void>
+  completeRedirect(params: URLSearchParams): Promise<string | null>;
+  disconnect(): Promise<void>;
   /** Re-checks a session restored from storage against Spotify. */
-  revalidate(): Promise<void>
+  revalidate(): Promise<void>;
 }

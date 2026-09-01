@@ -1,28 +1,28 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import TrackArtwork from './TrackArtwork.vue'
-import { formatAgo, formatTime } from '@/playback/time'
-import type { Track } from '@/playback/types'
+import { computed } from 'vue';
+import TrackArtwork from './TrackArtwork.vue';
+import { formatAgo, formatTime } from '@/playback/time';
+import type { Track } from '@/playback/types';
 
 const props = withDefaults(
   defineProps<{
-    track: Track
+    track: Track;
     /** Highlights the row as the loaded track. */
-    active?: boolean
+    active?: boolean;
     /** Omit to hide the relative-time column. */
-    playedAt?: number
+    playedAt?: number;
     /** Keyboard focus within a listbox, as opposed to being the loaded track. */
-    highlighted?: boolean
-    size?: 'sm' | 'md' | 'lg'
+    highlighted?: boolean;
+    size?: 'sm' | 'md' | 'lg';
   }>(),
   { active: false, playedAt: undefined, highlighted: false, size: 'md' },
-)
+);
 
-defineEmits<{ select: [] }>()
+defineEmits<{ select: [] }>();
 
-const artSize = computed(() => ({ sm: 36, md: 44, lg: 48 })[props.size])
-const durationLabel = computed(() => formatTime(props.track.duration))
-const agoLabel = computed(() => (props.playedAt === undefined ? null : formatAgo(props.playedAt)))
+const artSize = computed(() => ({ sm: 36, md: 44, lg: 48 })[props.size]);
+const durationLabel = computed(() => formatTime(props.track.duration));
+const agoLabel = computed(() => (props.playedAt === undefined ? null : formatAgo(props.playedAt)));
 </script>
 
 <template>
