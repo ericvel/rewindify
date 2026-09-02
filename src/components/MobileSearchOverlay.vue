@@ -82,6 +82,7 @@ onMounted(() => inputEl.value?.focus());
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/media-queries' as *;
 @use '@/styles/surfaces' as *;
 
 .search-overlay {
@@ -92,6 +93,11 @@ onMounted(() => inputEl.value?.focus());
   display: flex;
   flex-direction: column;
   padding: 0 16px 20px;
+
+  /* Lands on the plate's own gutter, so opening search does not shift the page. */
+  @include screen-wide {
+    padding: 0 24px 24px;
+  }
 }
 
 .search-overlay__bar {

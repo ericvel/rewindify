@@ -64,6 +64,14 @@ const agoLabel = computed(() => (props.playedAt === undefined ? null : formatAgo
   border-radius: 3px;
   position: relative;
 
+  /*
+   * Cap-press speed, and only the ground: held arrow keys walk the highlight
+   * down the list several rows a second, and hard swaps at that rate read as
+   * flicker rather than as a marker moving. The well's shadow still snaps, so
+   * the loaded row's recess arrives as a recess and not as a fade.
+   */
+  transition: background-color var(--press-duration) ease;
+
   /* Hairline rules instead of outlined cards: this is an index, not a stack. */
   & + & {
     box-shadow: inset 0 1px 0 var(--surface-rule);

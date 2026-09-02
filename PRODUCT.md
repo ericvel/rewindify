@@ -128,11 +128,14 @@ the audio that the fabricated shape cannot back.
 - Name: **Rewindify**. Author credit "Eric Veliyulin" appears in the footer.
 - Spotify attribution is an outstanding obligation, not a settled state. The
   official Spotify mark and "content from Spotify" attribution are required by
-  Spotify's developer terms. `src/views/ConnectView.vue` currently draws a white
-  circle as a stand-in; that placeholder is known debt. Future work should treat
-  real Spotify branding as the target and must not invent a competing mark for
-  the connect action. The stand-in is now a neutral disc in the button's own ink
-  rather than a white circle, so it reads as an empty slot rather than as a mark.
+  Spotify's developer terms, and neither is satisfied yet. The connect button now
+  carries Phosphor's `SpotifyLogo` (`spotify` in `AppIcon.vue`), filled and
+  monochrome in the cap's own ink — a third-party redraw of the real mark rather
+  than the empty slot the neutral disc was, and rather than a competing mark
+  invented here. Two things remain open: it is not the official asset Spotify's
+  terms ask for, and no "content from Spotify" attribution appears anywhere in
+  the product. Future work should treat both as the target, and must still never
+  invent a mark of its own for the connect action.
 - The design register is the familiar end of the spectrum, by the author's
   standing preference: on the round that produced the current look, two
   successive re-rolls asked for safer, conventional directions, with the steer

@@ -49,6 +49,11 @@ hint line.
   a spec.
 - Keyboard-complete is a product requirement, so the focus ring is part of the
   design rather than a browser default.
+- Three layout bands, two views. The phone view is full-bleed at every width
+  below 900px and has a wide band of its own from 640px: two-up loop rows,
+  desktop type steps for Position and Track Title, 24px gutters, and the working
+  block centred instead of bottom-anchored. Neither the phone nor the tablet is
+  the degraded case, and no third type step may be invented for the middle.
 
 ## Unresolved
 
@@ -62,6 +67,11 @@ hint line.
   surface.
 - **`timeDisplay`.** Persisted as a preference with no control, the same class of
   gap as skip size. Nothing on the surface toggles remaining versus total.
-- **Mobile keyboard shortcuts.** The global key handler lives only in
-  `DesktopPlayerView`, so below 900px there are none. Awkward against a
-  keyboard-complete requirement; a functional gap, not a styling one.
+- **No keyboard legends below 900px.** `usePlayerKeyboard` is mounted by both
+  views, so the shortcuts themselves work at every width — but only the desktop
+  statusbar prints them. In the wide band, where a keyboard is likely attached,
+  the chassis strip still carries the credit alone.
+- **Short-and-wide windows.** A landscape phone (844×390) now gets the full-bleed
+  plate rather than a 430px strip, which is strictly better, but the working
+  block is taller than the viewport and the page scrolls. No height-aware band
+  has been designed.

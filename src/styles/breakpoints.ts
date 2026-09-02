@@ -17,4 +17,5 @@ function read(key: string): number {
 
 export const breakpoints = {
   screenDesktop: read('screen-desktop'),
+  screenWide: read('screen-wide'),
 };

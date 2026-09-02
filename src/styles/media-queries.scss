@@ -3,8 +3,24 @@
 // the layout boundary is stated exactly once.
 $screen-desktop: 900;
 
+// Inside the phone view, the width where the plate stops being a column and
+// becomes a panel: the two loop rows fit side by side, and the position readout
+// can take its desktop step without crowding the timeline under it. Measured,
+// not chosen — a nudger row needs ~270px before its printed nomenclature starts
+// squeezing the leader, and two of them plus the 24px gutters is 598px.
+$screen-wide: 640;
+
 @mixin screen-desktop {
   @media (width >= #{$screen-desktop}px) {
+    @content;
+  }
+}
+
+// The wide band of the phone view. Bounded above by the desktop breakpoint
+// because every rule that uses it sits on a `--mobile` variant, and those
+// unmount at 900 — the bound is stated so a reader never has to know that.
+@mixin screen-wide {
+  @media (#{$screen-wide}px <= width < #{$screen-desktop}px) {
     @content;
   }
 }

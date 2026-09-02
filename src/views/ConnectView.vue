@@ -1,14 +1,27 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import AppIcon from '@/components/AppIcon.vue';
 import AppBrand from '@/components/AppBrand.vue';
-import SessionStatus from '@/components/SessionStatus.vue';
+import { AUTH_FAILURE_MESSAGES } from '@/auth/failures';
 import { resolveRedirectTarget } from '@/auth/redirect';
 import { IS_CONFIGURED } from '@/spotify/config';
 import { useSessionStore } from '@/stores/session';
 
 const route = useRoute();
 const session = useSessionStore();
+
+/**
+ * The one thing standing between this visitor and a session, if there is one.
+ *
+ * A build with no client id is the case the store cannot report: it sets
+ * `unconfigured` inside `connect()`, and the button that would call it is
+ * disabled on exactly that condition — so the message was unreachable and the
+ * key read as dead. Stating it here needs no attempt.
+ */
+const notice = computed(() =>
+  IS_CONFIGURED ? session.failureMessage : AUTH_FAILURE_MESSAGES.unconfigured,
+);
 
 /**
  * Hands the browser to Spotify, carrying the path the gate turned away so the
@@ -20,38 +33,57 @@ async function connect() {
 }
 </script>
 
+<!--
+  The gate. It says what the product does, what it needs, and offers the one
+  action — in that order, because a visitor arriving on a shared loop link has
+  never seen the app and a returning one only needs the key.
+
+  The header carried a "Not connected" line until this pass. The router sends a
+  connected visitor away from this route, so that line could only ever print
+  those two words on the screen that already is the not-connected state — a
+  third statement of a bit the heading and the button both make.
+-->
 <template>
   <div class="connect">
     <header class="connect__header">
       <AppBrand class="connect__brand" />
-      <span class="connect__spacer" />
-      <SessionStatus />
     </header>
 
     <main class="connect__body">
       <div class="connect__panel">
-        <h1 class="connect__title">Connect your Spotify account</h1>
+        <h1 class="connect__title">Step back and loop any passage</h1>
         <p class="connect__copy">
-          Rewindify plays from your library and loops the passage you are working on.
+          Rewindify plays through your Spotify account. Connecting takes you there to sign in, then
+          back here.
         </p>
 
-        <p v-if="session.failureMessage" class="connect__failure" role="alert">
+        <!--
+          Only ever the truth about what is in the way, so it sits above the
+          button rather than replacing the invitation to try again. Inverted ink
+          is the product's alert register; the accent is reserved for the loop.
+        -->
+        <p v-if="notice" id="connect-notice" class="connect__notice" role="alert">
           <AppIcon name="alert" :size="15" />
-          <span>{{ session.failureMessage }}</span>
+          <span>{{ notice }}</span>
         </p>
+
+        <!--
+          Printed above the key it gates, not under it. Premium is the one thing
+          that can make this flow fail for a reason trying again cannot fix, so
+          it is read before the press rather than found afterwards.
+        -->
+        <p id="connect-requirement" class="connect__requirement">Spotify Premium required</p>
 
         <button
           type="button"
           class="connect__action cap-surface"
-          aria-describedby="connect-requirement"
+          :aria-describedby="notice ? 'connect-notice connect-requirement' : 'connect-requirement'"
           :disabled="!IS_CONFIGURED"
           @click="connect()"
         >
-          <span class="connect__mark" aria-hidden="true" />
+          <AppIcon name="spotify" :size="18" />
           <span class="connect__action-label">Continue with Spotify</span>
         </button>
-
-        <p id="connect-requirement" class="connect__requirement">Spotify Premium required</p>
       </div>
     </main>
 
@@ -79,7 +111,6 @@ async function connect() {
   flex: none;
   display: flex;
   align-items: center;
-  gap: 18px;
   padding: 0 16px;
 
   @include screen-desktop {
@@ -96,10 +127,6 @@ async function connect() {
   @include screen-desktop {
     font-size: 15px;
   }
-}
-
-.connect__spacer {
-  flex: 1;
 }
 
 /* Centred in whatever room the chrome leaves, at every width. */
@@ -136,10 +163,7 @@ async function connect() {
   color: var(--ink-body);
 }
 
-/* Only ever the truth about the last attempt, so it sits above the button
-   rather than replacing the invitation to try again. Inverted ink is the
-   product's alert register; the accent is reserved for the loop. */
-.connect__failure {
+.connect__notice {
   display: flex;
   align-items: flex-start;
   gap: 9px;
@@ -152,9 +176,19 @@ async function connect() {
   line-height: 1.45;
 }
 
+/*
+ * The legend and the key are one group: generous room above, tight below. The
+ * hairline that used to separate this line from the button is gone with the
+ * reordering — it was there to mark a footnote, and this is a label.
+ */
+.connect__requirement {
+  @include legend(10px);
+  margin: 28px 0 0;
+}
+
 .connect__action {
   @include cap;
-  margin-top: 28px;
+  margin-top: 10px;
   width: 100%;
   height: 50px;
   display: flex;
@@ -172,32 +206,10 @@ async function connect() {
   }
 }
 
-/*
- * Known debt, recorded in PRODUCT.md: Spotify's developer terms require the
- * official mark and a "content from Spotify" attribution. This is a neutral
- * stand-in, deliberately not a competing mark, and it is not a design decision
- * to defend — it is a slot waiting for the real asset.
- */
-.connect__mark {
-  width: 14px;
-  height: 14px;
-  flex: none;
-  border-radius: 50%;
-  background: currentcolor;
-  opacity: 0.55;
-}
-
 .connect__action-label {
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.005em;
-}
-
-.connect__requirement {
-  @include legend(10px);
-  box-shadow: inset 0 1px 0 var(--surface-edge);
-  margin: 14px 0 0;
-  padding-top: 13px;
 }
 
 .connect__footer {

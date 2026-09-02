@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useTemplateRef } from 'vue';
 import TrackTimeline from '@/components/TrackTimeline.vue';
 import AppIcon from '@/components/AppIcon.vue';
 import AppBrand from '@/components/AppBrand.vue';
@@ -10,6 +11,7 @@ import SessionStatus from '@/components/SessionStatus.vue';
 import TimeReadout from '@/components/TimeReadout.vue';
 import TrackRow from '@/components/TrackRow.vue';
 import TransportControls from '@/components/TransportControls.vue';
+import { useBarCount } from '@/composables/useBarCount';
 import { usePlayerKeyboard } from '@/composables/usePlayerKeyboard';
 import { useLibraryStore } from '@/stores/library';
 import { usePlayerStore } from '@/stores/player';
@@ -20,6 +22,15 @@ const emit = defineEmits<{ select: [track: Track] }>();
 
 const library = useLibraryStore();
 const player = usePlayerStore();
+
+/*
+ * The working column is whatever is left beside the 300px sidebar, so the field
+ * is as fluid here as it is on the phone: a flat 96 bars was a 3px bar at 900px
+ * and an 11px one on a wide display. The count follows the field, at the one
+ * pitch the composable documents.
+ */
+const panelEl = useTemplateRef<HTMLElement>('panel');
+const barCount = useBarCount(panelEl);
 
 /** Shared with the mobile view; the statusbar legends light from `heldPoint`. */
 const { heldPoint } = usePlayerKeyboard();
@@ -66,9 +77,9 @@ const { heldPoint } = usePlayerKeyboard();
       <main class="desktop__main">
         <NowPlayingHeader :track="track" variant="desktop" />
 
-        <section class="desktop__panel">
+        <section ref="panel" class="desktop__panel">
           <TimeReadout variant="desktop" />
-          <TrackTimeline :bar-count="96" :field-height="152" variant="desktop" />
+          <TrackTimeline :bar-count="barCount" :field-height="152" variant="desktop" />
         </section>
 
         <div class="desktop__controls">

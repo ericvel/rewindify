@@ -1,10 +1,21 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import TrackArtwork from './TrackArtwork.vue';
+import { useIsWide } from '@/composables/useBreakpoint';
 import type { Track } from '@/playback/types';
 
-withDefaults(defineProps<{ track: Track; variant?: 'mobile' | 'desktop' }>(), {
+const props = withDefaults(defineProps<{ track: Track; variant?: 'mobile' | 'desktop' }>(), {
   variant: 'mobile',
 });
+
+/*
+ * The one measurement here the stylesheet cannot reach: `TrackArtwork` takes an
+ * edge in pixels, so the wide band's larger plate is read in script. The title
+ * beside it steps up with the band too — a 60px cover under a 24px title is a
+ * thumbnail with a headline next to it, not a record.
+ */
+const isWide = useIsWide();
+const artworkSize = computed(() => (props.variant === 'desktop' || isWide.value ? 84 : 60));
 </script>
 
 <template>
@@ -12,7 +23,7 @@ withDefaults(defineProps<{ track: Track; variant?: 'mobile' | 'desktop' }>(), {
     <TrackArtwork
       :src="track.artworkUrl"
       :alt="`${track.album} cover art`"
-      :size="variant === 'desktop' ? 84 : 60"
+      :size="artworkSize"
       labelled
     />
     <div class="now-playing__meta">
@@ -24,6 +35,8 @@ withDefaults(defineProps<{ track: Track; variant?: 'mobile' | 'desktop' }>(), {
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/media-queries' as *;
+
 .now-playing {
   display: flex;
   align-items: center;
@@ -33,10 +46,6 @@ withDefaults(defineProps<{ track: Track; variant?: 'mobile' | 'desktop' }>(), {
 
 .now-playing--mobile {
   gap: 14px;
-}
-
-.now-playing--desktop {
-  gap: 18px;
 }
 
 .now-playing__meta {
@@ -81,7 +90,10 @@ withDefaults(defineProps<{ track: Track; variant?: 'mobile' | 'desktop' }>(), {
   color: var(--ink-label);
 }
 
-.now-playing--desktop {
+/* The desktop steps, taken by the wide band as well. The ramp keeps two. */
+@mixin now-playing-large {
+  gap: 18px;
+
   .now-playing__meta {
     gap: 4px;
   }
@@ -96,6 +108,16 @@ withDefaults(defineProps<{ track: Track; variant?: 'mobile' | 'desktop' }>(), {
 
   .now-playing__album {
     font-size: 12px;
+  }
+}
+
+.now-playing--desktop {
+  @include now-playing-large;
+}
+
+.now-playing--mobile {
+  @include screen-wide {
+    @include now-playing-large;
   }
 }
 </style>

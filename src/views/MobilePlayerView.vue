@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
 import AppBrand from '@/components/AppBrand.vue';
 import LoopNudger from '@/components/LoopNudger.vue';
@@ -10,6 +10,7 @@ import SessionStatus from '@/components/SessionStatus.vue';
 import TimeReadout from '@/components/TimeReadout.vue';
 import TransportControls from '@/components/TransportControls.vue';
 import TrackTimeline from '@/components/TrackTimeline.vue';
+import { useBarCount } from '@/composables/useBarCount';
 import { usePlayerKeyboard } from '@/composables/usePlayerKeyboard';
 import { usePlayerStore } from '@/stores/player';
 import type { Track } from '@/playback/types';
@@ -19,6 +20,15 @@ const emit = defineEmits<{ select: [track: Track] }>();
 
 const player = usePlayerStore();
 const searchOpen = ref(false);
+
+/*
+ * The plate is full-bleed now, so the field is as wide as the window and a flat
+ * bar count does not survive the band: 48 bars is 5.6px of bar at 430 and 16px
+ * at 900, by which point the waveform is a row of slabs. The count follows the
+ * field instead, at the pitch the composable documents.
+ */
+const panelEl = useTemplateRef<HTMLElement>('panel');
+const barCount = useBarCount(panelEl);
 
 /*
  * A phone-width window is not always a touch-only one, and PRODUCT.md makes the
@@ -61,13 +71,15 @@ function onSelect(track: Track) {
 
     <NowPlayingHeader :track="track" variant="mobile" />
 
-    <section class="phone__panel">
+    <section ref="panel" class="phone__panel">
       <TimeReadout variant="mobile" />
-      <TrackTimeline :bar-count="48" :field-height="94" variant="mobile" />
+      <TrackTimeline :bar-count="barCount" :field-height="94" variant="mobile" />
     </section>
 
-    <!-- The control group is bottom-anchored so the keys land under the thumb
-         rather than leaving an empty tail below the loop switch. -->
+    <!-- The control group is bottom-anchored on the phone so the keys land
+         under the thumb rather than leaving an empty tail below the loop
+         switch. On the wide plate the leftover height is split with the header
+         instead, and the block sits centred. -->
     <TransportControls class="phone__transport" variant="mobile" />
     <LoopNudger variant="mobile" />
     <LoopToggle variant="mobile" />
@@ -81,17 +93,21 @@ function onSelect(track: Track) {
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/media-queries' as *;
 @use '@/styles/surfaces' as *;
 
+/*
+ * The plate is the window, at every width below the desktop breakpoint. It used
+ * to be a 430px column centred in the viewport with a hairline down each side,
+ * which put a 700px tablet — the most likely thing on a music stand — in a strip
+ * with 135px of dead plate either side and every control at phone width. The
+ * hairlines went with the cap: they marked the column against the plate behind
+ * it, and there is no longer anything behind it.
+ */
 .phone {
   width: 100%;
-  max-width: 430px;
-  margin: 0 auto;
   min-height: 100dvh;
   background: var(--surface-plate);
-  box-shadow:
-    inset 1px 0 0 var(--surface-edge),
-    inset -1px 0 0 var(--surface-edge);
   color: var(--ink);
   position: relative;
   overflow: hidden;
@@ -99,6 +115,12 @@ function onSelect(track: Track) {
   display: flex;
   flex-direction: column;
   gap: 14px;
+
+  /* Wider gutters and a looser column, nearer the desktop working column. */
+  @include screen-wide {
+    padding: 0 24px 32px;
+    gap: 18px;
+  }
 }
 
 .phone__header {
@@ -107,6 +129,18 @@ function onSelect(track: Track) {
   gap: 12px;
   height: 60px;
   flex: none;
+
+  /*
+   * Two auto margins — this one and the transport's — split the leftover height
+   * evenly, so a tall plate keeps the working block together in the middle
+   * instead of opening a 200px hole between the timeline and the keys. Same
+   * answer the desktop column gives with `safe center`, reached the way a
+   * bottom-anchored column can: on the phone the free space stays entirely
+   * above the keys, where it buys thumb reach.
+   */
+  @include screen-wide {
+    margin-bottom: auto;
+  }
 }
 
 .phone__spacer {
@@ -149,6 +183,11 @@ function onSelect(track: Track) {
   @include well(4px);
   padding: 18px 16px 16px;
   flex: none;
+
+  /* The desktop recess: a wide plate can afford the same air around the field. */
+  @include screen-wide {
+    padding: 22px 22px 18px;
+  }
 }
 
 .phone__transport {
@@ -156,6 +195,7 @@ function onSelect(track: Track) {
   padding-top: 8px;
 }
 
+/* The chassis strip is bled to the plate edges, so it tracks the gutter. */
 .phone__footer {
   height: 40px;
   flex: none;
@@ -170,5 +210,9 @@ function onSelect(track: Track) {
   font-weight: 500;
   letter-spacing: 0.01em;
   color: var(--ink-label);
+
+  @include screen-wide {
+    margin: 4px -24px -32px;
+  }
 }
 </style>

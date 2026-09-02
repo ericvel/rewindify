@@ -211,6 +211,14 @@ function clearQuery() {
 
 /* The popover is a plate lifted off the surface, not an outlined box. */
 .search__popover {
+  /*
+   * Two cap presses. The plate has further to travel than a key does, and it
+   * still may not read as a wait to someone holding an instrument. Derived from
+   * the press token rather than declared, so `prefers-reduced-motion` zeroing
+   * `--press-duration` at `:root` zeroes this with it.
+   */
+  --lift-duration: calc(var(--press-duration) * 2);
+
   position: fixed;
   position-anchor: --rewindify-search;
   position-area: block-end span-inline-end;
@@ -222,9 +230,56 @@ function clearQuery() {
   border: 0;
   border-radius: 4px;
   background: var(--surface-plate);
-  box-shadow: var(--shadow-popover);
   max-height: 340px;
   overflow-y: auto;
+
+  /*
+   * Closed: tucked up under the field, clipped to its own top edge, flush.
+   * Opening draws the plate down out of the slot the field is cut into —
+   * the clip reveals, the plate drops, the shadow lifts. Three properties
+   * saying one thing, and deliberately no opacity: the fade belongs to the
+   * loop's sweep, and this world's `--ease-out` is exponential, not a fade.
+   *
+   * The reveal runs from the anchored edge downward, which is the placement
+   * `position-area` gives it in the desktop header. `flip-block` would put the
+   * plate above the field and the gesture would then read from the wrong edge;
+   * there is no CSS hook for the chosen fallback, and at 340px under a header
+   * at the top of the viewport the fallback does not fire.
+   */
+  translate: 0 -6px;
+  clip-path: inset(0 -44px 100% -44px);
+  box-shadow: var(--shadow-popover-flush);
+  pointer-events: none;
+
+  /* Exit is the same gesture reversed, at press speed: dropped back in. */
+  transition:
+    translate var(--press-duration) var(--ease-out),
+    clip-path var(--press-duration) var(--ease-out),
+    box-shadow var(--press-duration) var(--ease-out),
+    display var(--press-duration) allow-discrete,
+    overlay var(--press-duration) allow-discrete;
+
+  &:popover-open {
+    translate: 0 0;
+    /* Negative insets clear the lifted shadow on three sides; the top stays at
+       the box edge so the spill never paints back over the field. */
+    clip-path: inset(0 -44px -44px -44px);
+    box-shadow: var(--shadow-popover);
+    pointer-events: auto;
+
+    transition:
+      translate var(--lift-duration) var(--ease-out),
+      clip-path var(--lift-duration) var(--ease-out),
+      box-shadow var(--lift-duration) var(--ease-out),
+      display var(--lift-duration) allow-discrete,
+      overlay var(--lift-duration) allow-discrete;
+
+    @starting-style {
+      translate: 0 -6px;
+      clip-path: inset(0 -44px 100% -44px);
+      box-shadow: var(--shadow-popover-flush);
+    }
+  }
 }
 
 .search__popover-header {

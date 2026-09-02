@@ -14,6 +14,7 @@ const player = usePlayerStore();
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/media-queries' as *;
 @use '@/styles/surfaces' as *;
 
 /*
@@ -47,7 +48,13 @@ const player = usePlayerStore();
   color: var(--ink-label);
 }
 
-.time-readout--desktop {
+/*
+ * Two steps, and the wide band takes the desktop one rather than inventing a
+ * third. A 46px clock inside an 800px-wide recess is not a focal point, it is a
+ * caption — and being the largest object on the plate is the whole reason the
+ * Position role exists.
+ */
+@mixin readout-large {
   padding-bottom: 18px;
 
   .time-readout__now {
@@ -56,6 +63,16 @@ const player = usePlayerStore();
 
   .time-readout__end {
     font-size: 14px;
+  }
+}
+
+.time-readout--desktop {
+  @include readout-large;
+}
+
+.time-readout--mobile {
+  @include screen-wide {
+    @include readout-large;
   }
 }
 </style>

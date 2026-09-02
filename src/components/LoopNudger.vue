@@ -49,6 +49,7 @@ const points = computed(() => [
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/media-queries' as *;
 @use '@/styles/surfaces' as *;
 
 /*
@@ -62,6 +63,19 @@ const points = computed(() => [
   grid-template-columns: 1fr;
   gap: 8px;
   flex: none;
+}
+
+/*
+ * Side by side once the plate is wide enough to give each row its full
+ * nomenclature — the pair is one control with two ends, and stacking them on a
+ * 700px plate spent a second 54px band saying so. This is the width the two
+ * were measured against: below it the leader collapses before the row does.
+ */
+.nudger--mobile {
+  @include screen-wide {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
 }
 
 .nudger__row {
