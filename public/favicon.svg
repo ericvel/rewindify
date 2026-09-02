@@ -2,12 +2,18 @@
   <!--
     The same Phosphor rewind mark AppIcon draws, at fill weight, on the plate
     the app is built from. Phosphor's 256-unit grid is mapped onto the 32-unit
-    plate by the transform: centre the glyph's own bounding box (120, 128) on
-    the plate's centre, then scale it to about 21 units wide so the mark keeps
-    the optical margin the plate had before.
+    plate by the transform: scale the glyph to about 21 units wide, so the mark
+    keeps the optical margin the plate had before, and pin (127, 128) to the
+    plate's centre rather than the centre of the glyph's own bounding box
+    (120, 128). The mark is two left-pointing triangles, so its weight all sits
+    at the flat right edge — the area centroid is 15 units right of the box
+    centre — and a box-centred glyph reads right-heavy. Nudging it 7 units
+    left, half of that offset, is where the eye reads centre: the flat base
+    takes a slightly tighter margin than the tips, the same correction a play
+    triangle needs.
   -->
   <rect width="32" height="32" rx="6.5" fill="#ede9e2"/>
-  <g fill="#2b2b2a" transform="translate(16 16) scale(0.0938) translate(-120 -128)">
+  <g fill="#2b2b2a" transform="translate(16 16) scale(0.0938) translate(-127 -128)">
     <path d="M232,71.84V184.16a15.92,15.92,0,0,1-24.48,13.34L128,146.86v37.3a15.92,15.92,0,0,1-24.48,13.34L15.33,141.34a15.8,15.8,0,0,1,0-26.68L103.52,58.5A15.91,15.91,0,0,1,128,71.84v37.3L207.52,58.5A15.91,15.91,0,0,1,232,71.84Z"/>
   </g>
 </svg>
