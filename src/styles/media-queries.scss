@@ -24,3 +24,13 @@ $screen-wide: 640;
     @content;
   }
 }
+
+// The same boundary, unbounded above, for the views that are ONE view at every
+// width — the gate and the callback, which have no `--mobile` twin to unmount
+// at 900 and so must keep whatever the wide band gave them. Same number, one
+// source; a component still never states a width of its own.
+@mixin screen-wide-up {
+  @media (width >= #{$screen-wide}px) {
+    @content;
+  }
+}

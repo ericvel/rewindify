@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import AppIcon from '@/components/AppIcon.vue';
 import AppBrand from '@/components/AppBrand.vue';
+import LoopDemo from '@/components/LoopDemo.vue';
 import { AUTH_FAILURE_MESSAGES } from '@/auth/failures';
 import { resolveRedirectTarget } from '@/auth/redirect';
 import { IS_CONFIGURED } from '@/spotify/config';
@@ -34,9 +35,16 @@ async function signIn() {
 </script>
 
 <!--
-  The gate. It says what the product does, what it needs, and offers the one
-  action — in that order, because a visitor arriving on a shared loop link has
-  never seen the app and a returning one only needs the key.
+  The gate. It shows what the product does, says what it needs, and offers the
+  one action — in that order, because a visitor arriving on a shared loop link
+  has never seen the app and a returning one only needs the key.
+
+  The showing is the working panel itself, cut into the plate above the heading
+  with the field running in it. Every other screen in this product is the
+  instrument; this one used to be a paragraph about it, and a sentence about
+  looping a passage is weaker than a passage arming at A and wrapping at B while
+  the sentence is being read. Nothing in the recess is operable or claims to be
+  a track — see `LoopDemo.vue`.
 
   The header carried a "Not connected" line until this pass. The router sends a
   connected visitor away from this route, so that line could only ever print
@@ -50,11 +58,14 @@ async function signIn() {
     </header>
 
     <main class="sign-in__body">
-      <div class="sign-in__panel">
-        <h1 class="sign-in__title">Step back and loop any passage</h1>
+      <div class="sign-in__column">
+        <div class="sign-in__panel">
+          <LoopDemo />
+        </div>
+
+        <h1 class="sign-in__title">Loop any passage</h1>
         <p class="sign-in__copy">
-          Rewindify plays through your Spotify account. Connecting takes you there to sign in, then
-          back here.
+          Rewindify plays through your Spotify account. You sign in there and land back here.
         </p>
 
         <!--
@@ -136,31 +147,78 @@ async function signIn() {
   display: grid;
   place-items: center;
   padding: 24px 16px;
+
+  /* See the field's own short-plate rule: the gate closes up rather than pushing
+     the key past the fold. */
+  @media (height < 700px) {
+    padding: 14px 16px;
+  }
 }
 
-.sign-in__panel {
+/*
+ * 460px rather than the 420 this column carried: the recess now holds a field,
+ * and a field narrower than this prints its scale closer together than the
+ * player ever does. The copy measure comes out around 64 characters, which is
+ * inside the band it wants anyway.
+ */
+.sign-in__column {
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
 }
 
-.sign-in__title {
-  margin: 0;
-  font-size: 25px;
-  font-weight: 700;
-  line-height: 1.14;
-  letter-spacing: -0.022em;
-  text-wrap: pretty;
+/*
+ * The product's working panel, on the product's first screen: the same recess,
+ * the same padding pair, the same field inside it. Nothing else on this plate
+ * is cut into it, so the demonstration is the one place the eye lands first.
+ */
+.sign-in__panel {
+  @include well(4px);
+  padding: 18px 16px 16px;
 
-  @include screen-desktop {
-    font-size: 29px;
+  @include screen-wide-up {
+    padding: 22px 22px 18px;
+  }
+}
+
+/*
+ * The gate takes the numeral steps — 46/64, the pair the position readout owns
+ * on the player. It is the one screen in the product with no position on it, so
+ * nothing here is outranked by a title set that large, and the heading gets to
+ * be the voice of the page rather than a label on it. No new size enters the
+ * ramp; the wide plate takes the desktop step because the reason to grow is the
+ * plate, not the chrome.
+ *
+ * Set at Position's own weight and tracking, but a hair looser in the leading:
+ * 0.9 never wraps on the player and this line always does, and two lines of
+ * 64px at 0.9 close up into a single mass.
+ */
+.sign-in__title {
+  margin: 28px 0 0;
+  font-size: 46px;
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+
+  @include screen-wide-up {
+    margin-top: 32px;
+    font-size: 64px;
+  }
+
+  @media (height < 700px) {
+    margin-top: 20px;
   }
 }
 
 .sign-in__copy {
-  margin: 13px 0 0;
+  margin: 14px 0 0;
   font-size: 15px;
   line-height: 1.45;
   color: var(--ink-body);
+
+  @include screen-wide-up {
+    margin-top: 16px;
+  }
 }
 
 .sign-in__notice {
@@ -174,6 +232,10 @@ async function signIn() {
   color: var(--ink-inverse);
   font-size: 13px;
   line-height: 1.45;
+
+  @media (height < 700px) {
+    margin-top: 16px;
+  }
 }
 
 /*
@@ -181,9 +243,19 @@ async function signIn() {
  * hairline that used to separate this line from the button is gone with the
  * reordering — it was there to mark a footnote, and this is a label.
  */
+/*
+ * The legend and the key are one group: generous room above, tight below. It
+ * stays a single printed line — a three-row spec plate of nomenclature and
+ * values was tried here and taken back out; the gate has one precondition, and
+ * printing it as a table gave two more statements a room they did not need.
+ */
 .sign-in__requirement {
   @include legend(10px);
   margin: 28px 0 0;
+
+  @media (height < 700px) {
+    margin-top: 20px;
+  }
 }
 
 .sign-in__action {

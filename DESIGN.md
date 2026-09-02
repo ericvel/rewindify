@@ -294,8 +294,9 @@ A warm, low-chroma neutral field — five steps of the same clay-toned off-white
 
 | Role | Desktop | Phone | Weight / setting | Where |
 |---|---|---|---|---|
-| **Position** | 64px | 46px | 500, 0.9, -0.03em, tabular | The playback position, top-left of the recessed panel. The single largest object on any screen; nothing else is set at either size. |
-| **View Title** | 29px | 25px | 700, 1.14, -0.022em, `text-wrap: pretty` | The `h1` on Connect and Start. |
+| **Position** | 64px | 46px | 500, 0.9, -0.03em, tabular | The playback position, top-left of the recessed panel. The largest object on any screen that has one; the Gate Title is the only other thing set at either size. |
+| **Gate Title** | 64px | 46px | 500, 0.95, -0.03em, `text-wrap: balance` | The `h1` on Sign in, and nowhere else. Position's own pair and setting, at a hair looser leading because this line always wraps and 0.9 closes two 64px lines into one mass. It may take the numeral steps because the gate is the one screen with no position on it: there is nothing here for a title that large to outrank. The wide plate takes the desktop step — the reason to grow is the plate, not the chrome. |
+| **View Title** | 29px | 25px | 700, 1.14, -0.022em, `text-wrap: pretty` | The `h1` on Start and Callback. |
 | **Track Title** | 24px | 19px | 600, 1.15, -0.012em | What is loaded, in the now-playing header. Deliberately a step below Position: it is what you are playing, not what you are working on. |
 | **Readout** | 16px | 18px | 500, -0.01em, tabular | The A and B times in the nudger rows. **Inverted:** smaller on desktop, where the row is compact. |
 | **Brand** | 15px | 17px | 700, -0.015em desktop / -0.018em phone | "Rewindify" in every header. **Inverted:** smaller on desktop, where it sits in a dense 56px chassis rather than at the top of a phone column. |
@@ -313,7 +314,7 @@ A warm, low-chroma neutral field — five steps of the same clay-toned off-white
 
 **The Printed Legend Rule.** Small text is set through `legend()` — bold, tracked, uppercase, Label Ink — or it is not set small. There is no 10px sentence case in this system. Legends may be carried to their value on a dotted leader (`surface-edge`, 1px, `dotted`), the way a printed index carries a title to its duration.
 
-**The One Numeral Rule.** Position is set larger than the track title, always. The build this replaced had a 20px clock beside a 22px title and consequently no focal point at all.
+**The One Numeral Rule.** Position is set larger than the track title, always. The build this replaced had a 20px clock beside a 22px title and consequently no focal point at all. The rule binds every screen that prints a position, which is why the Gate Title can take the same pair without breaking it: a screen with no position readout has no numeral for a heading to outrank. A second heading at those steps, on a screen that *does* carry a position, is the thing this rule exists to stop.
 
 **The Two Steps Rule.** A role has exactly two steps, a desktop step and a phone step — never a fluid `clamp()` or a `vw` term, and never a third size invented for the wide band. Three bands, two steps: the wide band picks one of the pair per role, it does not interpolate. A new size that is not one of the 15 documented steps is drift, and a new *role* must declare both of its steps before it ships.
 

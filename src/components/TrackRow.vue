@@ -102,8 +102,10 @@ const agoLabel = computed(() => (props.playedAt === undefined ? null : formatAgo
 }
 
 .track-row__title {
-  flex: none;
-  max-width: 100%;
+  /* Shrinkable, not `flex: none`: a long title has to give way to the leader
+     and the duration rather than push them off the end of the line. */
+  flex: 0 1 auto;
+  min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
