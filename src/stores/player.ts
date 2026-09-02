@@ -4,10 +4,19 @@ import { createSpotifyPlaybackSource } from '@/playback/spotifyPlaybackSource';
 import { IS_FAKE_SPOTIFY } from '@/fake/enabled';
 import { createFakePlaybackSource } from '@/fake/fakePlaybackSource';
 import { resolveLoopTransition } from '@/playback/loop';
+import {
+  MAX_PASSAGES_PER_TRACK,
+  addPassage,
+  findPassage,
+  newPassageId,
+  normaliseName,
+  normalisePassages,
+} from '@/playback/passages';
 import { formatTime } from '@/playback/time';
 import { useLocalStorage } from '@/composables/useLocalStorage';
 import { useLibraryStore } from './library';
 import { useSessionStore } from './session';
+import type { PassageStore } from '@/playback/passages';
 import type { Track } from '@/playback/types';
 
 /** A loop shorter than this is unusable, and lets A and B swap past each other. */
@@ -50,6 +59,23 @@ export const usePlayerStore = defineStore('player', () => {
   const skipSeconds = useLocalStorage('rewindify:skipSeconds', 5);
   const timeDisplay = useLocalStorage<TimeDisplay>('rewindify:timeDisplay', 'Remaining');
 
+  /*
+   * Saved passages, by track. Normalised on boot rather than trusted:
+   * `useLocalStorage` parses and casts without looking, and this is the first
+   * structured value the app persists, so a hand-edited blob has to fail as
+   * dropped rows instead of as a broken band.
+   */
+  const passages = useLocalStorage<PassageStore>('rewindify:passages', {});
+  passages.value = normalisePassages(passages.value);
+
+  /** Whether the passages band is drawn open. Transient; not persisted. */
+  const passagesOpen = ref(false);
+  /**
+   * Bumped by `S` and by the band's own save control. A counter rather than a
+   * flag so the band can react to a second request without a reset dance.
+   */
+  const passageSaveRequest = ref(0);
+
   const duration = computed(() => source.duration.value);
   const isPlaying = computed(() => source.isPlaying.value);
   const isScrubbing = computed(() => scrubKind.value !== null);
@@ -71,6 +97,106 @@ export const usePlayerStore = defineStore('player', () => {
       : `−${formatTime(duration.value - position.value)}`,
   );
   const skipLabel = computed(() => `${skipSeconds.value}s`);
+
+  /** The loaded track's saved passages, newest first. */
+  const trackPassages = computed(() =>
+    currentTrack.value ? (passages.value[currentTrack.value.id] ?? []) : [],
+  );
+
+  /**
+   * The saved passage holding the current bounds, whether or not the loop is
+   * armed. Used to refuse a duplicate save; the band reads `armedPassageId`.
+   */
+  const matchedPassage = computed(() => findPassage(trackPassages.value, loopA.value, loopB.value));
+
+  /**
+   * The passage the loop is *in effect on*, which needs the loop to be on: a
+   * stored span the user has switched off is not the passage they are playing.
+   * This is what carries the accent in the band, so it leaves the row on the
+   * same 320ms sweep that empties the timeline.
+   */
+  const armedPassageId = computed(() => (loopOn.value ? (matchedPassage.value?.id ?? null) : null));
+
+  /**
+   * Why saving is unavailable, or null when it is available.
+   *
+   * Printed nowhere: loop on/off is the switch's and the bracket's to state,
+   * and a legend here would be a third home for that bit. The disabled save
+   * control is the whole visible statement, and this string is what it carries
+   * as its accessible name so the reason survives for a screen reader.
+   */
+  const savePassageBlocked = computed<string | null>(() => {
+    if (currentTrack.value === null) return 'No track is loaded';
+    if (!loopOn.value) return 'Arm the loop to save this passage';
+    if (matchedPassage.value !== undefined) return 'This passage is already saved';
+    if (trackPassages.value.length >= MAX_PASSAGES_PER_TRACK) {
+      return `This track already holds ${MAX_PASSAGES_PER_TRACK} passages`;
+    }
+    return null;
+  });
+
+  function togglePassages() {
+    passagesOpen.value = !passagesOpen.value;
+  }
+
+  function closePassages() {
+    passagesOpen.value = false;
+  }
+
+  /**
+   * `S`, and the band's save control. Opens the band either way — with the loop
+   * off there is nothing to save, and showing the disabled control is a truer
+   * answer than a keypress that does nothing at all.
+   */
+  function requestPassageSave() {
+    passagesOpen.value = true;
+    passageSaveRequest.value++;
+  }
+
+  /** Stores the current bounds. An empty name is stored as none, not as `''`. */
+  function savePassage(name: string | null) {
+    const track = currentTrack.value;
+    if (!track || savePassageBlocked.value !== null) return;
+    passages.value = {
+      ...passages.value,
+      [track.id]: addPassage(trackPassages.value, {
+        id: newPassageId(),
+        name: normaliseName(name),
+        a: loopA.value,
+        b: loopB.value,
+        savedAt: Date.now(),
+      }),
+    };
+  }
+
+  /**
+   * Re-enters a saved passage: sets both ends, arms the loop, and seeks to A.
+   *
+   * The seek is the deliberate difference from `nudge`. Nudging happens while
+   * listening, where a forced seek fights the user; applying a passage is an
+   * unambiguous "take me back to those bars", and landing anywhere else would
+   * make the user press rewind to finish the job they just asked for.
+   */
+  async function applyPassage(id: string) {
+    const found = trackPassages.value.find((entry) => entry.id === id);
+    if (!found) return;
+    const clamped = clampLoop(found.a, found.b, duration.value);
+    loopA.value = clamped.a;
+    loopB.value = clamped.b;
+    loopOn.value = true;
+    await source.seek(clamped.a);
+  }
+
+  function deletePassage(id: string) {
+    const track = currentTrack.value;
+    if (!track) return;
+    const remaining = trackPassages.value.filter((entry) => entry.id !== id);
+    const next = { ...passages.value };
+    // An emptied track leaves the blob rather than sitting in it as `[]`.
+    if (remaining.length > 0) next[track.id] = remaining;
+    else delete next[track.id];
+    passages.value = next;
+  }
 
   /**
    * Loads a track at the start, paused, with the loop off unless the URL asks
@@ -223,6 +349,17 @@ export const usePlayerStore = defineStore('player', () => {
     nowLabel,
     endLabel,
     skipLabel,
+    trackPassages,
+    armedPassageId,
+    savePassageBlocked,
+    passagesOpen,
+    passageSaveRequest,
+    togglePassages,
+    closePassages,
+    requestPassageSave,
+    savePassage,
+    applyPassage,
+    deletePassage,
     loadTrack,
     togglePlay,
     rewind,

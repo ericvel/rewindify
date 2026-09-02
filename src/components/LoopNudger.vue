@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import AppIcon from './AppIcon.vue';
+import LoopToggle from './LoopToggle.vue';
 import { usePlayerStore } from '@/stores/player';
 import { formatTime } from '@/playback/time';
 
@@ -9,23 +10,27 @@ withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), { variant: 'mobi
 const player = usePlayerStore();
 
 const points = computed(() => [
-  { key: 'a' as const, label: 'A', name: 'Loop start', time: formatTime(player.displayLoopA) },
-  { key: 'b' as const, label: 'B', name: 'Loop end', time: formatTime(player.displayLoopB) },
+  { key: 'a' as const, label: 'A', time: formatTime(player.displayLoopA) },
+  { key: 'b' as const, label: 'B', time: formatTime(player.displayLoopB) },
 ]);
 </script>
 
 <template>
   <div class="nudger" :class="[`nudger--${variant}`, { 'is-armed': player.loopOn }]">
+    <!-- The loop's switch is the group's own cell at both steps, so the control
+         that arms the passage sits beside the two ends that define it rather
+         than at the far end of a row. On the phone it stands against both rows
+         at once; on desktop it leads them. -->
+    <LoopToggle class="nudger__arm" :variant="variant" />
     <div v-for="point in points" :key="point.key" class="nudger__row">
       <!-- The chip matches its marker on the timeline, so the two read as one
            control at two scales. It takes the accent only once the loop is on. -->
       <span class="nudger__chip">{{ point.label }}</span>
       <span class="nudger__time">{{ point.time }}</span>
-      <!-- Printed nomenclature, carried to the keys on a leader the same way the
-           track index carries a title to its duration. Fills a row that read as
-           an unfinished field, and says which end of the passage this is. -->
-      <span class="nudger__leader" aria-hidden="true" />
-      <span class="nudger__name">{{ point.name }}</span>
+      <!-- The chip is the only thing that names this end now. `Loop start` and
+           `Loop end` were printed here on a dotted leader; the width they took
+           is what the switch's cell now stands in, and the nudge keys still
+           speak the end in full to a screen reader. -->
       <div class="nudger__steps">
         <button
           type="button"
@@ -53,28 +58,44 @@ const points = computed(() => [
 @use '@/styles/surfaces' as *;
 
 /*
- * Stacked on the phone. Side by side, each row had 166px to fit a chip, a time
- * and two keys, which clipped the B row off the right edge and forced the keys
- * down to 32px — under a comfortable tap target for someone holding a guitar.
- * Full width buys 40px keys and spends the empty plate above the transport.
+ * Stacked on the phone, with the loop's switch standing against both rows at
+ * once in a column of its own. Side by side, each row had 166px to fit a chip,
+ * a time and two keys, which clipped the B row off the right edge and forced
+ * the keys down to 32px — under a comfortable tap target for someone holding a
+ * guitar. Stacked, and with the printed nomenclature gone, a row needs about
+ * 195px and has 212px at the narrowest phone.
  */
 .nudger {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: auto 1fr;
   gap: 8px;
   flex: none;
 }
 
 /*
- * Side by side once the plate is wide enough to give each row its full
- * nomenclature — the pair is one control with two ends, and stacking them on a
- * 700px plate spent a second 54px band saying so. This is the width the two
- * were measured against: below it the leader collapses before the row does.
+ * The switch is one cell beside two rows, not a row of its own: a leading band
+ * would have cost the column a third 54px stripe, which is the height this
+ * whole arrangement exists to avoid.
+ */
+.nudger__arm {
+  grid-row: 1 / span 2;
+  grid-column: 1;
+}
+
+/*
+ * Side by side once the plate is wide enough for both rows and the switch — the
+ * pair is one control with two ends, and stacking them on a 700px plate spent a
+ * second 54px band saying so. The switch takes its own row height here and
+ * leads them, the way it does on desktop.
  */
 .nudger--mobile {
   @include screen-wide {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: auto 1fr 1fr;
     gap: 10px;
+
+    .nudger__arm {
+      grid-row: auto;
+    }
   }
 }
 
@@ -123,21 +144,11 @@ const points = computed(() => [
   color: var(--ink);
 }
 
-.nudger__leader {
-  flex: 1;
-  min-width: 8px;
-  border-bottom: 1px dotted var(--surface-edge);
-  transform: translateY(-4px);
-}
-
-.nudger__name {
-  @include legend(10px);
-  flex: none;
-  padding-right: 4px;
-}
-
+/* The keys keep to the row's right edge; the leader used to do this by being
+   the flexible thing between them and the time. */
 .nudger__steps {
   flex: none;
+  margin-left: auto;
   display: flex;
   gap: 6px;
 }
@@ -155,18 +166,16 @@ const points = computed(() => [
   display: flex;
   gap: 10px;
 
+  .nudger__arm {
+    grid-row: auto;
+  }
+
   /* Content-sized on desktop: the controls row wraps rather than squashing. */
   .nudger__row {
     flex: none;
     gap: 9px;
     height: 52px;
     padding: 0 6px 0 11px;
-  }
-
-  /* No room for nomenclature in a compact row, and no empty field to fill. */
-  .nudger__leader,
-  .nudger__name {
-    display: none;
   }
 
   .nudger__time {

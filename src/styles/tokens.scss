@@ -86,6 +86,13 @@
    * momentary press. Same convention as above, one step further in.
    */
   --shadow-key-held: inset 0 1px 3px rgba(0, 0, 0, 0.45);
+  /*
+   * The same sustained press on a light cap, whose ground is plate rather than
+   * ink: the passages handle while its drawer is open. One step past
+   * `--shadow-cap-light`'s momentary press for the same reason as above — at
+   * press depth a state that persists is too quiet to read as a state.
+   */
+  --shadow-cap-light-held: inset 0 2px 4px rgba(88, 80, 64, 0.34);
   --shadow-well: inset 0 1px 2px rgba(88, 80, 64, 0.16), inset 0 0 0 1px var(--surface-edge);
   --shadow-popover: 0 1px 2px rgba(72, 66, 54, 0.16), 0 10px 28px rgba(72, 66, 54, 0.18);
   /*

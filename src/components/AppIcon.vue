@@ -33,6 +33,7 @@ import {
   PhPlus,
   PhRewind,
   PhSpotifyLogo,
+  PhTrash,
   PhWarning,
   PhX,
 } from '@phosphor-icons/vue';
@@ -44,6 +45,7 @@ type IconName =
   | 'pause'
   | 'search'
   | 'close'
+  | 'delete'
   | 'minus'
   | 'plus'
   | 'alert'
@@ -61,6 +63,7 @@ const GLYPHS: Record<IconName, Component> = {
   pause: PhPause,
   search: PhMagnifyingGlass,
   close: PhX,
+  delete: PhTrash,
   minus: PhMinus,
   plus: PhPlus,
   alert: PhWarning,

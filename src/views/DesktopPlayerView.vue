@@ -5,8 +5,9 @@ import AppIcon from '@/components/AppIcon.vue';
 import AppBrand from '@/components/AppBrand.vue';
 import DesktopSearchField from '@/components/DesktopSearchField.vue';
 import LoopNudger from '@/components/LoopNudger.vue';
-import LoopToggle from '@/components/LoopToggle.vue';
 import NowPlayingHeader from '@/components/NowPlayingHeader.vue';
+import PassagesBand from '@/components/PassagesBand.vue';
+import PassagesToggle from '@/components/PassagesToggle.vue';
 import SessionStatus from '@/components/SessionStatus.vue';
 import TimeReadout from '@/components/TimeReadout.vue';
 import TrackRow from '@/components/TrackRow.vue';
@@ -82,10 +83,15 @@ const { heldPoint } = usePlayerKeyboard();
           <TrackTimeline :bar-count="barCount" :field-height="152" variant="desktop" />
         </section>
 
-        <div class="desktop__controls">
-          <TransportControls variant="desktop" />
-          <LoopNudger variant="desktop" />
-          <LoopToggle class="desktop__loop" variant="desktop" />
+        <!-- The controls row and its drawer are one block, so the column's own
+             24px gap lands above the row rather than around a shut drawer. -->
+        <div class="desktop__control-block">
+          <div class="desktop__controls">
+            <TransportControls variant="desktop" />
+            <LoopNudger variant="desktop" />
+            <PassagesToggle class="desktop__passages" variant="desktop" />
+          </div>
+          <PassagesBand variant="desktop" />
         </div>
       </main>
     </div>
@@ -103,6 +109,10 @@ const { heldPoint } = usePlayerKeyboard();
       <span class="desktop__shortcut">
         <kbd class="desktop__key desktop__key--narrow">L</kbd>
         <span class="desktop__shortcut-label">Loop</span>
+      </span>
+      <span class="desktop__shortcut">
+        <kbd class="desktop__key desktop__key--narrow">S</kbd>
+        <span class="desktop__shortcut-label">Save</span>
       </span>
       <span class="desktop__shortcut">
         <kbd
@@ -257,8 +267,17 @@ const { heldPoint } = usePlayerKeyboard();
   flex: none;
 }
 
-.desktop__loop {
+/* The drawer's handle keeps to the right edge of whichever line it lands on.
+   The loop's switch used to sit outboard of it; it is a cell in the nudger
+   now, so this is the row's one right-anchored control. */
+.desktop__passages {
   margin-left: auto;
+}
+
+.desktop__control-block {
+  display: flex;
+  flex-direction: column;
+  flex: none;
 }
 
 /* An engraved chassis strip: recessed a shade below the plate, with the
