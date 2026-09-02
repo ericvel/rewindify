@@ -12,12 +12,36 @@ import { usePlayerStore } from '@/stores/player';
  * so the layer belongs to the player, not to one breakpoint.
  */
 
-/** Elements that own these keys themselves; the global shortcut stands down. */
-const INTERACTIVE = new Set(['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A']);
+/**
+ * Only text entry stands the global shortcuts down.
+ *
+ * Buttons and links used to be on this list too, which meant the shortcuts went
+ * dead the moment the pointer touched a transport control: clicking play leaves
+ * that button focused, so the space bar after it hit the button's own handler
+ * instead of the player. Focus is not intent here — the keys belong to the
+ * player everywhere except where a caret is waiting for the same characters.
+ */
+const TEXT_ENTRY = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
+
+/** Checkboxes, radios and buttons wear the INPUT tag but take no text. */
+const NON_TEXT_INPUT_TYPES = new Set([
+  'button',
+  'checkbox',
+  'color',
+  'file',
+  'image',
+  'radio',
+  'range',
+  'reset',
+  'submit',
+]);
 
 function ownsKeyboard(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
-  return INTERACTIVE.has(target.tagName) || target.isContentEditable;
+  if (target.isContentEditable) return true;
+  if (!TEXT_ENTRY.has(target.tagName)) return false;
+  if (target instanceof HTMLInputElement) return !NON_TEXT_INPUT_TYPES.has(target.type);
+  return true;
 }
 
 /** A or B held down turns the arrows into a nudge of that loop point. */

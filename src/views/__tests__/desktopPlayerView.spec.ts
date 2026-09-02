@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { mount } from '@vue/test-utils';
 import DesktopPlayerView from '../DesktopPlayerView.vue';
@@ -17,6 +17,18 @@ function press(key: string) {
 
 function release(key: string) {
   window.dispatchEvent(new KeyboardEvent('keyup', { key, bubbles: true }));
+}
+
+/** Presses a key with something on the page focused, the way a real one arrives. */
+function pressFrom(el: HTMLElement, key: string) {
+  el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+}
+
+function mountEl<K extends keyof HTMLElementTagNameMap>(tag: K, type?: string) {
+  const el = document.createElement(tag);
+  if (type && el instanceof HTMLInputElement) el.type = type;
+  document.body.append(el);
+  return el;
 }
 
 describe('DesktopPlayerView loop shortcuts', () => {
@@ -83,5 +95,58 @@ describe('DesktopPlayerView loop shortcuts', () => {
     for (let i = 0; i < 40; i += 1) press('ArrowLeft');
     expect(player.loopB).toBe(32);
     expect(player.loopA).toBe(30);
+  });
+});
+
+describe('shortcuts and whatever holds focus', () => {
+  let player: ReturnType<typeof usePlayerStore>;
+
+  beforeEach(async () => {
+    setActivePinia(createPinia());
+    player = usePlayerStore();
+    await player.loadTrack(TEST_TRACK, { a: 30, b: 60, on: true });
+    mount(DesktopPlayerView, { props: { track: TEST_TRACK }, shallow: true });
+  });
+
+  afterEach(() => {
+    document.body.replaceChildren();
+  });
+
+  // Clicking a transport control leaves it focused, so this is the state the
+  // keyboard is usually in — not an edge case.
+  it('still toggles play from a focused button', async () => {
+    pressFrom(mountEl('button'), ' ');
+    await Promise.resolve();
+    expect(player.isPlaying).toBe(true);
+  });
+
+  it('still steps from a focused link', () => {
+    const start = player.position;
+    pressFrom(mountEl('a'), 'ArrowRight');
+    expect(player.position).toBe(start + player.skipSeconds);
+  });
+
+  it('still nudges from a focused checkbox', () => {
+    pressFrom(mountEl('input', 'checkbox'), 'a');
+    press('ArrowRight');
+    expect(player.loopA).toBe(31);
+  });
+
+  it('leaves a text field alone', async () => {
+    const input = mountEl('input', 'text');
+    pressFrom(input, ' ');
+    pressFrom(input, 'l');
+    await Promise.resolve();
+    expect(player.isPlaying).toBe(false);
+    expect(player.loopOn).toBe(true);
+  });
+
+  it('leaves a contenteditable alone', async () => {
+    const div = mountEl('div');
+    // jsdom never computes `isContentEditable`, so set what a browser would.
+    Object.defineProperty(div, 'isContentEditable', { value: true });
+    pressFrom(div, ' ');
+    await Promise.resolve();
+    expect(player.isPlaying).toBe(false);
   });
 });
