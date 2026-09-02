@@ -3,7 +3,7 @@
  * The loop's own control: a cell in the nudger's band at both steps.
  *
  * It used to be a cap of its own — 123px at the far end of the desktop
- * controls row, and a full-width band on the phone shared with the passages
+ * controls row, and a full-width band on the phone shared with the saved-loops
  * handle. Both read it as a peer of that handle, which is a different job:
  * the handle recalls stored spans, this arms the live one. It is now a recess
  * standing with A and B, and its material says so — the A/B rows are wells,

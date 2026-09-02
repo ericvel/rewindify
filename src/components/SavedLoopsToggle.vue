@@ -2,11 +2,19 @@
 /**
  * The drawer's handle, sitting in the loop group beside the switch.
  *
- * Its material is `cap-light()` because recalling a passage is a thing you
+ * Its material is `cap-light()` because recalling a stored span is a thing you
  * press often, not constantly and not almost never — the Frequency Sets
  * Material Rule puts it on exactly the same footing as the loop switch it
  * stands next to, and it takes that switch's label register so the pair reads
  * as one group rather than as two unrelated controls.
+ *
+ * It printed `PASSAGES` first, and that word was the one thing on this plate
+ * with no relation to anything else printed on it: the switch beside it says
+ * LOOP, the status bar says LOOP and MOVE LOOP, and the drawer this handle
+ * opens calls the same rows "saved". `SAVED LOOPS` says what a row is in the
+ * vocabulary the switch has already taught — two words rather than one so it
+ * cannot be scanned as that switch — and leaves *passage* to mean the music,
+ * which is the only job that word does well.
  *
  * A disclosure needs to show which way it is set, and this world already has
  * the device: a cap whose drawer is open is pressed and stays pressed, the way
@@ -25,23 +33,23 @@ withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), { variant: 'mobi
 
 const player = usePlayerStore();
 
-const count = computed(() => player.trackPassages.length);
+const count = computed(() => player.trackSavedLoops.length);
 </script>
 
 <template>
   <button
-    id="passages-toggle"
+    id="saved-loops-toggle"
     type="button"
-    class="passages-toggle"
-    :class="[`passages-toggle--${variant}`, { 'is-open': player.passagesOpen }]"
-    :aria-expanded="player.passagesOpen"
-    aria-controls="passages-band"
-    @click="player.togglePassages()"
+    class="saved-loops-toggle"
+    :class="[`saved-loops-toggle--${variant}`, { 'is-open': player.savedLoopsOpen }]"
+    :aria-expanded="player.savedLoopsOpen"
+    aria-controls="saved-loops-band"
+    @click="player.toggleSavedLoops()"
   >
-    <span class="passages-toggle__label">Passages</span>
+    <span class="saved-loops-toggle__label">Saved loops</span>
     <template v-if="count > 0">
-      <span class="passages-toggle__separator" aria-hidden="true">·</span>
-      <span class="passages-toggle__count">{{ count }}</span>
+      <span class="saved-loops-toggle__separator" aria-hidden="true">·</span>
+      <span class="saved-loops-toggle__count">{{ count }}</span>
     </template>
   </button>
 </template>
@@ -49,7 +57,7 @@ const count = computed(() => player.trackPassages.length);
 <style scoped lang="scss">
 @use '@/styles/surfaces' as *;
 
-.passages-toggle {
+.saved-loops-toggle {
   @include cap-light;
   display: flex;
   align-items: center;
@@ -76,7 +84,7 @@ const count = computed(() => player.trackPassages.length);
 }
 
 /* The loop switch's label register exactly, so the two read as one group. */
-.passages-toggle__label {
+.saved-loops-toggle__label {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -85,13 +93,13 @@ const count = computed(() => player.trackPassages.length);
   color: var(--ink);
 }
 
-.passages-toggle__separator {
+.saved-loops-toggle__separator {
   font-size: 12px;
   line-height: 1;
   color: var(--ink-label);
 }
 
-.passages-toggle__count {
+.saved-loops-toggle__count {
   @include figures;
   font-size: 12px;
   font-weight: 500;
@@ -102,22 +110,22 @@ const count = computed(() => player.trackPassages.length);
 
 /* Matched to the loop switch's height at both steps: a ragged row of controls
    is the first thing that stops a panel reading as machined. */
-.passages-toggle--mobile {
+.saved-loops-toggle--mobile {
   height: 62px;
   padding: 0 16px;
 }
 
-.passages-toggle--desktop {
+.saved-loops-toggle--desktop {
   height: 52px;
   padding: 0 15px;
 
-  .passages-toggle__label {
+  .saved-loops-toggle__label {
     font-size: 12px;
   }
 }
 
 @media (hover: hover) {
-  .passages-toggle:not(.is-open):hover {
+  .saved-loops-toggle:not(.is-open):hover {
     background: linear-gradient(var(--surface-hi), var(--surface-raised));
   }
 }

@@ -76,9 +76,14 @@ Confirmed capabilities:
   Reachable as the two outer transport buttons and as the left/right arrow keys.
 - A/B loop over the waveform timeline, with draggable playhead and A/B handles,
   and a minimum loop length of 2 seconds.
+- Saved loops, per track, persisted locally (`rewindify:saved-loops`): the armed
+  span is stored with an optional name, printed as an index in a drawer under
+  the controls, and re-applied in one press — both ends set, the loop switched
+  on, playback returned to A. Twelve to a track, fifty tracks.
 - Keyboard control: space toggles play, arrows step back and forward by the
   configured skip, holding A or B turns the arrows into a nudge of that loop
-  point, L toggles the loop.
+  point, L toggles the loop, S opens the saved-loops drawer with the caret in
+  its name field.
 - Track search and a recently played list, both reading the Spotify account.
 - Per-user preferences persisted locally: skip size
   (`rewindify:skipSeconds`) and remaining-versus-total time display.
@@ -118,7 +123,11 @@ open.
 Terminology: **step** (or rewind/fast-forward) is a fixed-size move by the skip
 amount, and it is what Spotify's drag-only progress bar cannot do; **A** and
 **B** are the loop points; **the loop** is the passage
-between them; **nudge** is a keyboard-sized adjustment of one point; **the
+between them; **a saved loop** is one of those spans stored on the track it was
+taken from, and **saved loops** is the feature's name in the interface — the
+handle prints it, because *passage* is a word for the music and naming a
+control after it left the control unrelated to everything else printed on the
+plate; **nudge** is a keyboard-sized adjustment of one point; **the
 timeline** is the waveform display the loop is set on — "the timeline" stays the
 user-facing word, because calling it the waveform in copy would be a claim about
 the audio that the fabricated shape cannot back.

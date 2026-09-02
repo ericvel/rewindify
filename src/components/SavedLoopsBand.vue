@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * The passages drawer: a printed index of the spans saved on this track.
+ * The saved-loops drawer: a printed index of the spans saved on this track.
  *
  * Cut into the plate below the controls rather than floated over it, so The One
  * Popover Rule holds — the desktop search results remain the only thing in this
@@ -12,7 +12,7 @@
  * the loop is currently sitting on: a 3px `accent-strong` rail, which is the
  * timeline bracket's own material at a fifth scale beside the two rails, the two
  * boundary rules, the A/B markers and the nudger chips. It transitions on
- * `--arm-duration`, so applying a passage lights the bracket, the chips, the
+ * `--arm-duration`, so applying a loop lights the bracket, the chips, the
  * switch label and the row together in the one sweep the system already owns —
  * an element added to The One Authored Moment, not a moment of its own.
  *
@@ -29,7 +29,7 @@
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
 import AppIcon from './AppIcon.vue';
 import { formatTime } from '@/playback/time';
-import { PASSAGE_NAME_MAX, type SavedPassage } from '@/playback/passages';
+import { LOOP_NAME_MAX, type SavedLoop } from '@/playback/savedLoops';
 import { usePlayerStore } from '@/stores/player';
 
 withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), { variant: 'mobile' });
@@ -41,17 +41,17 @@ const draft = ref('');
 const nameEl = useTemplateRef<HTMLInputElement>('name');
 
 /** En dash, the form the panel footer used before it was cut. */
-function timeRange(passage: SavedPassage) {
-  return `${formatTime(passage.a)} – ${formatTime(passage.b)}`;
+function timeRange(loop: SavedLoop) {
+  return `${formatTime(loop.a)} – ${formatTime(loop.b)}`;
 }
 
 /** What the row prints as its identity, and what a delete label names. */
-function identity(passage: SavedPassage) {
-  return passage.name ?? timeRange(passage);
+function identity(loop: SavedLoop) {
+  return loop.name ?? timeRange(loop);
 }
 
 /**
- * The field's placeholder is the passage's own times, so an empty commit is
+ * The field's placeholder is the loop's own times, so an empty commit is
  * visibly the same as accepting them. That is what makes the name optional in
  * fact rather than in the docs: Enter on an untouched field stores no name and
  * the row prints these figures instead.
@@ -59,7 +59,7 @@ function identity(passage: SavedPassage) {
 const placeholder = computed(() => `${formatTime(player.loopA)} – ${formatTime(player.loopB)}`);
 
 async function beginNaming() {
-  if (player.savePassageBlocked !== null) return;
+  if (player.saveLoopBlocked !== null) return;
   draft.value = '';
   naming.value = true;
   await nextTick();
@@ -76,26 +76,26 @@ function cancelNaming() {
  *
  * Enter is wired on the field explicitly rather than left to the form's
  * implicit submission: it is a promised part of the keyboard path — the whole
- * point of `S` is that pinning a passage never needs the pointer — and it is
+ * point of `S` is that pinning a loop never needs the pointer — and it is
  * not worth resting on a default action that a browser can decline to perform.
  * The `<form>` stays, because it is what makes the Save control a submit
  * control for everyone arriving by pointer.
  */
 function commit() {
-  player.savePassage(draft.value);
+  player.saveLoop(draft.value);
   cancelNaming();
 }
 
 /** `S` from anywhere on the surface, and the header's own save control. */
-watch(() => player.passageSaveRequest, beginNaming);
+watch(() => player.loopSaveRequest, beginNaming);
 
 /*
  * A shut drawer holds no half-typed name, and a name typed against one track's
  * bounds may not be committed against another's — the band stays open across a
- * track change so the new track's passages are already showing.
+ * track change so the new track's saved loops are already showing.
  */
 watch(
-  () => player.passagesOpen,
+  () => player.savedLoopsOpen,
   (open) => {
     if (!open) cancelNaming();
   },
@@ -113,20 +113,20 @@ function onEscape() {
 }
 
 function close() {
-  player.closePassages();
+  player.closeSavedLoops();
   // Focus came from the handle and goes back to it; leaving it on a control
   // inside a shut drawer strands the keyboard on nothing.
-  document.getElementById('passages-toggle')?.focus();
+  document.getElementById('saved-loops-toggle')?.focus();
 }
 </script>
 
 <template>
-  <div class="band" :class="[`band--${variant}`, { 'is-open': player.passagesOpen }]">
+  <div class="band" :class="[`band--${variant}`, { 'is-open': player.savedLoopsOpen }]">
     <div class="band__reveal">
       <section
-        id="passages-band"
+        id="saved-loops-band"
         class="band__panel"
-        :inert="!player.passagesOpen"
+        :inert="!player.savedLoopsOpen"
         @keydown.esc.stop="onEscape"
       >
         <header class="band__header">
@@ -138,9 +138,9 @@ function close() {
             v-if="!naming"
             type="button"
             class="band__save"
-            :class="{ 'is-blocked': player.savePassageBlocked !== null }"
-            :aria-disabled="player.savePassageBlocked !== null"
-            :aria-label="player.savePassageBlocked ?? 'Save this passage'"
+            :class="{ 'is-blocked': player.saveLoopBlocked !== null }"
+            :aria-disabled="player.saveLoopBlocked !== null"
+            :aria-label="player.saveLoopBlocked ?? 'Save this loop'"
             @click="beginNaming()"
           >
             <AppIcon name="plus" :size="16" />
@@ -154,8 +154,8 @@ function close() {
             class="band__field"
             type="text"
             :placeholder="placeholder"
-            :maxlength="PASSAGE_NAME_MAX"
-            aria-label="Passage name, optional"
+            :maxlength="LOOP_NAME_MAX"
+            aria-label="Name for this loop (optional)"
             autocomplete="off"
             spellcheck="false"
             @keydown.enter.prevent="commit()"
@@ -163,18 +163,18 @@ function close() {
           <button type="submit" class="band__commit">Save</button>
         </form>
 
-        <ul v-if="player.trackPassages.length > 0" class="band__list">
+        <ul v-if="player.trackSavedLoops.length > 0" class="band__list">
           <li
-            v-for="passage in player.trackPassages"
-            :key="passage.id"
+            v-for="loop in player.trackSavedLoops"
+            :key="loop.id"
             class="band__item"
-            :class="{ 'is-armed': passage.id === player.armedPassageId }"
+            :class="{ 'is-armed': loop.id === player.armedSavedLoopId }"
           >
             <button
               type="button"
               class="band__row"
-              :aria-current="passage.id === player.armedPassageId ? 'true' : undefined"
-              @click="player.applyPassage(passage.id)"
+              :aria-current="loop.id === player.armedSavedLoopId ? 'true' : undefined"
+              @click="player.applySavedLoop(loop.id)"
             >
               <!-- Mounted on every row so it sweeps rather than appears, the
                    same reason the timeline's span is always in the tree. -->
@@ -184,26 +184,26 @@ function close() {
                    alignment on the row itself would drop the text to the top of
                    a box sized for a 40px tap target. -->
               <span class="band__line">
-                <span class="band__name" :class="{ 'is-figure': passage.name === null }">
-                  {{ identity(passage) }}
+                <span class="band__name" :class="{ 'is-figure': loop.name === null }">
+                  {{ identity(loop) }}
                 </span>
-                <template v-if="passage.name !== null">
+                <template v-if="loop.name !== null">
                   <span class="band__row-leader" aria-hidden="true" />
-                  <span class="band__times">{{ timeRange(passage) }}</span>
+                  <span class="band__times">{{ timeRange(loop) }}</span>
                 </template>
               </span>
             </button>
             <button
               type="button"
               class="band__delete"
-              :aria-label="`Delete passage ${identity(passage)}`"
-              @click="player.deletePassage(passage.id)"
+              :aria-label="`Delete saved loop ${identity(loop)}`"
+              @click="player.deleteSavedLoop(loop.id)"
             >
               <AppIcon name="delete" :size="15" />
             </button>
           </li>
         </ul>
-        <p v-else class="band__empty">Nothing saved on this track yet.</p>
+        <p v-else class="band__empty">No loops saved on this track yet.</p>
       </section>
     </div>
   </div>
@@ -317,7 +317,7 @@ function close() {
 }
 
 /*
- * The control-label register the loop switch and the passages handle both take,
+ * The control-label register the drawer's handle takes as well,
  * rather than a fourth setting at 13px. A word on a cap in this system is
  * nomenclature, and the three of them are peers.
  */
@@ -377,7 +377,7 @@ function close() {
  * The one place this feature spends the accent: the boundary rule from the
  * timeline bracket, stood on end at row scale. It means what it means
  * everywhere else — this is the loop — and it sweeps from its centre on the
- * arm token so applying a passage is one gesture across the whole surface.
+ * arm token so applying a loop is one gesture across the whole surface.
  */
 .band__rail {
   position: absolute;
@@ -420,7 +420,7 @@ function close() {
 }
 
 /*
- * An unnamed passage is identified *by* its times, so they take the row title's
+ * An unnamed loop is identified *by* its times, so they take the row title's
  * own step rather than the supporting figure's. Same value, two registers, set
  * by which job it is doing in the row.
  */
@@ -445,7 +445,7 @@ function close() {
   color: var(--ink-label);
 }
 
-/* Print, not a cap: deleting a passage is the rarest thing in this drawer, and
+/* Print, not a cap: deleting a loop is the rarest thing in this drawer, and
    the Frequency Sets Material Rule keeps the material honest about that. */
 .band__delete {
   flex: none;

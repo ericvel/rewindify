@@ -6,8 +6,8 @@ import AppBrand from '@/components/AppBrand.vue';
 import DesktopSearchField from '@/components/DesktopSearchField.vue';
 import LoopNudger from '@/components/LoopNudger.vue';
 import NowPlayingHeader from '@/components/NowPlayingHeader.vue';
-import PassagesBand from '@/components/PassagesBand.vue';
-import PassagesToggle from '@/components/PassagesToggle.vue';
+import SavedLoopsBand from '@/components/SavedLoopsBand.vue';
+import SavedLoopsToggle from '@/components/SavedLoopsToggle.vue';
 import SessionStatus from '@/components/SessionStatus.vue';
 import TimeReadout from '@/components/TimeReadout.vue';
 import TrackRow from '@/components/TrackRow.vue';
@@ -89,9 +89,9 @@ const { heldPoint } = usePlayerKeyboard();
           <div class="desktop__controls">
             <TransportControls variant="desktop" />
             <LoopNudger variant="desktop" />
-            <PassagesToggle class="desktop__passages" variant="desktop" />
+            <SavedLoopsToggle class="desktop__saved-loops" variant="desktop" />
           </div>
-          <PassagesBand variant="desktop" />
+          <SavedLoopsBand variant="desktop" />
         </div>
       </main>
     </div>
@@ -112,7 +112,7 @@ const { heldPoint } = usePlayerKeyboard();
       </span>
       <span class="desktop__shortcut">
         <kbd class="desktop__key desktop__key--narrow">S</kbd>
-        <span class="desktop__shortcut-label">Save</span>
+        <span class="desktop__shortcut-label">Save loop</span>
       </span>
       <span class="desktop__shortcut">
         <kbd
@@ -270,7 +270,7 @@ const { heldPoint } = usePlayerKeyboard();
 /* The drawer's handle keeps to the right edge of whichever line it lands on.
    The loop's switch used to sit outboard of it; it is a cell in the nudger
    now, so this is the row's one right-anchored control. */
-.desktop__passages {
+.desktop__saved-loops {
   margin-left: auto;
 }
 

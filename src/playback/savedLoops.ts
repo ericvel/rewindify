@@ -1,17 +1,24 @@
 /**
- * Saved passages: the loop, made persistent.
+ * Saved loops: the loop, made persistent.
  *
- * `PRODUCT.md` already calls the span between A and B *the passage*, so nothing
- * here is new vocabulary — it makes an existing noun outlive the session. A
- * passage belongs to the track it was taken from and to nothing else: 0:30–1:00
- * is meaningless on a different recording, so the store is keyed by track id
- * and no row can ever cross tracks.
+ * The feature shipped as *passages* first, borrowing the word PRODUCT.md uses
+ * for the span between A and B. That word was doing two jobs at once. Nothing
+ * else on the plate printed it — the switch beside the handle says LOOP, the
+ * status bar says LOOP and MOVE LOOP — so the handle named a category with no
+ * stated relation to the control it belongs to, while the drawer underneath
+ * called the same rows "saved". The music is still a passage; what this module
+ * stores is a *loop*, in the switch's own vocabulary, and every place the
+ * interface prints the word now says that.
+ *
+ * A saved loop belongs to the track it was taken from and to nothing else:
+ * 0:30–1:00 is meaningless on a different recording, so the store is keyed by
+ * track id and no row can ever cross tracks.
  *
  * Kept pure, the way `loop.ts` is, so the rules are testable without a clock,
  * a store or a browser. Everything stateful lives in `stores/player.ts`.
  */
 
-export interface SavedPassage {
+export interface SavedLoop {
   id: string;
   /** Null when the user saved without typing one; the row then prints its times. */
   name: string | null;
@@ -20,16 +27,16 @@ export interface SavedPassage {
   savedAt: number;
 }
 
-/** Passages by track id. The shape written to `rewindify:passages`. */
-export type PassageStore = Record<string, SavedPassage[]>;
+/** Saved loops by track id. The shape written to `rewindify:saved-loops`. */
+export type SavedLoopStore = Record<string, SavedLoop[]>;
 
 /**
  * Twelve is the point at which a printed index stops being scannable, and the
  * band is capped to a few visible rows anyway. Reaching it disables saving
- * rather than silently discarding the oldest: a passage the user pinned by ear
+ * rather than silently discarding the oldest: a loop the user pinned by ear
  * is not ours to throw away.
  */
-export const MAX_PASSAGES_PER_TRACK = 12;
+export const MAX_LOOPS_PER_TRACK = 12;
 
 /**
  * A ceiling on the whole blob, so a year of practice cannot grow unbounded in
@@ -39,13 +46,13 @@ export const MAX_PASSAGES_PER_TRACK = 12;
 export const MAX_TRACKS = 50;
 
 /** Longer than this stops fitting a row before the ellipsis earns its keep. */
-export const PASSAGE_NAME_MAX = 40;
+export const LOOP_NAME_MAX = 40;
 
 /**
  * Match precision, in tenths of a second.
  *
  * `useLoopUrlSync` rounds A and B to a tenth on the way into the URL, so a
- * passage that is applied, shared, and opened cold comes back up to 0.05s off
+ * loop that is applied, shared, and opened cold comes back up to 0.05s off
  * what was stored. Comparing at the URL's own precision is what lets that
  * reopened link still light its row.
  */
@@ -53,7 +60,7 @@ function tenths(seconds: number): number {
   return Math.round(seconds * 10);
 }
 
-function isPassage(value: unknown): value is SavedPassage {
+function isSavedLoop(value: unknown): value is SavedLoop {
   if (typeof value !== 'object' || value === null) return false;
   const entry = value as Record<string, unknown>;
   return (
@@ -71,8 +78,8 @@ function isPassage(value: unknown): value is SavedPassage {
 }
 
 /** The newest save in a list, or 0 for an empty one. */
-function newestSave(passages: SavedPassage[]): number {
-  return passages.reduce((newest, entry) => Math.max(newest, entry.savedAt), 0);
+function newestSave(loops: SavedLoop[]): number {
+  return loops.reduce((newest, entry) => Math.max(newest, entry.savedAt), 0);
 }
 
 /**
@@ -84,18 +91,18 @@ function newestSave(passages: SavedPassage[]): number {
  * than trusted: bad entries are dropped, good ones survive, and a boot never
  * throws on a value the app itself did not write.
  */
-export function normalisePassages(raw: unknown): PassageStore {
+export function normaliseSavedLoops(raw: unknown): SavedLoopStore {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return {};
 
-  const byTrack: PassageStore = {};
+  const byTrack: SavedLoopStore = {};
   for (const [trackId, value] of Object.entries(raw as Record<string, unknown>)) {
     if (trackId === '' || !Array.isArray(value)) continue;
-    const passages = value
-      .filter(isPassage)
+    const loops = value
+      .filter(isSavedLoop)
       .map((entry) => ({ ...entry, name: normaliseName(entry.name) }))
       .sort((left, right) => right.savedAt - left.savedAt)
-      .slice(0, MAX_PASSAGES_PER_TRACK);
-    if (passages.length > 0) byTrack[trackId] = passages;
+      .slice(0, MAX_LOOPS_PER_TRACK);
+    if (loops.length > 0) byTrack[trackId] = loops;
   }
 
   const tracks = Object.entries(byTrack);
@@ -109,38 +116,34 @@ export function normalisePassages(raw: unknown): PassageStore {
 
 /** A typed name, or null for the rows that print their times instead. */
 export function normaliseName(name: string | null | undefined): string | null {
-  const trimmed = (name ?? '').trim().slice(0, PASSAGE_NAME_MAX);
+  const trimmed = (name ?? '').trim().slice(0, LOOP_NAME_MAX);
   return trimmed === '' ? null : trimmed;
 }
 
 /**
- * The saved passage holding these bounds, or null.
+ * The saved loop holding these bounds, or null.
  *
  * The whole information content of the band rests on this: when it returns a
- * row, the armed loop *is* that passage; when it returns null after returning
+ * row, the armed loop *is* that loop; when it returns null after returning
  * one, a nudge has moved you off it, and the row's printed times and the
  * nudger's live ones now disagree on purpose.
  */
-export function findPassage(
-  passages: SavedPassage[],
-  a: number,
-  b: number,
-): SavedPassage | undefined {
-  return passages.find((entry) => tenths(entry.a) === tenths(a) && tenths(entry.b) === tenths(b));
+export function findSavedLoop(loops: SavedLoop[], a: number, b: number): SavedLoop | undefined {
+  return loops.find((entry) => tenths(entry.a) === tenths(a) && tenths(entry.b) === tenths(b));
 }
 
 /** Newest first, capped. The order the band prints. */
-export function addPassage(passages: SavedPassage[], entry: SavedPassage): SavedPassage[] {
-  return [entry, ...passages].slice(0, MAX_PASSAGES_PER_TRACK);
+export function addSavedLoop(loops: SavedLoop[], entry: SavedLoop): SavedLoop[] {
+  return [entry, ...loops].slice(0, MAX_LOOPS_PER_TRACK);
 }
 
 /**
  * `crypto.randomUUID` needs a secure context, which the app always has —
- * Spotify's SDK requires HTTPS and localhost counts — but a passage failing to
+ * Spotify's SDK requires HTTPS and localhost counts — but a loop failing to
  * save because an id could not be minted would be a poor trade for that
  * certainty.
  */
-export function newPassageId(): string {
+export function newLoopId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
   }

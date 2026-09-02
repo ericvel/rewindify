@@ -5,8 +5,8 @@ import AppBrand from '@/components/AppBrand.vue';
 import LoopNudger from '@/components/LoopNudger.vue';
 import MobileSearchOverlay from '@/components/MobileSearchOverlay.vue';
 import NowPlayingHeader from '@/components/NowPlayingHeader.vue';
-import PassagesBand from '@/components/PassagesBand.vue';
-import PassagesToggle from '@/components/PassagesToggle.vue';
+import SavedLoopsBand from '@/components/SavedLoopsBand.vue';
+import SavedLoopsToggle from '@/components/SavedLoopsToggle.vue';
 import SessionStatus from '@/components/SessionStatus.vue';
 import TimeReadout from '@/components/TimeReadout.vue';
 import TransportControls from '@/components/TransportControls.vue';
@@ -88,8 +88,8 @@ function onSelect(track: Track) {
          block keeps the drawer under its own handle. The switch has moved into
          the nudger above, where it stands with the two ends it arms. -->
     <div class="phone__loop-block">
-      <PassagesToggle variant="mobile" />
-      <PassagesBand variant="mobile" />
+      <SavedLoopsToggle variant="mobile" />
+      <SavedLoopsBand variant="mobile" />
     </div>
 
     <MobileSearchOverlay v-if="searchOpen" @close="searchOpen = false" @select="onSelect" />

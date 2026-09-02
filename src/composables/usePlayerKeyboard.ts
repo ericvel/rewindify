@@ -54,12 +54,12 @@ export function usePlayerKeyboard() {
       event.preventDefault();
       player.toggleLoop();
     } else if (event.key.toLowerCase() === 's') {
-      // Pinning a passage happens mid-practice, with both hands busy: one key
-      // opens the band and puts the caret in the name field, so the frequent
+      // Saving a loop happens mid-practice, with both hands busy: one key
+      // opens the drawer and puts the caret in the name field, so the frequent
       // path never needs the pointer. `ownsKeyboard` above is what keeps this
       // from firing while that field is being typed into.
       event.preventDefault();
-      player.requestPassageSave();
+      player.requestLoopSave();
     }
   }
 
