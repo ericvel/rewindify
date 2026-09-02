@@ -5,10 +5,10 @@ import { useSessionStore } from '@/stores/session';
 const router = useRouter();
 const session = useSessionStore();
 
-/** Leaving the connect screen is the guard's job once the session is gone. */
+/** Leaving the sign-in screen is the guard's job once the session is gone. */
 async function signOut() {
   await session.disconnect();
-  await router.replace({ name: 'connect' });
+  await router.replace({ name: 'sign-in' });
 }
 </script>
 

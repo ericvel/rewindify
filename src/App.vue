@@ -16,8 +16,8 @@ const session = useSessionStore();
 watch(
   () => session.isConnected,
   (isConnected) => {
-    if (isConnected || route.name === 'connect' || route.name === 'callback') return;
-    void router.replace({ name: 'connect' });
+    if (isConnected || route.name === 'sign-in' || route.name === 'callback') return;
+    void router.replace({ name: 'sign-in' });
   },
 );
 </script>

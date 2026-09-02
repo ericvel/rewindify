@@ -660,7 +660,7 @@
       "Don't ease a position value, and don't interpolate the playhead.",
       "Don't hard-code a breakpoint width; import it from styles/breakpoints.",
       "Don't give the A/B timeline grips their own keyboard path \u2014 LoopNudger owns those values as real buttons.",
-      "Don't invent a Spotify mark. ConnectView's neutral disc is a placeholder slot for the official asset, not a design decision to defend.",
+      "Don't invent a Spotify mark. SignInView's neutral disc is a placeholder slot for the official asset, not a design decision to defend.",
       "Don't let a pointer affordance under 40px ship on the phone. The nudge keys are 40px square because the user is holding an instrument.",
       "Don't invent a font size. The ramp is 15 documented steps and every role declares a desktop and a phone step; there is no fluid type in this build.",
       "Don't pick a radius for a switch track. It is half the track height, rounded up."

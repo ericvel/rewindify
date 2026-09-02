@@ -28,7 +28,7 @@ const notice = computed(() =>
  * far side of the redirect knows where the visitor was going. Nothing after
  * this runs on this page: the answer arrives on `/callback`.
  */
-async function connect() {
+async function signIn() {
   await session.connect(resolveRedirectTarget(route.query.redirect));
 }
 </script>
@@ -44,15 +44,15 @@ async function connect() {
   third statement of a bit the heading and the button both make.
 -->
 <template>
-  <div class="connect">
-    <header class="connect__header">
-      <AppBrand class="connect__brand" />
+  <div class="sign-in">
+    <header class="sign-in__header">
+      <AppBrand class="sign-in__brand" />
     </header>
 
-    <main class="connect__body">
-      <div class="connect__panel">
-        <h1 class="connect__title">Step back and loop any passage</h1>
-        <p class="connect__copy">
+    <main class="sign-in__body">
+      <div class="sign-in__panel">
+        <h1 class="sign-in__title">Step back and loop any passage</h1>
+        <p class="sign-in__copy">
           Rewindify plays through your Spotify account. Connecting takes you there to sign in, then
           back here.
         </p>
@@ -62,7 +62,7 @@ async function connect() {
           button rather than replacing the invitation to try again. Inverted ink
           is the product's alert register; the accent is reserved for the loop.
         -->
-        <p v-if="notice" id="connect-notice" class="connect__notice" role="alert">
+        <p v-if="notice" id="sign-in-notice" class="sign-in__notice" role="alert">
           <AppIcon name="alert" :size="15" />
           <span>{{ notice }}</span>
         </p>
@@ -72,22 +72,22 @@ async function connect() {
           that can make this flow fail for a reason trying again cannot fix, so
           it is read before the press rather than found afterwards.
         -->
-        <p id="connect-requirement" class="connect__requirement">Spotify Premium required</p>
+        <p id="sign-in-requirement" class="sign-in__requirement">Spotify Premium required</p>
 
         <button
           type="button"
-          class="connect__action cap-surface"
-          :aria-describedby="notice ? 'connect-notice connect-requirement' : 'connect-requirement'"
+          class="sign-in__action cap-surface"
+          :aria-describedby="notice ? 'sign-in-notice sign-in-requirement' : 'sign-in-requirement'"
           :disabled="!IS_CONFIGURED"
-          @click="connect()"
+          @click="signIn()"
         >
           <AppIcon name="spotify" :size="18" />
-          <span class="connect__action-label">Continue with Spotify</span>
+          <span class="sign-in__action-label">Continue with Spotify</span>
         </button>
       </div>
     </main>
 
-    <footer class="connect__footer">
+    <footer class="sign-in__footer">
       <span>Eric Veliyulin · 2026</span>
     </footer>
   </div>
@@ -97,7 +97,7 @@ async function connect() {
 @use '@/styles/media-queries' as *;
 @use '@/styles/surfaces' as *;
 
-.connect {
+.sign-in {
   width: 100%;
   min-height: 100dvh;
   background: var(--surface-plate);
@@ -106,7 +106,7 @@ async function connect() {
   flex-direction: column;
 }
 
-.connect__header {
+.sign-in__header {
   height: 60px;
   flex: none;
   display: flex;
@@ -121,7 +121,7 @@ async function connect() {
 }
 
 /* Type step only; `AppBrand` owns the mark, the weight and the tracking. */
-.connect__brand {
+.sign-in__brand {
   font-size: 17px;
 
   @include screen-desktop {
@@ -130,7 +130,7 @@ async function connect() {
 }
 
 /* Centred in whatever room the chrome leaves, at every width. */
-.connect__body {
+.sign-in__body {
   flex: 1;
   min-height: 0;
   display: grid;
@@ -138,12 +138,12 @@ async function connect() {
   padding: 24px 16px;
 }
 
-.connect__panel {
+.sign-in__panel {
   width: 100%;
   max-width: 420px;
 }
 
-.connect__title {
+.sign-in__title {
   margin: 0;
   font-size: 25px;
   font-weight: 700;
@@ -156,14 +156,14 @@ async function connect() {
   }
 }
 
-.connect__copy {
+.sign-in__copy {
   margin: 13px 0 0;
   font-size: 15px;
   line-height: 1.45;
   color: var(--ink-body);
 }
 
-.connect__notice {
+.sign-in__notice {
   display: flex;
   align-items: flex-start;
   gap: 9px;
@@ -181,12 +181,12 @@ async function connect() {
  * hairline that used to separate this line from the button is gone with the
  * reordering — it was there to mark a footnote, and this is a label.
  */
-.connect__requirement {
+.sign-in__requirement {
   @include legend(10px);
   margin: 28px 0 0;
 }
 
-.connect__action {
+.sign-in__action {
   @include cap;
   margin-top: 10px;
   width: 100%;
@@ -206,13 +206,13 @@ async function connect() {
   }
 }
 
-.connect__action-label {
+.sign-in__action-label {
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.005em;
 }
 
-.connect__footer {
+.sign-in__footer {
   height: 40px;
   flex: none;
   box-shadow: inset 0 1px 0 var(--surface-edge);

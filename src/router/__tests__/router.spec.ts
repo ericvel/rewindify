@@ -30,7 +30,7 @@ const { default: router } = await import('../index');
 beforeEach(async () => {
   isConnected.value = false;
   mostRecentTrack.value = null;
-  await router.replace('/connect');
+  await router.replace('/sign-in');
   vi.clearAllMocks();
   isConnected.value = true;
 });

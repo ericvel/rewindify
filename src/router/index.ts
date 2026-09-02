@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import CallbackView from '@/views/CallbackView.vue';
-import ConnectView from '@/views/ConnectView.vue';
+import SignInView from '@/views/SignInView.vue';
 import PlayerView from '@/views/PlayerView.vue';
 import StartView from '@/views/StartView.vue';
 import { useLibraryStore } from '@/stores/library';
 import { useSessionStore } from '@/stores/session';
 
 /** Routes a visitor without a session is allowed to reach. */
-const PUBLIC_ROUTES = new Set(['connect', 'callback']);
+const PUBLIC_ROUTES = new Set(['sign-in', 'callback']);
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,9 +20,9 @@ const router = createRouter({
       component: StartView,
     },
     {
-      path: '/connect',
-      name: 'connect',
-      component: ConnectView,
+      path: '/sign-in',
+      name: 'sign-in',
+      component: SignInView,
     },
     {
       // Where Spotify sends the browser back. Must match the redirect uri
@@ -54,10 +54,10 @@ router.beforeEach((to) => {
 
   if (!isConnected) {
     if (PUBLIC_ROUTES.has(String(to.name))) return true;
-    return { name: 'connect', query: { redirect: to.fullPath } };
+    return { name: 'sign-in', query: { redirect: to.fullPath } };
   }
 
-  return to.name === 'connect' ? '/' : true;
+  return to.name === 'sign-in' ? '/' : true;
 });
 
 /**

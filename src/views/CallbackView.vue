@@ -17,7 +17,7 @@ const session = useSessionStore();
  */
 onMounted(async () => {
   const target = await session.completeRedirect(new URLSearchParams(window.location.search));
-  await router.replace(target === null ? { name: 'connect' } : resolveRedirectTarget(target));
+  await router.replace(target === null ? { name: 'sign-in' } : resolveRedirectTarget(target));
 });
 </script>
 
