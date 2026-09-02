@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import AppIcon from '@/components/AppIcon.vue';
+import AppBrand from '@/components/AppBrand.vue';
 import DesktopSearchField from '@/components/DesktopSearchField.vue';
 import MobileSearchOverlay from '@/components/MobileSearchOverlay.vue';
 import SessionStatus from '@/components/SessionStatus.vue';
@@ -29,7 +30,7 @@ function open(track: Track) {
 <template>
   <div class="start">
     <header class="start__header">
-      <span class="start__brand">Rewindify</span>
+      <AppBrand class="start__brand" />
       <span class="start__spacer" />
       <SessionStatus />
       <button
@@ -96,10 +97,9 @@ function open(track: Track) {
   }
 }
 
+/* Type step only; `AppBrand` owns the mark, the weight and the tracking. */
 .start__brand {
   font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.018em;
 
   @include screen-desktop {
     font-size: 15px;

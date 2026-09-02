@@ -107,6 +107,21 @@ export const usePlayerStore = defineStore('player', () => {
     await source.seek(Math.min(ceiling, position.value + skipSeconds.value));
   }
 
+  /**
+   * One arrow-key skip step. Held arrows repeat at the OS key rate, and seeking
+   * on every repeat floods the Spotify API and makes the audio stutter, so a
+   * step only moves the same scrub state a pointer drag uses: the playhead
+   * follows on screen, the loop watcher stands down, and `endScrub` turns the
+   * whole hold into a single seek on release.
+   */
+  function stepSkip(direction: -1 | 1) {
+    const floor = loopOn.value ? loopA.value : 0;
+    const ceiling = loopOn.value ? loopB.value : duration.value;
+    const next = position.value + direction * skipSeconds.value;
+    scrubKind.value = 'head';
+    scrubValue.value = Math.min(ceiling, Math.max(floor, next));
+  }
+
   function toggleLoop() {
     loopOn.value = !loopOn.value;
   }
@@ -212,6 +227,7 @@ export const usePlayerStore = defineStore('player', () => {
     togglePlay,
     rewind,
     forward,
+    stepSkip,
     toggleLoop,
     nudge,
     markPoint,

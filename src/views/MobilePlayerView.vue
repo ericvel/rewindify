@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import AppIcon from '@/components/AppIcon.vue';
+import AppBrand from '@/components/AppBrand.vue';
 import LoopNudger from '@/components/LoopNudger.vue';
 import LoopToggle from '@/components/LoopToggle.vue';
 import MobileSearchOverlay from '@/components/MobileSearchOverlay.vue';
@@ -35,7 +36,7 @@ function onSelect(track: Track) {
 <template>
   <div class="phone">
     <header class="phone__header">
-      <span class="phone__brand">Rewindify</span>
+      <AppBrand class="phone__brand" />
       <span class="phone__spacer" />
       <SessionStatus />
       <button
@@ -112,10 +113,9 @@ function onSelect(track: Track) {
   flex: 1;
 }
 
+/* Type step only; `AppBrand` owns the mark, the weight and the tracking. */
 .phone__brand {
   font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.018em;
 }
 
 .phone__search-button {

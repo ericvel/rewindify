@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!--
+    The same Phosphor rewind mark AppIcon draws, at fill weight, on the plate
+    the app is built from. Phosphor's 256-unit grid is mapped onto the 32-unit
+    plate by the transform: centre the glyph's own bounding box (120, 128) on
+    the plate's centre, then scale it to about 21 units wide so the mark keeps
+    the optical margin the plate had before.
+  -->
+  <rect width="32" height="32" rx="6.5" fill="#ede9e2"/>
+  <g fill="#2b2b2a" transform="translate(16 16) scale(0.0938) translate(-120 -128)">
+    <path d="M232,71.84V184.16a15.92,15.92,0,0,1-24.48,13.34L128,146.86v37.3a15.92,15.92,0,0,1-24.48,13.34L15.33,141.34a15.8,15.8,0,0,1,0-26.68L103.52,58.5A15.91,15.91,0,0,1,128,71.84v37.3L207.52,58.5A15.91,15.91,0,0,1,232,71.84Z"/>
+  </g>
+</svg>

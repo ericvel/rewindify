@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import AppIcon from '@/components/AppIcon.vue';
+import AppBrand from '@/components/AppBrand.vue';
 import SessionStatus from '@/components/SessionStatus.vue';
 import { resolveRedirectTarget } from '@/auth/redirect';
 import { IS_CONFIGURED } from '@/spotify/config';
@@ -22,7 +23,7 @@ async function connect() {
 <template>
   <div class="connect">
     <header class="connect__header">
-      <span class="connect__brand">Rewindify</span>
+      <AppBrand class="connect__brand" />
       <span class="connect__spacer" />
       <SessionStatus />
     </header>
@@ -88,10 +89,9 @@ async function connect() {
   }
 }
 
+/* Type step only; `AppBrand` owns the mark, the weight and the tracking. */
 .connect__brand {
   font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.018em;
 
   @include screen-desktop {
     font-size: 15px;

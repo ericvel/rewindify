@@ -24,6 +24,9 @@ function ownsKeyboard(target: EventTarget | null) {
 const LOOP_KEYS: Record<string, 'a' | 'b'> = { a: 'a', b: 'b' };
 const NUDGE_SECONDS = 1;
 
+/** Arrows skip on release, so their keyup is the commit. */
+const ARROW_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
 export function usePlayerKeyboard() {
   const player = usePlayerStore();
 
@@ -42,11 +45,11 @@ export function usePlayerKeyboard() {
     } else if (event.key === 'ArrowLeft') {
       event.preventDefault();
       if (heldPoint.value) player.nudge(heldPoint.value, -NUDGE_SECONDS);
-      else void player.rewind();
+      else player.stepSkip(-1);
     } else if (event.key === 'ArrowRight') {
       event.preventDefault();
       if (heldPoint.value) player.nudge(heldPoint.value, NUDGE_SECONDS);
-      else void player.forward();
+      else player.stepSkip(1);
     } else if (event.key.toLowerCase() === 'l') {
       event.preventDefault();
       player.toggleLoop();
@@ -55,11 +58,17 @@ export function usePlayerKeyboard() {
 
   function onKeyup(event: KeyboardEvent) {
     if (LOOP_KEYS[event.key.toLowerCase()] === heldPoint.value) heldPoint.value = null;
+    // Releasing an arrow is what commits the skip: the repeats only moved the
+    // playhead on screen, so one seek lands here instead of one per repeat.
+    if (ARROW_KEYS.has(event.key)) void player.endScrub();
   }
 
   /** A key released while the window is away never reaches us; drop the hold. */
   function onBlur() {
     heldPoint.value = null;
+    // The release that would have committed a held arrow is gone with the
+    // focus, so commit here rather than stranding the playhead mid-skip.
+    void player.endScrub();
   }
 
   onMounted(() => {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import TrackTimeline from '@/components/TrackTimeline.vue';
 import AppIcon from '@/components/AppIcon.vue';
+import AppBrand from '@/components/AppBrand.vue';
 import DesktopSearchField from '@/components/DesktopSearchField.vue';
 import LoopNudger from '@/components/LoopNudger.vue';
 import LoopToggle from '@/components/LoopToggle.vue';
@@ -27,7 +28,7 @@ const { heldPoint } = usePlayerKeyboard();
 <template>
   <div class="desktop">
     <header class="desktop__header">
-      <span class="desktop__brand">Rewindify</span>
+      <AppBrand class="desktop__brand" />
       <span class="desktop__divider" />
       <DesktopSearchField @select="emit('select', $event)" />
       <span class="desktop__spacer" />
@@ -143,10 +144,9 @@ const { heldPoint } = usePlayerKeyboard();
   padding: 0 20px;
 }
 
+/* Type step only; `AppBrand` owns the mark, the weight and the tracking. */
 .desktop__brand {
   font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.015em;
 }
 
 .desktop__divider {

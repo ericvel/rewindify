@@ -80,21 +80,17 @@
   --shadow-cap:
     0 1px 1px rgba(31, 31, 29, 0.3), 0 2px 5px rgba(31, 31, 29, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.13);
-  --shadow-cap-pressed:
-    0 1px 1px rgba(31, 31, 29, 0.34), inset 0 1px 3px rgba(0, 0, 0, 0.34);
+  --shadow-cap-pressed: 0 1px 1px rgba(31, 31, 29, 0.34), inset 0 1px 3px rgba(0, 0, 0, 0.34);
   /*
    * A held A/B key is pressed and stays pressed, so it sinks deeper than a
    * momentary press. Same convention as above, one step further in.
    */
   --shadow-key-held: inset 0 1px 3px rgba(0, 0, 0, 0.45);
-  --shadow-well:
-    inset 0 1px 2px rgba(88, 80, 64, 0.16), inset 0 0 0 1px var(--surface-edge);
-  --shadow-popover:
-    0 1px 2px rgba(72, 66, 54, 0.16), 0 10px 28px rgba(72, 66, 54, 0.18);
+  --shadow-well: inset 0 1px 2px rgba(88, 80, 64, 0.16), inset 0 0 0 1px var(--surface-edge);
+  --shadow-popover: 0 1px 2px rgba(72, 66, 54, 0.16), 0 10px 28px rgba(72, 66, 54, 0.18);
 
   /* ---- Type ---- */
-  --face:
-    'Archivo Variable', 'Archivo', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --face: 'Archivo Variable', 'Archivo', ui-sans-serif, system-ui, -apple-system, sans-serif;
 
   /* ---- Motion ----
    * One authored moment: arming the loop. Everything else is instant or a

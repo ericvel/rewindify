@@ -236,7 +236,7 @@ Depth is real but shallow, the way a panel is. Surfaces are wells (recessed), ca
 - One warm plate (`#EDE9E2`), one ink (`#2B2B2A`), one rationed orange (`#E2510F`).
 - Every edge is a recess, a raised cap, or a 1px hairline. There are no outlined boxes.
 - Archivo throughout, with tabular figures on every quantity and no monospace anywhere.
-- Icons drawn on one 24-unit grid at a single 1.75px stroke; no glyph or Unicode stand-ins.
+- One icon family (Phosphor) on one 256-unit grid at two weights only; no glyph or Unicode stand-ins.
 - One authored motion moment (arming the loop). No position value is ever eased.
 - Keyboard-complete at both breakpoints; neither is the degraded case.
 - Role-named tokens only, so a second plate is a token swap and not a refactor.
@@ -274,7 +274,7 @@ A warm, low-chroma neutral field — five steps of the same clay-toned off-white
 
 **The One Orange Rule.** `accent`, `accent-strong`, `accent-text` and `accent-wash` are one hue split by contrast duty, and they mean *the loop*. Nothing else on any surface may take orange — not a play button, not a link, not a brand mark, not a chart, not an error. This is why playback failures use an inverted-ink chip instead of red, why the focus ring is ink, and why `::selection` is ink. If a new element wants the accent, the question to answer first is whether it is the loop.
 
-**The Ink Alert Rule.** The alert register is inverted ink: `ink` ground, `ink-inverse` text, 3px radius, with the drawn `alert` mark. There is no red, amber or green in this system, and adding one would be a second colour with a meaning — which is what the One Orange Rule exists to prevent.
+**The Ink Alert Rule.** The alert register is inverted ink: `ink` ground, `ink-inverse` text, 3px radius, with the Phosphor `alert` mark. There is no red, amber or green in this system, and adding one would be a second colour with a meaning — which is what the One Orange Rule exists to prevent.
 
 **The Reserved Band Rule.** No generated, placeholder or decorative fill may land in HSL hue 5–45°, the band the accent occupies (`#E2510F` is ~19°). `src/fake/catalogue.ts` constrains fixture artwork to 70–300° for exactly this reason, and computes its inner disc as `hue + 40` so neither the ground nor the disc can wrap into the band. Any future generated imagery inherits this constraint.
 
@@ -374,13 +374,13 @@ Radii are small and deliberate — a machined chamfer, not a soft card. Five ste
 
 Silhouette rules: the transport keys are perfect circles of equal diameter (60px desktop, 76px phone) because a transport row on real gear has equal keys — stepping back is the most frequent action in a practice session and may never be the smallest key on the panel. The loop switch is a well cut into a light cap with a raised dark knob riding in it, which is the only compound recess-inside-a-cap in the system.
 
-**Icons.** One drawn set in `src/components/AppIcon.vue`: a 24-unit `viewBox`, `stroke-width: 1.75`, round caps and joins, `currentColor`. Transport marks (play, pause) are filled, matching every physical transport; everything else is stroked. No icon library, no icon font, no Unicode character standing in for a mark. The step chevrons deliberately carry **no** track-boundary bar — a bar makes them read as "skip to the start of the track", which is the one thing those keys do not do.
+**Icons.** One family, Phosphor, behind one component: `src/components/AppIcon.vue` maps the app's eleven names onto `@phosphor-icons/vue` glyphs and takes `currentColor`. Two weights and only two. Transport marks (play, pause) take `fill`, matching every physical transport; everything else takes `regular`, whose 16/256 stroke is the family's closest match to the 1.75 the hand-drawn set carried. The set was drawn by hand until the Phosphor move; one family replaces it because a family already holds the property the drawing was for — a step key and a search field read as parts of one machine — and keeps holding it for glyphs nobody has drawn yet. No icon font, no Unicode character standing in for a mark. The step keys are bare double carets, deliberately carrying **no** track-boundary bar — a bar makes them read as "skip to the start of the track", which is the one thing those keys do not do.
 
 ### Named Rules
 
 **The Half-Height Pill Rule.** A track that a knob rides in takes a radius of **half its own height, rounded up** — never a fixed step from the radius scale and never `9999px`. The loop switch is the only such track today, at both its sizes: 28px tall → 14px, 25px tall → 13px (12.5 rounded up). Those two values are therefore derived, not chosen; resize the track and the radius follows it. A true circle uses `50%` instead.
 
-**The Drawn Mark Rule.** New icons are drawn on the 24-unit grid at 1.75 stroke and added to `AppIcon.vue`. Importing an icon package, or shipping a glyph like `»` or `▶` as an icon, breaks the set — the whole point is that a step key and a search field read as parts of one machine.
+**The One Family Rule.** New icons come from Phosphor, are named by what the app calls them, and are added to the map in `AppIcon.vue` — never imported at the call site, so the name-to-glyph decision stays in one file. They take `fill` only if they are transport marks, and `regular` otherwise; a third weight, a second icon package, or a glyph like `»` or `▶` shipped as an icon breaks the set — the whole point is that a step key and a search field read as parts of one machine.
 
 ## Components
 
@@ -396,7 +396,7 @@ Silhouette rules: the transport keys are perfect circles of equal diameter (60px
 
 - **Loop point (A / B)** — the signature chip. `accent-strong` ground with white text at 5.12:1, 2px radius, tabular bold. The same chip appears at two scales: as a marker on the timeline (24×20 desktop / 22×18 phone) and as the row marker in the nudger, so the two read as one control.
 - **Loop point, disarmed** — Deep Well ground with Label Ink. It takes the accent only when the loop is on, transitioning over `--arm-duration`.
-- **Alert** — `ink` ground, `ink-inverse` text, 3px radius, drawn `alert` mark, `role="alert"`. It mounts only when there is something true to say, at both breakpoints: in the desktop header beside the account, and above the now-playing header on the phone. The desktop slot used to print "Playing" / "Paused" at rest and convert into this chip in place — a third statement of a bit the 60px transport cap and the ticking position already carry, and the reason the header's right edge held three near-identical printed items. The resting label and its `statusLabel` getter are gone; the chip kept the slot.
+- **Alert** — `ink` ground, `ink-inverse` text, 3px radius, Phosphor `alert` mark, `role="alert"`. It mounts only when there is something true to say, at both breakpoints: in the desktop header beside the account, and above the now-playing header on the phone. The desktop slot used to print "Playing" / "Paused" at rest and convert into this chip in place — a third statement of a bit the 60px transport cap and the ticking position already carry, and the reason the header's right edge held three near-identical printed items. The resting label and its `statusLabel` getter are gone; the chip kept the slot.
 - **Keycap** — `cap-light(2px)` with a tabular Body Ink letter. Its held state inverts to `ink` with an inset press shadow and `translateY(1px)`, because holding A or B is a real machine state.
 
 ### Cards / Containers
@@ -410,9 +410,9 @@ There are no cards. The container vocabulary is:
 
 ### Inputs / Fields
 
-- **Style:** `well()` — recessed, 3px radius, no border, no outline. 34px tall on desktop, 42px on the phone overlay. A drawn `search` mark in Label Ink leads; the placeholder is Label Ink.
+- **Style:** `well()` — recessed, 3px radius, no border, no outline. 34px tall on desktop, 42px on the phone overlay. A Phosphor `search` mark in Label Ink leads; the placeholder is Label Ink.
 - **Focus:** the input's own `outline: none`; the surrounding recess plus the caret (`caret-color: var(--ink)`) carry the state. Keyboard focus elsewhere in the combobox is expressed on the row, not the field.
-- **Reset:** `::-webkit-search-cancel-button { appearance: none }` — the native clear affordance belongs to no design system. A drawn 14px `close` button replaces it on desktop.
+- **Reset:** `::-webkit-search-cancel-button { appearance: none }` — the native clear affordance belongs to no design system. A 14px Phosphor `close` button replaces it on desktop.
 
 ### Navigation
 
@@ -465,7 +465,7 @@ Six printed statements were removed to arrive at this: a panel footer printing `
 - **Do** put every quantity through `figures()`, and every small label through `legend()`.
 - **Do** state amounts in labels: "Rewind 5 seconds", "Nudge B forward 1 second". Numbers in the interface are exact, and so are the words about them.
 - **Do** add keyboard paths in `usePlayerKeyboard.ts` so both breakpoints get them.
-- **Do** draw new icons on the 24-unit grid at 1.75 stroke in `AppIcon.vue`.
+- **Do** add new icons to the Phosphor map in `AppIcon.vue`, at `regular` weight unless they are transport marks.
 - **Do** express new motion through `--arm-duration` and `--press-duration` so `prefers-reduced-motion` keeps working.
 - **Do** keep the position readout the largest thing on the surface.
 

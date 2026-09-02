@@ -85,9 +85,7 @@ export function generateWaveform(seed: number, barCount: number): number[] {
   function arrangement(t: number) {
     let level = opening;
     for (const handover of handovers) {
-      const blend = smoothstep(
-        Math.min(1, Math.max(0, (t - handover.cut) / CROSSFADE + 0.5)),
-      );
+      const blend = smoothstep(Math.min(1, Math.max(0, (t - handover.cut) / CROSSFADE + 0.5)));
       level += (handover.level - level) * blend;
     }
     return level;

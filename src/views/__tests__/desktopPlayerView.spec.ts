@@ -57,6 +57,20 @@ describe('DesktopPlayerView loop shortcuts', () => {
     expect(player.position).toBeGreaterThan(30);
   });
 
+  it('seeks once when a held arrow is released, not once per repeat', async () => {
+    const start = player.position;
+    press('ArrowRight');
+    press('ArrowRight');
+    press('ArrowRight');
+    // The playhead has moved on screen, but nothing has been committed yet.
+    expect(player.isScrubbing).toBe(true);
+    expect(player.position).toBe(start + 3 * player.skipSeconds);
+    release('ArrowRight');
+    await Promise.resolve();
+    expect(player.isScrubbing).toBe(false);
+    expect(player.position).toBeGreaterThanOrEqual(start + 3 * player.skipSeconds);
+  });
+
   it('drops the hold when the window loses focus', () => {
     press('a');
     window.dispatchEvent(new Event('blur'));
