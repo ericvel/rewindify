@@ -63,10 +63,6 @@ function onSelect(track: Track) {
     <section class="phone__panel">
       <TimeReadout variant="mobile" />
       <TrackTimeline :bar-count="48" :field-height="94" variant="mobile" />
-      <footer class="phone__loop-status" :class="{ 'is-armed': player.loopOn }">
-        <span class="phone__loop-state">{{ player.loopStatus }}</span>
-        <span class="phone__loop-range">{{ player.loopRange }}</span>
-      </footer>
     </section>
 
     <!-- The control group is bottom-anchored so the keys land under the thumb
@@ -92,7 +88,9 @@ function onSelect(track: Track) {
   margin: 0 auto;
   min-height: 100dvh;
   background: var(--surface-plate);
-  box-shadow: inset 1px 0 0 var(--surface-edge), inset -1px 0 0 var(--surface-edge);
+  box-shadow:
+    inset 1px 0 0 var(--surface-edge),
+    inset -1px 0 0 var(--surface-edge);
   color: var(--ink);
   position: relative;
   overflow: hidden;
@@ -144,36 +142,13 @@ function onSelect(track: Track) {
   line-height: 1.3;
 }
 
+/* Two things only: the exact position, and the timeline it sits on. The footer
+   that restated the loop's state and its two ends is gone, and the bottom
+   padding absorbs the strip it left. */
 .phone__panel {
   @include well(4px);
-  padding: 18px 16px 12px;
+  padding: 18px 16px 16px;
   flex: none;
-}
-
-.phone__loop-status {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 10px;
-  box-shadow: inset 0 1px 0 var(--surface-edge);
-  margin-top: 12px;
-  padding: 10px 2px 0;
-}
-
-.phone__loop-state {
-  @include legend(10px);
-  transition: color var(--arm-duration) var(--ease-out);
-
-  .phone__loop-status.is-armed & {
-    color: var(--accent-text);
-  }
-}
-
-.phone__loop-range {
-  @include figures;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--ink-body);
 }
 
 .phone__transport {

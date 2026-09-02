@@ -71,21 +71,6 @@ export const usePlayerStore = defineStore('player', () => {
       : `−${formatTime(duration.value - position.value)}`,
   );
   const skipLabel = computed(() => `${skipSeconds.value}s`);
-  const loopStatus = computed(() => (loopOn.value ? 'Looping A → B' : 'Loop off'));
-  const loopRange = computed(() => {
-    if (!loopOn.value) return `${formatTime(0)} – ${formatTime(duration.value)}`;
-    const span = Math.round(displayLoopB.value - displayLoopA.value);
-    return `${formatTime(displayLoopA.value)} – ${formatTime(displayLoopB.value)}  ·  ${span}s`;
-  });
-  /**
-   * Doubles as where playback trouble is reported. A device that will not
-   * register, or a track Spotify refuses to start, is more worth the header slot
-   * than repeating what the play button already shows.
-   */
-  const statusLabel = computed(() => {
-    if (error.value !== null) return error.value;
-    return (isPlaying.value ? 'Playing' : 'Paused') + (loopOn.value ? '  ·  Loop on' : '');
-  });
 
   /**
    * Loads a track at the start, paused, with the loop off unless the URL asks
@@ -223,9 +208,6 @@ export const usePlayerStore = defineStore('player', () => {
     nowLabel,
     endLabel,
     skipLabel,
-    loopStatus,
-    loopRange,
-    statusLabel,
     loadTrack,
     togglePlay,
     rewind,

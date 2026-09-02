@@ -11,8 +11,8 @@ export const useSessionStore = defineStore('session', () => {
   const session = computed(() => source.session.value);
   const isConnected = computed(() => session.value !== null);
 
-  /** Uppercased for the mono header slot, where a long name is clipped. */
-  const displayName = computed(() => session.value?.displayName.toUpperCase() ?? '');
+  /** As Spotify gives it. The header prints it as content, not as a legend. */
+  const displayName = computed(() => session.value?.displayName ?? '');
 
   /** What the gate should say about the last attempt, if anything. */
   const failureMessage = computed(() =>

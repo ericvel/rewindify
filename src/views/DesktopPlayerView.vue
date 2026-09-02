@@ -31,18 +31,18 @@ const { heldPoint } = usePlayerKeyboard();
       <span class="desktop__divider" />
       <DesktopSearchField @select="emit('select', $event)" />
       <span class="desktop__spacer" />
-      <!-- Doubles as where playback trouble is reported. An error inverts the
-           chip rather than reaching for a second colour: the accent means the
-           loop and nothing else, so the strongest remaining signal is ink. -->
-      <span
-        class="desktop__status"
-        :class="{ 'is-alert': player.error !== null }"
-        :role="player.error !== null ? 'alert' : undefined"
-      >
-        <AppIcon v-if="player.error !== null" name="alert" :size="14" />
-        {{ player.statusLabel }}
+      <!--
+        Only when there is something true to say, the way the phone header
+        already worked. The slot used to print "Playing" / "Paused" at rest —
+        a third statement of a bit the 60px transport cap and the ticking
+        position already carry, and one that left three near-identical printed
+        items crowding the right edge. Inverted ink, not a second colour: the
+        accent means the loop and nothing else.
+      -->
+      <span v-if="player.error !== null" class="desktop__alert" role="alert">
+        <AppIcon name="alert" :size="14" />
+        {{ player.error }}
       </span>
-      <span class="desktop__divider" />
       <SessionStatus />
     </header>
 
@@ -68,10 +68,6 @@ const { heldPoint } = usePlayerKeyboard();
         <section class="desktop__panel">
           <TimeReadout variant="desktop" />
           <TrackTimeline :bar-count="96" :field-height="152" variant="desktop" />
-          <footer class="desktop__loop-status" :class="{ 'is-armed': player.loopOn }">
-            <span class="desktop__loop-state">{{ player.loopStatus }}</span>
-            <span class="desktop__loop-range">{{ player.loopRange }}</span>
-          </footer>
         </section>
 
         <div class="desktop__controls">
@@ -163,22 +159,19 @@ const { heldPoint } = usePlayerKeyboard();
   flex: 1;
 }
 
-.desktop__status {
-  @include legend(10px);
+.desktop__alert {
   display: flex;
   align-items: center;
   gap: 6px;
   white-space: nowrap;
-
-  &.is-alert {
-    padding: 5px 9px;
-    border-radius: 3px;
-    background: var(--ink);
-    color: var(--ink-inverse);
-    letter-spacing: 0.05em;
-    text-transform: none;
-    font-size: 11px;
-  }
+  padding: 5px 9px;
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--ink-inverse);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1;
 }
 
 .desktop__body {
@@ -224,38 +217,19 @@ const { heldPoint } = usePlayerKeyboard();
   gap: 24px;
 }
 
-/* The panel is cut into the plate. It is the one region that must be found
-   without looking for it, so it is the only recess on the main column. */
+/*
+ * The panel is cut into the plate. It is the one region that must be found
+ * without looking for it, so it is the only recess on the main column, and it
+ * holds exactly two things: the exact position, and the timeline that position
+ * sits on. It used to carry a footer restating the loop's state and its two
+ * ends under a hairline — one bit and two numbers that the switch, the bracket
+ * and the A/B rows each already own. The bottom padding absorbs the strip it
+ * left, so the printed scale keeps its air off the recess edge.
+ */
 .desktop__panel {
   @include well(4px);
-  padding: 22px 22px 14px;
+  padding: 22px 22px 18px;
   flex: none;
-}
-
-.desktop__loop-status {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  box-shadow: inset 0 1px 0 var(--surface-edge);
-  margin-top: 14px;
-  padding: 11px 2px 0;
-}
-
-.desktop__loop-state {
-  @include legend(10px);
-  transition: color var(--arm-duration) var(--ease-out);
-
-  .desktop__loop-status.is-armed & {
-    color: var(--accent-text);
-  }
-}
-
-.desktop__loop-range {
-  @include figures;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--ink-body);
 }
 
 /*

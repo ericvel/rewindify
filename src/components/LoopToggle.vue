@@ -6,13 +6,6 @@ const props = withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), {
 });
 
 const player = usePlayerStore();
-
-/*
- * PRODUCT.md's vocabulary: the passage is what sits between A and B, and the
- * loop is what repeats it. "Segment" and "loop mode" were neither.
- */
-const hint = () =>
-  player.loopOn ? 'Drag A and B on the timeline' : 'Repeat a passage between A and B';
 </script>
 
 <template>
@@ -23,10 +16,10 @@ const hint = () =>
     :aria-pressed="player.loopOn"
     @click="player.toggleLoop()"
   >
-    <span class="loop__text">
-      <span class="loop__label">Loop</span>
-      <span v-if="props.variant === 'mobile'" class="loop__hint">{{ hint() }}</span>
-    </span>
+    <!-- Nomenclature and a switch, and nothing else. The label carries the
+         state in accent ink; the passage's own two ends are printed on the
+         nudger rows, where they are changed. -->
+    <span class="loop__label">Loop</span>
     <span class="loop__switch" aria-hidden="true">
       <span class="loop__knob" />
     </span>
@@ -57,13 +50,6 @@ const hint = () =>
   padding: 0 12px 0 15px;
 }
 
-.loop__text {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
-
 .loop__label {
   font-size: 13px;
   font-weight: 600;
@@ -76,13 +62,6 @@ const hint = () =>
 
 .is-on .loop__label {
   color: var(--accent-text);
-}
-
-.loop__hint {
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.15;
-  color: var(--ink-label);
 }
 
 /* A slide switch: a well cut into the cap, with a raised knob riding in it. */

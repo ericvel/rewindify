@@ -33,7 +33,8 @@
   /*
    * Inside the armed span the ground is lightened by the accent wash, so the
    * unplayed bar needs its own slightly darker tone to hold 3:1 against it
-   * (3.04:1) and against the played bar (3.10:1).
+   * (3.06:1) and against the played bar (3.10:1). Those two ratios are the
+   * whole reason the wash cannot be deepened; see `--accent-wash`.
    */
   --timeline-bar-in-loop: #7b7568;
 
@@ -60,7 +61,18 @@
   --accent: #e2510f;
   --accent-strong: #c24309;
   --accent-text: #ab3d07;
-  --accent-wash: rgba(226, 81, 15, 0.11);
+  /*
+   * The span wash is luminance-locked, not alpha-limited. An in-loop bar has to
+   * clear 3:1 against both this ground and the played bar, which leaves the
+   * washed ground about 4% of luminance to move in: past a 0.14 alpha of the
+   * raw accent that window shuts and no bar tone fits either side. So the wash
+   * buys chroma instead of darkness — a lightened accent laid on thick, landing
+   * the ground on #EFCCBA rather than #E3CFC0. Same hue, same 1.13:1 against
+   * the well, half again the saturation, and both bar pairs come out marginally
+   * better rather than worse. The loop's actual signal is the bracket in
+   * `TrackTimeline.vue`; this is the tint underneath it.
+   */
+  --accent-wash: rgba(245, 194, 171, 0.66);
   /* Marks and text sitting on an accent surface. */
   --on-accent: #ffffff;
 

@@ -30,7 +30,7 @@ understand. Seed 701ed916.
 
 The memorable moment is the neutral state: with the loop off there is no accent
 anywhere on the surface. Arming it fills the span, both A/B markers, the nudger
-chips and the loop legend with orange together, in one 320ms sweep from the
+chips and the switch label with orange together, in one 320ms sweep from the
 span's centre. One colour, one meaning, learnable in a single session without a
 hint line.
 

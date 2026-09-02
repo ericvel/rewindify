@@ -21,7 +21,7 @@ colors:
   accent: "#e2510f"
   accent-strong: "#c24309"
   accent-text: "#ab3d07"
-  accent-wash: "rgba(226, 81, 15, 0.11)"
+  accent-wash: "rgba(245, 194, 171, 0.66)"
   on-accent: "#ffffff"
   surface-hi: "#ffffff"
 typography:
@@ -196,6 +196,12 @@ components:
     rounded: "{rounded.tight}"
     height: "18px"
     width: "22px"
+  loop-bracket-rail:
+    backgroundColor: "{colors.accent-strong}"
+    height: "3px"
+  loop-bracket-rule:
+    backgroundColor: "{colors.accent-strong}"
+    width: "2px"
   chip-alert:
     backgroundColor: "{colors.ink}"
     textColor: "{colors.ink-inverse}"
@@ -241,10 +247,10 @@ A warm, low-chroma neutral field — five steps of the same clay-toned off-white
 
 ### Primary
 
-- **Loop Orange** (`accent`): The loop, and only the loop. Graphics duty only at 3.20:1 on the plate: the span rules on the timeline and the switch track when the loop is armed. Never text.
-- **Loop Orange Deep** (`accent-strong`): The same hue pushed to carry white text at 5.12:1. The A and B markers on the timeline and their matching chips in the nudger.
-- **Loop Orange Ink** (`accent-text`): Accent-coloured *text* on the plate (5.10:1) and on the well (4.64:1). The word "LOOP" when armed, and the "LOOPING A → B" legend.
-- **Loop Wash** (`accent-wash`): The 11% span tint that paints the armed passage. Never applied to anything but the loop region.
+- **Loop Orange** (`accent`): The loop, and only the loop. Graphics duty only at 3.20:1 on the plate: the switch track when the loop is armed. Never text, and never on the timeline — everything the loop prints inside the working panel is measured against the *well*, where this value is 2.91:1 and `accent-strong` is the one that clears.
+- **Loop Orange Deep** (`accent-strong`): The same hue pushed to carry white text at 5.12:1, and — because it is also the only accent value that clears 3:1 on the well (3.85:1) — the loop's whole printed figure on the timeline: the two rails, the two boundary rules, the A and B markers, and their matching chips in the nudger. One value, one object, at four scales.
+- **Loop Orange Ink** (`accent-text`): Accent-coloured *text* on the plate (5.10:1) and on the well (4.64:1). The word "LOOP" on the switch when armed, and nothing else. It used to carry a "LOOPING A → B" legend in the panel footer as well; that footer said in words what the bracket says on the field, and the switch is the loop's own control, so the accent text is now a single object.
+- **Loop Wash** (`accent-wash`): The tint under the armed passage, and the one token in the system whose value is set by a *luminance* budget rather than by taste. An in-loop bar has to clear 3:1 against both this ground and the played bar, which leaves the washed ground roughly 4% of luminance to move in — so the wash buys chroma instead of darkness: a lightened accent laid on thick, landing the ground on `#EFCCBA` at the same 1.13:1 against the well that a raw 11% accent gave, with half again the saturation. 1.13:1 is the ceiling, which is why the wash cannot be the loop's signal and the bracket is. Never applied to anything but the loop region.
 - **On Accent** (`on-accent`): Pure white, for marks and text sitting *on* an accent surface — the A/B markers and the armed nudger chips, at 5.12:1 over `accent-strong`. It exists so no component carries a raw `#ffffff`.
 
 ### Neutral
@@ -262,7 +268,7 @@ A warm, low-chroma neutral field — five steps of the same clay-toned off-white
 - **Inverse Ink** (`ink-inverse`): Text on ink — the alert chip, the held key.
 - **Cap Top / Cap Bottom / Cap Ink / Cap Edge** (`cap-*`): The dark raised control. Top and bottom are the two stops of the cap gradient; Cap Ink is the mark on it at 9.51:1; Cap Edge is the shadow colour the cap sits in.
 - **Timeline Bar** (`timeline-bar`): An unplayed waveform bar, at 3.11:1 against the well.
-- **Timeline Bar In Loop** (`timeline-bar-in-loop`): An unplayed waveform bar *inside the armed span*, where the washed ground is lighter. Holds 3.04:1 against that ground and 3.10:1 against the played bar.
+- **Timeline Bar In Loop** (`timeline-bar-in-loop`): An unplayed waveform bar *inside the armed span*, where the washed ground is lighter. Holds 3.06:1 against that ground and 3.10:1 against the played bar. Those two ratios, 0.06 and 0.10 above the floor, are the entire reason the wash is capped where it is.
 
 ### Named Rules
 
@@ -272,7 +278,7 @@ A warm, low-chroma neutral field — five steps of the same clay-toned off-white
 
 **The Reserved Band Rule.** No generated, placeholder or decorative fill may land in HSL hue 5–45°, the band the accent occupies (`#E2510F` is ~19°). `src/fake/catalogue.ts` constrains fixture artwork to 70–300° for exactly this reason, and computes its inner disc as `hue + 40` so neither the ground nor the disc can wrap into the band. Any future generated imagery inherits this constraint.
 
-**The Floor Rule.** The well, not the plate, is the binding surface: tick labels, legends, durations and the loop range all sit on it. `ink-label` at 5.02:1 there is the floor. A new text colour earns its place by measurement on the well, not by looking about right on the plate.
+**The Floor Rule.** The well, not the plate, is the binding surface: tick labels, legends, durations and the A/B times all sit on it. `ink-label` at 5.02:1 there is the floor. A new text colour earns its place by measurement on the well, not by looking about right on the plate.
 
 ## Typography
 
@@ -295,9 +301,9 @@ A warm, low-chroma neutral field — five steps of the same clay-toned off-white
 | **Brand** | 15px | 17px | 700, -0.015em desktop / -0.018em phone | "Rewindify" in every header. **Inverted:** smaller on desktop, where it sits in a dense 56px chassis rather than at the top of a phone column. |
 | **Body** | 15px | 14px | 400, 1.45 (copy) / 1.2 (artist) | Explanatory copy on Connect and Start, and the artist line, in Body Ink. Its smallest step is 13px, at the alert chips and the desktop search input. |
 | **Row Title** | 14px | 14px | 600, -0.006em | Track titles in the printed index, single-line with ellipsis. Steps with the row size prop, not the breakpoint: 13px at `sm`, 15px at `lg`. |
-| **Figure** | 12px | 12px | 500, tabular | Every quantity that is not the Position or the Readout. A band, not one step: 14/13px at the duration beside the position, 12px at the loop range and row durations, 11px at the smaller variants and the A/B markers, 10px at the keycaps and the phone tick labels. |
-| **Meta** | 12px | 12px | 500, 0.01em | Album, session name, loop hint, empty-state text. 11px at the credit line. |
-| **Legend** | 10px | 10px | 600, +0.09em, uppercase, Label Ink | The `legend()` mixin. Printed nomenclature: section titles, the status line, keyboard labels, "LOOP START", "SPOTIFY PREMIUM REQUIRED". Its one exception is `legend(11px)` on the callback screen. |
+| **Figure** | 12px | 12px | 500, tabular | Every quantity that is not the Position or the Readout. A band, not one step: 14/13px at the duration beside the position, 12px at the row durations, 11px at the smaller variants and the A/B markers, 10px at the keycaps and the phone tick labels. |
+| **Meta** | 12px | 12px | 500, 0.01em | Album, session name, empty-state text. 11px at the credit line. The session name is set in the case Spotify gives it: it was being uppercased in the session store, which rendered it as a legend while this table declared it content. |
+| **Legend** | 10px | 10px | 600, +0.09em, uppercase, Label Ink | The `legend()` mixin. Printed nomenclature: section titles, keyboard labels, "LOOP START", "SPOTIFY PREMIUM REQUIRED", and the header's "Sign out". Its `legend(11px)` step carries two things: the callback screen, and Sign out at the phone step. |
 
 **How the ramp is shaped.** Above 16px, every step belongs to exactly one role at one breakpoint — those nine steps (64, 46, 29, 25, 24, 19, 18, 17, 16) are unambiguous, and a new value in that range is drift. From 15px down, the six remaining steps (15, 14, 13, 12, 11, 10) are shared across roles and distinguished by weight, tracking and tabular setting rather than by size. That sharing is what keeps a 15-step ramp from being 15 unrelated numbers, and it is also the ramp's weakest region — see `## Open`.
 
@@ -343,6 +349,7 @@ Every recess carries an inset 1px ring in `surface-edge` as part of its shadow, 
 - **Cap** (`box-shadow: 0 1px 1px rgba(31,31,29,0.3), 0 2px 5px rgba(31,31,29,0.16), inset 0 1px 0 rgba(255,255,255,0.13)`): Any raised pressable control, dark or light.
 - **Cap Pressed** (`box-shadow: 0 1px 1px rgba(31,31,29,0.34), inset 0 1px 3px rgba(0,0,0,0.34)`): The `:active` state, paired with `transform: translateY(1px)`.
 - **Key Held** (`box-shadow: inset 0 1px 3px rgba(0,0,0,0.45)`): A held A/B keycap. Same convention as Cap Pressed, one step deeper, because a held key is pressed and stays pressed rather than being pressed for a moment.
+- **Knockout** (`box-shadow: 0 0 0 1px <the ground behind it>`): A 1px hard ring of the surrounding surface, printed to give a mark an edge against whatever it lands on. Two uses, both structural: the inset ring inside `--shadow-well`, and the outer ring on a timeline A/B marker, where `accent-strong` against an unplayed bar is 1.24:1 — hue with no luminance under it. Spread with no blur and no colour of its own; it is a print device, not depth.
 - **Popover** (`box-shadow: 0 1px 2px rgba(72,66,54,0.16), 0 10px 28px rgba(72,66,54,0.18)`): The search results plate, and nothing else.
 - **Hairline** (`box-shadow: inset 0 ±1px 0 var(--surface-edge)` / `var(--surface-rule)`): Not depth but the same mechanism — every structural edge in the product is an inset hairline rather than a `border`. Edge for chrome boundaries, Rule for dividers between peers.
 
@@ -350,7 +357,7 @@ Every recess carries an inset 1px ring in `surface-edge` as part of its shadow, 
 
 **The Three Edges Rule.** `well()`, `cap()` and `cap-light()` in `src/styles/surfaces.scss` are the *only* ways to make an edge, alongside a printed hairline. **There are no outlined boxes in this system** — no `border: 1px solid`, no card outline, no ring. This one constraint is what makes eleven components and five views read as a single machined surface, and it is the first thing an accidental change will break.
 
-**The Offset-Plus-Blur Rule.** Every shadow has a vertical offset. A zero-offset halo (`0 0 Npx`) is a glow, belongs to a different world, and is not used here.
+**The Offset-Plus-Blur Rule.** Every shadow that carries *depth* has a vertical offset. A zero-offset halo (`0 0 Npx`, blurred) is a glow, belongs to a different world, and is not used here. A zero-offset, zero-blur *spread* (`0 0 0 1px`) is the Knockout above and is exempt — it draws an edge, not a light — which is why `--shadow-well` has always contained one.
 
 **The One Popover Rule.** Exactly one thing in this product leaves the surface: the desktop search results, anchored with CSS anchor positioning (`anchor-name`, `position-area`, `position-try-fallbacks: flip-block`) and rendered on a plate-coloured ground. Everything else is in the plate. A second floating layer would break the "one panel" reading.
 
@@ -381,22 +388,22 @@ Silhouette rules: the transport keys are perfect circles of equal diameter (60px
 
 - **Shape:** the resting 3px chamfer, except transport keys (circular) and keycaps (2px).
 - **Primary — dark cap** (`cap()`): the cap gradient with Cap Ink at 9.51:1. Used for transport keys and for "Continue with Spotify" (50px, full width). Presses by 1px into the Cap Pressed shadow over 110ms. Hover lightens the gradient top to `#474741`, behind `@media (hover: hover)`. Disabled drops to a Deep Well recess with Label Ink and `cursor: not-allowed`.
-- **Secondary — light cap** (`cap-light()`): a raised plate-toned control for anything that must not read as primary — nudge keys (34/40px square), search buttons and the disconnect key (38px, expanding to a labelled 28px pill at desktop), the mobile search close (42px), keycaps. Hover lifts the gradient top to white.
+- **Secondary — light cap** (`cap-light()`): a raised plate-toned control for anything that must not read as primary — nudge keys (34/40px square), search buttons (38px), the mobile search close (42px), keycaps. Hover lifts the gradient top to white. Sign out is deliberately *not* on this list; see The Frequency Sets Material Rule.
 - **Focus:** defined once in `base.scss` as `outline: 2px solid var(--ink)` at `2px` offset, inherited by every interactive element. Dark caps add `.cap-surface`, which swaps the ring to `surface-raised` at `3px` offset so it does not disappear into the cap. The ring is ink, never accent.
-- **Icon-only buttons carry `aria-label`; every stepper label states its amount** ("Rewind 5 seconds", "Nudge A back 1 second").
+- **Icon-only buttons carry `aria-label`; every stepper label states its amount** ("Rewind 5 seconds", "Nudge A back 1 second"). A button with a visible word takes its accessible name from that word — Sign out carries no `aria-label`, deliberately, so the name a screen reader speaks and the name a user says out loud are the same string.
 
 ### Chips
 
 - **Loop point (A / B)** — the signature chip. `accent-strong` ground with white text at 5.12:1, 2px radius, tabular bold. The same chip appears at two scales: as a marker on the timeline (24×20 desktop / 22×18 phone) and as the row marker in the nudger, so the two read as one control.
 - **Loop point, disarmed** — Deep Well ground with Label Ink. It takes the accent only when the loop is on, transitioning over `--arm-duration`.
-- **Alert** — `ink` ground, `ink-inverse` text, 3px radius, drawn `alert` mark, `role="alert"`. On desktop the header status legend converts into this chip in place; on the phone it appears above the now-playing header only when there is something true to say.
+- **Alert** — `ink` ground, `ink-inverse` text, 3px radius, drawn `alert` mark, `role="alert"`. It mounts only when there is something true to say, at both breakpoints: in the desktop header beside the account, and above the now-playing header on the phone. The desktop slot used to print "Playing" / "Paused" at rest and convert into this chip in place — a third statement of a bit the 60px transport cap and the ticking position already carry, and the reason the header's right edge held three near-identical printed items. The resting label and its `statusLabel` getter are gone; the chip kept the slot.
 - **Keycap** — `cap-light(2px)` with a tabular Body Ink letter. Its held state inverts to `ink` with an inset press shadow and `translateY(1px)`, because holding A or B is a real machine state.
 
 ### Cards / Containers
 
 There are no cards. The container vocabulary is:
 
-- **Working panel** — `well(4px)`, 22px padding on desktop / 18px 16px on phone. The one recess on the main column, because it is the region that must be found without looking for it.
+- **Working panel** — `well(4px)`, `22px 22px 18px` on desktop / `18px 16px 16px` on phone. The one recess on the main column, because it is the region that must be found without looking for it. It holds exactly two things: the position readout and the timeline. A footer under a hairline used to restate the loop's state and its two ends beneath the field; the deeper bottom padding is the strip it left, keeping the printed scale off the recess edge.
 - **Chassis strip** — a full-width 40px band of `surface-well` under an inset hairline, carrying the keyboard legends (desktop) or the credit (phone).
 - **Popover** — `surface-plate` ground, 4px radius, Popover shadow, 4px padding, `max-height: 340px`.
 - **Index row** — transparent by default, `inset 0 1px 0 var(--surface-rule)` between siblings, `surface-raised` on hover or keyboard highlight, and `well()` when it is the loaded track. Hairline rules instead of outlined cards: this is an index, not a stack.
@@ -409,27 +416,42 @@ There are no cards. The container vocabulary is:
 
 ### Navigation
 
-There is no nav. Both layouts have a header that is brand + search + status + session, separated by 1px `surface-edge` dividers, sitting on the plate under an inset hairline. Brand is 15px/700 on desktop, 17px on the phone, at tight negative tracking. The session name is clipped with an ellipsis at 150px so a long Spotify display name squeezes itself before it squeezes the search control.
+There is no nav. Both layouts have a header that is brand + search + account, sitting on the plate under an inset hairline; desktop separates brand from search with a 1px `surface-edge` divider, and the alert chip takes the space before the account when a playback error exists. Brand is 15px/700 on desktop, 17px on the phone, at tight negative tracking.
+
+The account is one item, not two: the session name in Meta states who is connected and "Sign out" in Legend acts on it, 10px apart, told apart by register rather than by any surface of their own. The name is clipped with an ellipsis at 150px, so at 320px a long Spotify display name truncates itself before the action does — the confirmation yields, never the control.
 
 ### Loop Timeline (signature component)
 
 `src/components/TrackTimeline.vue`. Three stacked bands in one relative container: a knob strip (16/18px), the bar field (94px phone / 152px desktop), and a printed scale strip (24/26px). All overlays are positioned against the container using those two heights, so the geometry lives in one place.
 
 - **The bar field** is a waveform render of 48 (phone) or 96 (desktop) bars at 2px gaps, heights from `generateWaveform()`, `border-radius: 2px`, mirrored about the centre line. Unplayed bars are Timeline Bar; played bars are `ink`; unplayed bars inside the armed span are Timeline Bar In Loop. The binning is deliberately coarse — ~4.5px bars on the phone, ~6px on desktop — because a finer render carried more contour but read as busy against the surface whose largest object is meant to be the position readout. Bars are objects here, not texture.
-- **The printed scale** picks a major step from `[5, 10, 15, 30, 60, 120, 300, 600]` so the track carries roughly 8 (desktop) or 4 (phone) labelled graduations and every graduation lands on a whole number of seconds. Minor marks halve each major division. Edge labels are anchored inside the field so they cannot clip. This is what makes a glance yield a *time* rather than an impression.
-- **The armed span** is `accent-wash` with 1px `accent` rules at each edge.
+- **The printed scale** picks a major step from `[5, 10, 15, 30, 60, 120, 300, 600]` so the track divides into at most five — `MAX_DIVISIONS`, one figure at both breakpoints — and every graduation lands on a whole number of seconds. Desktop asked for eight before, which printed a time every thirty seconds and put more numerals inside the recess than the readout they sit under; the thirty-second graduations survive as unlabelled minors, so halving the print costs no precision. Minor marks halve each major division. Edge labels are anchored inside the field so they cannot clip. This is what makes a glance yield a *time* rather than an impression.
+- **The armed span** is the wash, and the wash alone cannot be seen: `accent-wash` tops out at 1.13:1 against the well (see the token), and the 1px `accent` rules that used to mark A and B sat *behind* the bars at 1.07:1 against an unplayed one, so the exact boundary disappeared behind any tall bar. So the span is **bracketed** instead, in `accent-strong` at 3.85:1, above the bars — two 3px rails along the field's top and bottom edges, and two boundary rules centred on A and B. The wash stays as the tint underneath it.
+- **The bracket's boundary rule** is a 2px accent core printed with a 1px gutter of the field's own ground either side. The gutter is the whole mechanism: bare accent over an unplayed bar is 1.07:1, while the ground clears 3.11:1 against an unplayed bar and 10.66:1 against a played one, so the mark survives whatever the waveform does behind it. Each rule overshoots its rails by 3px, which carries the point onto the clear ground of the knob and scale strips and keeps the figure reading as a printed bracket rather than as a box drawn round the passage. The bracket sits after the printed scale in the template and before the playhead: a boundary rule outranks a graduation, and position outranks both.
 - **The playhead** is a 2px `ink` rule with a 12px dark cap knob riding the top strip.
 - **Grips** (A, B, playhead) are 44px-wide invisible pointer targets. The A/B grips are `aria-hidden` and carry no keyboard path, because `LoopNudger` already exposes those values as real buttons — they are pointer conveniences, not controls posing as controls.
 
 ### Named Rules
 
-**The One Variable Per Channel Rule.** On the timeline, *bar tone* carries played-versus-unplayed and *the accent* carries the loop — through the span wash, the edge rules, the A/B markers, the nudger chips, the legend and the switch. Painting played bars accent inside the span was tried and reverted: it collapsed played against unplayed to 1.24:1, making progress through the passage the least readable thing on screen in the one region this product exists for. Never give one channel two jobs.
+**The Say-It-Once Rule.** Every quantity on the player has exactly one printed home, and it is the element that owns the value. **Position** is the readout, and only there. **The track's extent** is the small figure beside it. **A and B** are the nudger rows, because that is where they are changed. **The track's shape in time** is the printed scale, which labels at most five graduations and leaves the rest as minor marks. Everything the loop draws on the timeline — the wash, the bracket, the two markers — is a *graphic* statement of A and B, not a second printed one, which is the only reason it does not violate this rule.
 
-**The Wash Behind Bars Rule.** `.timeline__region` must precede `.timeline__bars` in the template, so the span wash paints *behind* the bars. As a later sibling it tinted every bar it covered, and no bar tone could then clear 3:1 against both the washed ground and the played bar — the window was shut by 7%. Behind the bars, both pairs clear: played/unplayed 3.10:1, unplayed/ground 3.04:1. Reordering those two elements is a silent accessibility regression.
+The rule binds bits as well as quantities: playing-versus-paused is the transport cap's filled mark and the ticking position, so a header legend printing "Paused" was a third home for it.
+
+Six printed statements were removed to arrive at this: a panel footer printing `0:30 – 1:00 · 30s` beneath a bracket already showing it, the same footer's "LOOPING A → B" legend, a `· Loop on` clause in the header status, that header status itself once the loop clause was gone, a hint sentence on the switch explaining a passage the nudger's own nomenclature decodes, and the passage's length — `Ns passage`, briefly printed on the switch on the argument that B − A is arithmetic. It is arithmetic, and it is also not a number this user acts on: the loop is set by ear against the two ends, not by choosing a duration. The switch is now nomenclature and a switch. A new figure earns its place by naming the value it owns, showing that nothing else prints it, and naming the decision it changes.
+
+**The Frequency Sets Material Rule.** A control's material states how often it is pressed. A dark cap is a thing you press constantly (transport, "Continue with Spotify"); a light cap is a thing you press often (nudge keys, search); print is a thing you press almost never. Sign out is the rarest action in the product, and it shipped for a while as a 122px light cap carrying an eject mark — heavier than the brand beside it, and on the phone a matched twin of the search cap, so the header read as two controls of equal standing when one of them is used every session and the other once. It is now a printed `legend()` word with the anchor hairline from `base.scss` under it, and its hit box is bought with `min-height` the rule never sees: `text-decoration` paints under the glyphs, not under the box, so the word stays print while the target clears 44px on the phone. A new header action earns a cap by naming how often it is pressed.
+
+**The Unmistakable Verb Rule.** Copy names the action in the word that cannot be misread on *this* surface, even when the codebase has a shorter one. The sign-out control says "Sign out" while the store method stays `session.disconnect()`, because this browser registers as a Spotify Connect playback device — so "Disconnect" has a second, wrong reading available here and nowhere else in the vocabulary. An `×` was tried first and was worse than either word: a mark next to an account name can mean sign out, remove the account, or dismiss the header, and nothing on the surface picks one.
+
+**The One Variable Per Channel Rule.** On the timeline, *bar tone* carries played-versus-unplayed and *the accent* carries the loop — through the span wash, the bracket, the A/B markers, the nudger chips, the switch label and the switch. Painting played bars accent inside the span was tried and reverted: it collapsed played against unplayed to 1.24:1, making progress through the passage the least readable thing on screen in the one region this product exists for. Never give one channel two jobs.
+
+**The Wash Behind Bars Rule.** `.timeline__region` must precede `.timeline__bars` in the template, so the span wash paints *behind* the bars. As a later sibling it tinted every bar it covered, and no bar tone could then clear 3:1 against both the washed ground and the played bar — the window was shut by 7%. Behind the bars, both pairs clear: played/unplayed 3.10:1, unplayed/ground 3.06:1. Reordering those two elements is a silent accessibility regression. The *tint* is what this rule binds; `.timeline__brace` is a separate element that deliberately paints above the bars, because it tints nothing.
+
+**The Clear Ground Rule.** Nothing the loop has to *print* may rely on ground the waveform occupies. Every warm neutral in this system is within a few percent of every other, so no ground-level device can carry a signal on the field at all: the wash caps at 1.13:1 against the well, a deeper well floor at 1.06:1, and orange over an unplayed bar at 1.07:1. The bars are mirrored about the centre line, so the field's top and bottom few pixels — plus the knob strip and the scale strip either side of it — are bare well almost everywhere, and that is where the rails, the boundary rules and their overshoots go. A new loop mark on the timeline earns its place by naming the ground it is measured against, and if that ground is a bar, it needs a gutter or a knockout of its own.
 
 **The Fabricated Waveform Rule.** The field is drawn to read as an audio waveform, and it is not one. Spotify exposes no sample data, so `src/playback/waveform.ts` fabricates the shape from a hash of the track id alone. This is a deliberate, recorded trade: the surface is a portfolio piece and the waveform is what makes it read as practice software, so the honesty cost is accepted here and nowhere else. What makes the fake work is correlation at three scales — an arrangement of four to seven sections at distinct levels, phrase drift from summed octaves of value noise, and asymmetric per-bin scatter with sparse transients. Independent per-bar noise, which the field carried before, reads as broken rather than as audio. The field carries no periodic beat accent: one bar spans several beats at this pitch, and a beat grid would read as a pattern rather than as audio. Tests in `src/playback/__tests__/playback.spec.ts` hold the three scales: thirds of the field must diverge (arrangement), the mean step between neighbours must stay under a quarter of the field's spread (correlation), and both ends must open on air. Nothing in the interface may claim the shape is the track's audio, and no reading of it is offered as information — it is scenery around an exact position readout.
 
-**The One Authored Moment Rule.** Arming the loop is the only designed motion in the build: the span sweeps open from its centre (`transform: scaleX(0 → 1)` plus opacity) over `--arm-duration` (320ms) on `--ease-out` (`cubic-bezier(0.16, 1, 0.3, 1)`, exponential, not a linear fade), and the grips fade in 120ms behind it. The region is mounted whether or not the loop is on, so the span *sweeps* rather than *appears*. Everything else is instant or a 110ms cap press. `prefers-reduced-motion: reduce` zeroes both durations at `:root`, which disables every transition in the system at once — new motion must be expressed through these two tokens so it inherits that.
+**The One Authored Moment Rule.** Arming the loop is the only designed motion in the build: the span and both bracket rails sweep open from their centre together (`transform: scaleX(0 → 1)` plus opacity) over `--arm-duration` (320ms) on `--ease-out` (`cubic-bezier(0.16, 1, 0.3, 1)`, exponential, not a linear fade), and the boundary rules and grips fade in 120ms behind them. Four elements, one gesture — anything the loop adds to the timeline joins this sweep on these tokens rather than getting a moment of its own. The region is mounted whether or not the loop is on, so the span *sweeps* rather than *appears*. Everything else is instant or a 110ms cap press. `prefers-reduced-motion: reduce` zeroes both durations at `:root`, which disables every transition in the system at once — new motion must be expressed through these two tokens so it inherits that.
 
 **The Never-Eased Position Rule.** No position value is ever animated or interpolated. The playhead, the A/B handles and the span's left/width follow their values instantly (`.timeline__region { transition: none }`); only the fill is animated. An eased playhead would be a lie about where the music is.
 
@@ -455,13 +477,18 @@ There is no nav. Both layouts have a header that is brand + search + status + se
 - **Don't** ship a zero-offset shadow. Every shadow has a vertical offset; a halo is a different world.
 - **Don't** use a monospace face for figures, or anywhere else. Archivo's tabular figures are the mechanism.
 - **Don't** flatten `waveform.ts` back to independent per-bar noise, and don't let any label or copy claim the shape is the real audio.
-- **Don't** move `.timeline__region` after `.timeline__bars`.
+- **Don't** move `.timeline__region` after `.timeline__bars`, and don't move `.timeline__brace` before them. The tint goes behind the bars; the bracket goes in front of them.
 - **Don't** paint played bars with the accent inside the armed span.
+- **Don't** ask the wash to carry the loop. It is capped at 1.13:1 against the well by the in-loop bar's contrast window, so deepening it to make the passage readable trades a signal nobody can see for a bar tone that no longer clears 3:1. The bracket is the signal.
+- **Don't** print a time twice. Position, the track's extent, A, B and the passage's length each have one home; a second printing of any of them is what the Say-It-Once Rule exists to stop, and a footer under the timeline is where they collect.
 - **Don't** ease a position value, and don't interpolate the playhead.
 - **Don't** hard-code a breakpoint width; import it from `styles/breakpoints`.
 - **Don't** give the A/B timeline grips their own keyboard path — `LoopNudger` owns those values as real buttons.
 - **Don't** invent a Spotify mark. `ConnectView`'s neutral disc is a placeholder slot for the official asset (see Open below), not a design decision to defend.
 - **Don't** let a pointer affordance under 40px ship on the phone. The nudge keys are 40px square because the user is holding an instrument.
+- **Don't** give a rare action a cap. Sign out is print; putting it back on `cap-light()` makes the least-used control in the product outweigh the brand. See The Frequency Sets Material Rule.
+- **Don't** uppercase the session name, and don't do it in the store. It is the Meta role, set in the case Spotify gives it; uppercasing turned content into a third printed legend and the presentation decision was invisible from the component.
+- **Don't** print playback state in a header. The transport cap's mark and the moving position own that bit; the header slot beside the account belongs to the alert chip, which mounts only on a real error.
 
 ## Open
 
@@ -475,4 +502,5 @@ Recorded as open, not as decided:
 - **`--cap-edge` is declared and unreferenced.** Its value (`#1F1F1D`) is in live use as a literal inside the three shadow tokens, so the role is real but nothing reads the variable.
 - **`--on-accent` and `--surface-hi` are both pure white, and `--surface-rule` and `--surface-well-deep` are both `#DCD7CC`.** Two pairs of distinct roles sharing one value each. Deliberate — a mark on accent and a hover lift diverge the moment the plate goes dark, as do a divider and a recess floor — but a future edit that "deduplicates" them would silently couple things that are meant to move independently.
 - **Three colour literals remain in components, all in shadow or hover positions.** `rgba(31,31,29,0.28)` (timeline marker shadow) and `rgba(242,239,232,0.62)` (the step count on a dark cap, 4.76:1) are alpha derivations of `--cap-edge` and `--cap-ink`; `#474741` is the lifted top stop of a hovered dark cap, and is the only cap-hover value in the system without a token. The fourth — `inset 0 1px 3px rgba(0,0,0,0.45)` on `.desktop__key--held` — was the one genuine piece of drift and is now the `--shadow-key-held` token (see Elevation), so the detector clears without anything being suppressed.
+- **The figure beside the position states the *track's* remaining time, including while the loop is armed.** It is true — that is how much track is left — but while looping, playback never reaches it: the passage wraps at B. So the one number that answers "how long until this comes round again" is not on the surface, and the number that is there answers a question the user is not in. Retargeting it at the loop was considered and left alone: `−0:12` meaning "remaining in the passage" is indistinguishable at a glance from `−0:12` meaning "remaining in the track", and a silently rescoped quantity breaks the product's precision principle harder than a true-but-idle one. Fixing it properly needs either a printed legend on the slot, which is the chrome this pass removed, or a form that cannot be confused for a clock.
 - **The `ink-label` floor is stated against the well, but one element sits deeper.** The disarmed A/B chip in `LoopNudger.vue` sets Label Ink on Deep Well at 4.65:1 rather than the 5.02:1 the token comments claim as the floor. Still AA for 11px/700, so it passes — but the floor as written does not describe that case.

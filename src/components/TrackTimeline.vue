@@ -50,18 +50,27 @@ const loopRight = computed(() => percent(player.displayLoopB));
 const loopWidth = computed(() => percent(player.displayLoopB - player.displayLoopA));
 
 /*
- * The printed scale. A step is picked so the track carries roughly as many
- * labelled graduations as the width can hold, then every graduation lands on a
- * whole number of seconds — so glancing at the timeline gives a time rather
- * than an impression. Minor marks halve each major division.
+ * The printed scale. A step is picked so the track divides into no more than
+ * MAX_DIVISIONS, then every graduation lands on a whole number of seconds — so
+ * glancing at the timeline gives a time rather than an impression. Minor marks
+ * halve each major division.
  */
 const TICK_STEPS = [5, 10, 15, 30, 60, 120, 300, 600];
 
+/*
+ * One figure for both breakpoints. Desktop used to ask for eight divisions,
+ * which printed a time every thirty seconds and put more numerals inside the
+ * recess than the position readout they are meant to sit under. Halving the
+ * print costs no precision: the thirty-second graduations are still there as
+ * minor marks, only unlabelled, and the numbers the loop is actually set to are
+ * printed exactly on the A and B rows.
+ */
+const MAX_DIVISIONS = 5;
+
 const majorStep = computed(() => {
-  const target = props.variant === 'desktop' ? 8 : 4;
   const duration = player.duration;
   if (duration <= 0) return 30;
-  return TICK_STEPS.find((step) => duration / step <= target) ?? 600;
+  return TICK_STEPS.find((step) => duration / step <= MAX_DIVISIONS) ?? 600;
 });
 
 interface Tick {
@@ -165,14 +174,30 @@ onScopeDispose(() => {
         v-for="tick in ticks"
         :key="tick.seconds"
         class="timeline__tick"
-        :class="[
-          tick.label ? 'is-major' : 'is-minor',
-          `is-anchor-${labelAnchor(tick)}`,
-        ]"
+        :class="[tick.label ? 'is-major' : 'is-minor', `is-anchor-${labelAnchor(tick)}`]"
         :style="{ left: tick.left }"
       >
         <span v-if="tick.label" class="timeline__tick-label">{{ tick.label }}</span>
       </span>
+    </div>
+
+    <!--
+      The bracket, and the loop's real signal. Neither of the devices it
+      replaces could be seen: an orange tint over the well is luminance-locked
+      at 1.13:1 (see `--accent-wash`), and the 1px accent rules that used to
+      mark A and B sat BEHIND the bars at 1.07:1 against an unplayed one, so
+      the exact boundary vanished behind any tall bar. Bracketing works
+      because it puts the accent where the field leaves the ground clear: the
+      bars are mirrored about the centre line, so the top and bottom few pixels
+      of the field are bare well almost everywhere, and `accent-strong` reads
+      there at 3.85:1. It sits after the scale so a boundary rule outranks a
+      graduation, and before the playhead so position outranks both.
+    -->
+    <div class="timeline__brace" :style="{ left: loopLeft, width: loopWidth }" aria-hidden="true">
+      <span class="timeline__rail timeline__rail--top" />
+      <span class="timeline__rail timeline__rail--bottom" />
+      <span class="timeline__bracket timeline__bracket--a" />
+      <span class="timeline__bracket timeline__bracket--b" />
     </div>
 
     <div class="timeline__playhead" :style="{ left: headLeft }" />
@@ -221,6 +246,7 @@ onScopeDispose(() => {
   --knob-strip: 16px;
   --scale-strip: 24px;
   --bar-gap: 2px;
+  --rail: 3px;
   position: relative;
   height: calc(var(--knob-strip) + var(--field-height) + var(--scale-strip));
   touch-action: none;
@@ -281,8 +307,6 @@ onScopeDispose(() => {
   transform: scaleX(0);
   opacity: 0;
   background: var(--accent-wash);
-  border-left: 1px solid var(--accent);
-  border-right: 1px solid var(--accent);
   transition:
     transform var(--arm-duration) var(--ease-out),
     opacity var(--arm-duration) var(--ease-out);
@@ -291,6 +315,89 @@ onScopeDispose(() => {
 .is-armed .timeline__region-fill {
   transform: scaleX(1);
   opacity: 1;
+}
+
+/* Exactly the wash's box, so the bracket and the tint mark the same passage. */
+.timeline__brace {
+  position: absolute;
+  top: var(--knob-strip);
+  height: var(--field-height);
+  pointer-events: none;
+  /* Position follows the handles instantly; only the sweep is animated. */
+  transition: none;
+}
+
+/*
+ * The two rails ride the field's edges, where the mirrored bars leave bare
+ * ground. They sweep open from the centre on the same tokens as the wash, so
+ * arming the loop stays one moment rather than becoming three.
+ */
+.timeline__rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--rail);
+  background: var(--accent-strong);
+  transform: scaleX(0);
+  opacity: 0;
+  transition:
+    transform var(--arm-duration) var(--ease-out),
+    opacity var(--arm-duration) var(--ease-out);
+}
+
+.timeline__rail--top {
+  top: 0;
+}
+
+.timeline__rail--bottom {
+  bottom: 0;
+}
+
+.is-armed .timeline__rail {
+  transform: scaleX(1);
+  opacity: 1;
+}
+
+/*
+ * A boundary rule is a 2px accent core printed with a 1px gutter of the
+ * field's own ground either side, and it is centred on the exact point rather
+ * than tucked inside the span. The gutter is what makes it readable at all:
+ * bare accent over an unplayed bar is 1.07:1, while the ground clears 3.11:1
+ * against an unplayed bar and 10.66:1 against a played one, so the mark
+ * survives whatever the waveform does behind it. It overshoots each rail by
+ * the rail's own thickness — which both carries the point onto the clear
+ * ground of the knob and scale strips, and keeps the whole figure reading as a
+ * printed bracket rather than as a box around the passage.
+ */
+.timeline__bracket {
+  position: absolute;
+  top: calc(var(--rail) * -1);
+  bottom: calc(var(--rail) * -1);
+  width: 4px;
+  background: var(--surface-well);
+  opacity: 0;
+  transition: opacity var(--arm-duration) var(--ease-out);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0 1px;
+    background: var(--accent-strong);
+  }
+}
+
+.timeline__bracket--a {
+  left: -2px;
+}
+
+.timeline__bracket--b {
+  right: -2px;
+}
+
+/* Behind the sweep, on the same delay as the grips they belong to. */
+.is-armed .timeline__bracket {
+  opacity: 1;
+  transition-delay: 120ms;
 }
 
 .timeline__scale {
@@ -381,8 +488,9 @@ onScopeDispose(() => {
  * A and B sit just inside the bar field, above the scale line. They used to
  * straddle it at bottom:-9px, which covered the whole 6px major graduation
  * underneath each chip — a loop point deleting the mark it names, on a surface
- * whose product principle is that position is stated exactly. The region's
- * accent rules still run down to the scale, so the exact point stays marked.
+ * whose product principle is that position is stated exactly. The bracket
+ * rules overshoot into the scale strip instead, so the exact point stays
+ * marked on ground nothing else is printed on.
  */
 .timeline__grip {
   position: absolute;
@@ -412,7 +520,7 @@ onScopeDispose(() => {
 .timeline__marker {
   @include figures;
   position: absolute;
-  bottom: 3px;
+  bottom: calc(var(--rail) + 1px);
   width: 22px;
   height: 18px;
   border-radius: 2px;
@@ -424,7 +532,16 @@ onScopeDispose(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 2px rgba(31, 31, 29, 0.28);
+  /*
+   * `accent-strong` against an unplayed bar is 1.24:1 — hue with no luminance
+   * under it, so a chip landing mid-field used to dissolve into the waveform.
+   * The 1px knockout in the field's own ground gives it an edge wherever it
+   * lands, and holds it off the rail it stands on. Hard spread with no blur:
+   * the same device as `--shadow-well`'s inset ring, not a halo.
+   */
+  box-shadow:
+    0 0 0 1px var(--surface-well),
+    0 1px 2px rgba(31, 31, 29, 0.28);
 
   .timeline__grip--a & {
     right: 11px;
@@ -450,4 +567,3 @@ onScopeDispose(() => {
   }
 }
 </style>
-

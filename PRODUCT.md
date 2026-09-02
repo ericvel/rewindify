@@ -105,7 +105,7 @@ Durable constraints, all four confirmed binding:
   audio. Nothing in the interface may state or label it as the track's audio,
   and no feature may be built that asks the user to read meaning from it —
   every exact value comes from the position readout, the printed scale and the
-  loop range.
+  A and B rows.
 - **Desktop and mobile web are both first-class.** Two real views, not one
   responsive compromise. Neither may be treated as the degraded case.
 

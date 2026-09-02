@@ -18,7 +18,6 @@ type IconName =
   | 'pause'
   | 'search'
   | 'close'
-  | 'eject'
   | 'minus'
   | 'plus'
   | 'alert'
@@ -32,7 +31,6 @@ const STROKES: Partial<Record<IconName, string>> = {
   'step-forward': 'M6.5 7.5 11 12 6.5 16.5M13 7.5 17.5 12 13 16.5',
   search: 'M15.5 15.5 20 20M17 11a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z',
   close: 'M6.5 6.5l11 11M17.5 6.5l-11 11',
-  eject: 'M12 5.5 5.5 13.5h13L12 5.5ZM5.5 18.5h13',
   minus: 'M5.5 12h13',
   plus: 'M5.5 12h13M12 5.5v13',
   alert: 'M12 4.5 2.8 20.5h18.4L12 4.5ZM12 10v4.4M12 17.4v.2',
