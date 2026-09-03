@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { usePlayerStore } from '@/stores/player';
 
-withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), { variant: 'mobile' });
+withDefaults(defineProps<{ variant?: 'mobile' | 'desktop'; compact?: boolean }>(), {
+  variant: 'mobile',
+  compact: false,
+});
 
 const player = usePlayerStore();
 </script>
 
 <template>
-  <div class="time-readout" :class="`time-readout--${variant}`">
+  <div
+    class="time-readout"
+    :class="[`time-readout--${variant}`, { 'time-readout--compact': compact }]"
+  >
     <output class="time-readout__now" aria-label="Current position">{{ player.nowLabel }}</output>
     <span class="time-readout__end">{{ player.endLabel }}</span>
   </div>
@@ -73,6 +79,19 @@ const player = usePlayerStore();
 .time-readout--mobile {
   @include screen-wide {
     @include readout-large;
+  }
+}
+
+/* Same phone type step, reused when height rather than width is scarce. */
+.time-readout--compact {
+  padding-bottom: 10px;
+
+  .time-readout__now {
+    font-size: 46px;
+  }
+
+  .time-readout__end {
+    font-size: 13px;
   }
 }
 </style>

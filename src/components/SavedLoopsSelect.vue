@@ -31,11 +31,22 @@
  * the gesture it belongs to.
  *
  * **The list has no rules in it.** A popover is a menu, not a printed index:
- * the plate is the container, the hover fill marks a row, and a clipped half-row
- * at the bottom is the scroll affordance. Name at the left, range at the right,
- * held apart by register and by tabular figures forming their own column — the
- * dotted leader that used to carry one to the other was the line this whole
- * pass exists to remove.
+ * the plate is the container, the row's own raise marks it, and a clipped
+ * half-row at the bottom is the scroll affordance. Every row prints its range
+ * in one right-hand column of tabular figures — a named row above its name, an
+ * unnamed row alone — so the column a user scans for a span has no holes in it.
+ * The dotted leader that used to carry a name to its figure was the line this
+ * whole pass exists to remove.
+ *
+ * **The plate opens as a chooser, and becomes a creator when asked.** For one
+ * round the name field and its `SAVE` cap were the plate's unconditional first
+ * object. That put a text field in front of a user who had opened the list to
+ * *pick* something, made the plate's heaviest object a dead control whenever
+ * saving was refused, and left the first-run plate a form over an empty
+ * sentence. `S` already carries the creation intent from anywhere on the
+ * surface, so creation is what the `+` reveals and what `S` opens straight
+ * into. The row it lives on is the same row the form takes, so revealing it
+ * grows the control rather than pushing the list down.
  *
  * The accent is spent in exactly one place, on the row whose stored bounds the
  * loop is currently sitting on: a 3px `accent-strong` rail, the timeline
@@ -46,13 +57,22 @@
  * a graphic beside it would be the second statement Say-It-Once exists to stop.
  *
  * Nothing here prints whether the loop is on. That bit belongs to the switch and
- * the bracket; the disabled save control is the whole visible statement, and its
- * accessible name carries the reason.
+ * the bracket. What the plate *does* print, once the form is open, is the reason
+ * a save is refused — because the alternative was a dead form and silence, and
+ * because the reason the count used to carry (`this track already holds twelve`)
+ * was stated nowhere on the surface once the count came off the handle. A
+ * printed reason is not a second home for loop on/off; it is the answer to a
+ * question the user asked by pressing `S`.
  */
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import AppIcon from './AppIcon.vue';
 import { formatTime } from '@/playback/time';
-import { LOOP_NAME_MAX, type SavedLoop } from '@/playback/savedLoops';
+import {
+  LOOP_NAME_MAX,
+  MAX_LOOPS_PER_TRACK,
+  clampName,
+  type SavedLoop,
+} from '@/playback/savedLoops';
 import { usePlayerStore } from '@/stores/player';
 
 const props = withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), {
@@ -66,8 +86,22 @@ const plateEl = useTemplateRef<HTMLElement>('plate');
 const listEl = useTemplateRef<HTMLElement>('list');
 const nameEl = useTemplateRef<HTMLInputElement>('name');
 const saveEl = useTemplateRef<HTMLButtonElement>('save');
+const addEl = useTemplateRef<HTMLButtonElement>('add');
 
 const draft = ref('');
+
+/** Whether the create row is showing the form or the `+` that reveals it. */
+const formOpen = ref(false);
+
+/**
+ * What a screen reader is told about an act whose only other evidence is a
+ * change of printed value.
+ *
+ * It lives outside the plate on purpose: saving and applying both *close* the
+ * plate, so a region inside it would be taken out of the accessibility tree in
+ * the same frame as the message it was carrying.
+ */
+const announcement = ref('');
 
 /** En dash, the form the panel footer used before it was cut. */
 function timeRange(loop: SavedLoop) {
@@ -102,6 +136,20 @@ const windowValue = computed(() => {
 const windowIsFigure = computed(() => armed.value !== null && armed.value.name === null);
 
 /**
+ * The count, back — but only on the plate, and only where it decides something.
+ *
+ * On the handle it was a figure printed at rest for a question the user was not
+ * in. On the create row it sits beside the control it qualifies, and at the
+ * ceiling it is the whole explanation for a `SAVE` that will refuse: `12 · Full`
+ * is the printed half of the reason the blocked control carries in words.
+ */
+const countLabel = computed(() => {
+  const stored = player.trackSavedLoops.length;
+  if (stored === 0) return null;
+  return stored >= MAX_LOOPS_PER_TRACK ? `${stored} · Full` : `${stored} saved`;
+});
+
+/**
  * The field's placeholder is the loop's own times, so an empty commit is
  * visibly the same as accepting them. That is what makes the name optional in
  * fact rather than in the docs: Enter on an untouched field stores no name and
@@ -111,25 +159,61 @@ const placeholder = computed(() => `${formatTime(player.loopA)} – ${formatTime
 
 const blocked = computed(() => player.saveLoopBlocked !== null);
 
-function open() {
+/**
+ * `:popover-open` through `matches` in a `try`: a DOM that does not implement
+ * the selector throws rather than answering `false`, and this is read on every
+ * press.
+ */
+function isPlateOpen() {
   const el = plateEl.value;
-  if (el && !el.matches(':popover-open')) el.showPopover();
+  if (!el) return false;
+  try {
+    return el.matches(':popover-open');
+  } catch {
+    return false;
+  }
+}
+
+function open() {
+  if (plateEl.value && !isPlateOpen()) plateEl.value.showPopover();
 }
 
 function close() {
-  const el = plateEl.value;
-  if (el && el.matches(':popover-open')) el.hidePopover();
+  if (plateEl.value && isPlateOpen()) plateEl.value.hidePopover();
 }
 
 /*
- * `savedLoopsOpen` is the one truth: `S`, applying a loop and committing one all
- * drive it, and this watcher is the only thing in the component that reaches for
- * the popover API.
+ * The popover is the truth about whether the plate is out; the store is how the
+ * rest of the surface *asks* for it.
+ *
+ * Those were the same thing for one round, with `savedLoopsOpen` as the single
+ * source and this watcher as the only route to the popover API. Two instances
+ * of this component exist across the breakpoint and only one is ever mounted, so
+ * crossing it destroyed a standing popover — and removing a popover from the
+ * document hides it *without* firing `toggle`. The fresh instance mounted
+ * against a store that still said open, over a plate that was shut, and because
+ * `openSavedLoops()` is idempotent every later press asked for a state the store
+ * was already in, the watcher never fired, and `showPopover()` was never called
+ * again. The pointer had no way back; `S` and the arrows did, because they reach
+ * for `open()` directly.
+ *
+ * So the press drives the popover, `toggle` reports back to the store, and the
+ * watcher only serves requests that come from elsewhere on the surface. A mount
+ * reconciles to whatever the store is asking for, and an unmount withdraws the
+ * request it can no longer serve.
  */
 watch(
   () => player.savedLoopsOpen,
   (isOpen) => (isOpen ? open() : close()),
 );
+
+onMounted(() => {
+  // Not `immediate: true` on the watcher above: that runs before the template
+  // ref exists, so it would reconcile against a plate that is not there yet.
+  if (player.savedLoopsOpen) open();
+});
+
+onUnmounted(() => player.closeSavedLoops());
 
 /*
  * The plate is a `manual`-free `auto` popover, so the browser keeps light
@@ -143,22 +227,42 @@ watch(
 let openAtPress = false;
 
 function onPress() {
-  openAtPress = plateEl.value?.matches(':popover-open') ?? false;
+  openAtPress = isPlateOpen();
 }
 
 function onFieldClick(event: MouseEvent) {
-  const wasOut = event.detail === 0 ? player.savedLoopsOpen : openAtPress;
-  if (wasOut) player.closeSavedLoops();
-  else player.openSavedLoops();
+  const wasOut = event.detail === 0 ? isPlateOpen() : openAtPress;
+  if (wasOut) close();
+  else open();
+}
+
+/** Re-armed for every message, so two identical ones are two announcements. */
+async function announce(message: string) {
+  announcement.value = '';
+  await nextTick();
+  announcement.value = message;
+}
+
+/**
+ * The armed row is the one thing the plate exists to let you change, and it can
+ * be below the fold: the port holds four and a half rows and a track holds
+ * twelve. `nearest` so a row already in view does not jerk the list.
+ */
+async function scrollArmedIntoView() {
+  await nextTick();
+  const row = listEl.value?.querySelector<HTMLElement>('.is-armed .select__row');
+  row?.scrollIntoView?.({ block: 'nearest' });
 }
 
 function onToggle(event: ToggleEvent) {
   if (event.newState === 'open') {
     player.openSavedLoops();
+    void scrollArmedIntoView();
     return;
   }
   player.closeSavedLoops();
   draft.value = '';
+  formOpen.value = false;
   // Focus came from the field and goes back to it; a light dismiss onto some
   // other control is left alone, but a shut plate must not strand the keyboard
   // on the document body.
@@ -166,18 +270,23 @@ function onToggle(event: ToggleEvent) {
 }
 
 /**
- * `S` from anywhere on the surface: open the plate and put the caret in the
- * field. With saving blocked there is no caret to give, so the focus goes to
- * the control that carries the reason as its accessible name — the reason is
- * never printed.
+ * The create row, opened. With saving blocked there is no caret worth giving, so
+ * the focus goes to the control that carries the reason — which the row now also
+ * prints, so the answer arrives whether or not anything is reading it aloud.
  */
+async function revealForm() {
+  formOpen.value = true;
+  await nextTick();
+  if (blocked.value) saveEl.value?.focus();
+  else nameEl.value?.focus();
+}
+
+/** `S` from anywhere on the surface: open the plate, and open the form in it. */
 watch(
   () => player.loopSaveRequest,
   async () => {
     open();
-    await nextTick();
-    if (blocked.value) saveEl.value?.focus();
-    else nameEl.value?.focus();
+    await revealForm();
   },
 );
 
@@ -191,10 +300,22 @@ watch(
   () => (draft.value = ''),
 );
 
+/**
+ * `maxlength` counted UTF-16 units, which let four family emoji fill the field
+ * and then cut the fifth apart at its joiners. The limit is a count of
+ * characters the caret moves over, so the field enforces it the same way.
+ */
+function onNameInput() {
+  const clamped = clampName(draft.value, LOOP_NAME_MAX);
+  if (clamped !== draft.value) draft.value = clamped;
+}
+
 function commit() {
   if (blocked.value) return;
+  const typed = draft.value.trim();
   player.saveLoop(draft.value);
   draft.value = '';
+  void announce(`Saved loop ${typed === '' ? placeholder.value : typed}`);
   // The new loop holds the live bounds, so it is the armed one: shutting the
   // plate leaves its name printed in the window, which is the confirmation.
   player.closeSavedLoops();
@@ -205,34 +326,116 @@ async function pick(loop: SavedLoop) {
   // switch happens on the surface rather than behind a closing plate.
   player.closeSavedLoops();
   await player.applySavedLoop(loop.id);
+  void announce(`Loop ${identity(loop)} applied, playing from ${formatTime(loop.a)}`);
 }
 
 function rows(): HTMLElement[] {
   return Array.from(listEl.value?.querySelectorAll<HTMLElement>('.select__row') ?? []);
 }
 
-/** Wraps, the way the search popover's own arrow walk does. */
+/**
+ * Clamped, where the search popover's arrow walk wraps.
+ *
+ * The two lists are walked differently because they are walked for different
+ * reasons. A search result is one of many and the list is being scanned; a saved
+ * loop is being *returned to*, with an instrument in the way, and an arrow that
+ * fell off the bottom onto the top would move you eleven rows from the one you
+ * were next to. The top of the list keeps an exit instead: up from the first row
+ * lands on the create control, so the walk is a line with two ends rather than a
+ * closed circle with no way back to the form.
+ */
 function focusRow(index: number) {
   const all = rows();
   if (all.length === 0) return;
-  all[(index + all.length) % all.length]?.focus();
+  all[Math.max(0, Math.min(index, all.length - 1))]?.focus();
 }
 
-/** Down from the field enters the list, the way a select does. */
+function focusCreate() {
+  (formOpen.value ? nameEl.value : addEl.value)?.focus();
+}
+
+function onRowUp(index: number) {
+  if (index === 0) focusCreate();
+  else focusRow(index - 1);
+}
+
+/** Down from the field enters the list — at the loop you are on, not at its top. */
 async function enterList(from: 'first' | 'last') {
   open();
   await nextTick();
-  focusRow(from === 'first' ? 0 : rows().length - 1);
+  const all = rows();
+  if (all.length === 0) {
+    focusCreate();
+    return;
+  }
+  if (from === 'last') {
+    focusRow(all.length - 1);
+    return;
+  }
+  const armedIndex = player.trackSavedLoops.findIndex(
+    (entry) => entry.id === player.armedSavedLoopId,
+  );
+  focusRow(armedIndex >= 0 ? armedIndex : 0);
 }
 
 async function remove(loop: SavedLoop, index: number) {
+  const label = identity(loop);
   player.deleteSavedLoop(loop.id);
+  void announce(`Deleted loop ${label}`);
   await nextTick();
   const all = rows();
   // The deleted row took the focus with it: land on whatever now occupies its
   // place, or on the field once there is nothing left to land on.
   if (all.length === 0) fieldEl.value?.focus();
   else all[Math.min(index, all.length - 1)]?.focus();
+}
+
+/**
+ * Two stages, the way the drawer this replaced had them: the first press
+ * abandons a half-typed name, the second puts the plate away.
+ *
+ * The second stage does not prevent the default, so the browser's own close
+ * watcher still runs — `hidePopover()` on an already-closing popover is a
+ * no-op, and this is a fallback for a UA that does not close on Escape rather
+ * than a replacement for the one that does.
+ */
+function onEscape(event: KeyboardEvent) {
+  if (draft.value !== '') {
+    event.preventDefault();
+    draft.value = '';
+    nameEl.value?.focus();
+    return;
+  }
+  close();
+}
+
+function plateFocusables(): HTMLElement[] {
+  return Array.from(
+    plateEl.value?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled])') ??
+      [],
+  );
+}
+
+/**
+ * Tab stays on the plate while the plate is out.
+ *
+ * Without this it walked off the last row's delete mark and onto the surface
+ * *behind* an open plate — a keyboard on controls it could not see, under a
+ * chooser that was still covering them. Escape above and light dismiss are both
+ * ways out, so holding the ring is safe.
+ */
+function onTab(event: KeyboardEvent) {
+  const focusables = plateFocusables();
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (!first || !last) return;
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 </script>
 
@@ -243,6 +446,8 @@ async function remove(loop: SavedLoop, index: number) {
       ref="field"
       type="button"
       class="select__field"
+      aria-haspopup="true"
+      aria-describedby="saved-loops-hint"
       :aria-expanded="player.savedLoopsOpen"
       aria-controls="saved-loops-plate"
       @pointerdown="onPress()"
@@ -252,8 +457,11 @@ async function remove(loop: SavedLoop, index: number) {
     >
       <span class="select__legend">Saved loop</span>
       <span class="select__line">
+        <!-- The user's own text, so the paragraph direction is the text's to
+             set: an RTL name in an LTR row resolves its own edges. -->
         <span
           class="select__value"
+          dir="auto"
           :class="{ 'is-empty': armed === null, 'is-figure': windowIsFigure }"
         >
           {{ windowValue }}
@@ -268,6 +476,17 @@ async function remove(loop: SavedLoop, index: number) {
       </span>
     </button>
 
+    <!-- Printed nowhere: the arrow walk has no mark on the plate, because a
+         printed hint here is the header this pass removed. It is still the
+         field's to declare. -->
+    <span id="saved-loops-hint" class="select__offscreen">
+      Up and down arrows walk the saved loops on this track.
+    </span>
+
+    <!-- Outside the plate, so a message survives the plate that closes on the
+         act it describes. -->
+    <span class="select__offscreen" role="status" aria-live="polite">{{ announcement }}</span>
+
     <div
       id="saved-loops-plate"
       ref="plate"
@@ -276,37 +495,70 @@ async function remove(loop: SavedLoop, index: number) {
       role="group"
       aria-label="Saved loops on this track"
       @toggle="onToggle($event as ToggleEvent)"
+      @keydown.esc="onEscape($event)"
+      @keydown.tab="onTab($event)"
     >
-      <form class="select__form" @submit.prevent="commit()">
-        <input
-          ref="name"
-          v-model="draft"
-          class="select__name-field"
-          type="text"
-          :placeholder="placeholder"
-          :maxlength="LOOP_NAME_MAX"
-          :disabled="blocked"
-          aria-label="Name for this loop (optional)"
-          autocomplete="off"
-          spellcheck="false"
-          @keydown.enter.prevent="commit()"
-        />
+      <div class="select__create">
         <!--
-          `aria-disabled` rather than `disabled` so the control stays focusable
-          and can say why: the reason for a refused save is never printed on the
-          plate, because loop on/off belongs to the switch and the bracket.
+          The `+` and the form take the same row, so revealing one grows the
+          control rather than pushing the list down. It is never disabled: a
+          refused save is a thing to be *told*, and the form is where the telling
+          happens.
         -->
-        <button
-          ref="save"
-          type="submit"
-          class="select__commit"
-          :class="{ 'is-blocked': blocked }"
-          :aria-disabled="blocked"
-          :aria-label="player.saveLoopBlocked ?? undefined"
-        >
-          Save
-        </button>
-      </form>
+        <template v-if="!formOpen">
+          <button
+            ref="add"
+            type="button"
+            class="select__add"
+            aria-label="Name and save the current loop"
+            @click="revealForm()"
+          >
+            <AppIcon name="plus" :size="props.variant === 'desktop' ? 14 : 16" />
+          </button>
+          <span v-if="countLabel" class="select__count">{{ countLabel }}</span>
+        </template>
+
+        <form v-else class="select__form" @submit.prevent="commit()">
+          <input
+            ref="name"
+            v-model="draft"
+            class="select__name-field"
+            type="text"
+            :placeholder="placeholder"
+            :disabled="blocked"
+            aria-label="Name for this loop (optional)"
+            autocomplete="off"
+            spellcheck="false"
+            dir="auto"
+            @input="onNameInput()"
+            @keydown.enter.prevent="commit()"
+          />
+          <!--
+            `aria-disabled` rather than `disabled` so the control stays focusable
+            and can be reached to be read. The reason is `describedby` rather
+            than the accessible name, which it used to replace — a cap printing
+            SAVE whose name was "This loop is already saved" could not be reached
+            by anyone asking for the Save button by name.
+          -->
+          <button
+            ref="save"
+            type="submit"
+            class="select__commit"
+            :class="{ 'is-blocked': blocked }"
+            :aria-disabled="blocked"
+            :aria-describedby="blocked ? 'saved-loops-reason' : undefined"
+          >
+            Save
+          </button>
+        </form>
+      </div>
+
+      <!-- Only once the user has asked to save. Printed then because the answer
+           is otherwise nowhere on the surface at the ceiling, and because on the
+           phone the plate covers the switch that states the other cases. -->
+      <p v-if="formOpen && player.saveLoopBlocked" id="saved-loops-reason" class="select__reason">
+        {{ player.saveLoopBlocked }}
+      </p>
 
       <ul v-if="player.trackSavedLoops.length > 0" ref="list" class="select__list">
         <li
@@ -321,18 +573,22 @@ async function remove(loop: SavedLoop, index: number) {
             :aria-current="loop.id === player.armedSavedLoopId ? 'true' : undefined"
             @click="pick(loop)"
             @keydown.down.prevent="focusRow(index + 1)"
-            @keydown.up.prevent="focusRow(index - 1)"
+            @keydown.up.prevent="onRowUp(index)"
+            @keydown.home.prevent="focusRow(0)"
+            @keydown.end.prevent="focusRow(player.trackSavedLoops.length - 1)"
+            @keydown.delete.prevent="remove(loop, index)"
           >
             <!-- Mounted on every row so it sweeps rather than appears, the same
                  reason the timeline's span is always in the tree. -->
             <span class="select__rail" aria-hidden="true" />
-            <span class="select__row-name" :class="{ 'is-figure': loop.name === null }">
-              {{ identity(loop) }}
+            <span v-if="loop.name !== null" class="select__row-name" dir="auto">
+              {{ loop.name }}
             </span>
-            <!-- Only a named row states its range here: an unnamed one is
-                 identified *by* that range, and printing it twice is the second
-                 home Say-It-Once exists to refuse. -->
-            <span v-if="loop.name !== null" class="select__times">{{ timeRange(loop) }}</span>
+            <!-- Every row, one column. A named row is a title over its range; an
+                 unnamed row is the range alone, in the same place, so the column
+                 a user scans for a span is never broken by the rows that have no
+                 name to sit above it. -->
+            <span class="select__times">{{ timeRange(loop) }}</span>
           </button>
           <button
             type="button"
@@ -344,6 +600,10 @@ async function remove(loop: SavedLoop, index: number) {
           </button>
         </li>
       </ul>
+      <!-- A recess, so an empty plate is still an object: plate-toned ink on a
+           plate-toned ground over a plate-toned page had only the drop shadow
+           holding it off the surface, and it read as a sentence printed on the
+           page rather than as a chooser standing open. -->
       <p v-else class="select__empty">No loops saved on this track yet.</p>
     </div>
   </div>
@@ -357,6 +617,20 @@ async function remove(loop: SavedLoop, index: number) {
    vertically. */
 .select {
   min-width: 0;
+}
+
+/* Carried to an assistive technology and to nothing else. Not `display: none`,
+   which would take it out of the accessibility tree along with the layout. */
+.select__offscreen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 /*
@@ -426,6 +700,13 @@ async function remove(loop: SavedLoop, index: number) {
  * Two cap presses on the way out, one on the way back in, and deliberately no
  * opacity: the fade belongs to the loop's sweep, and a plate coming out of a
  * slot does not dissolve into one.
+ *
+ * `position-try-fallbacks: flip-block` used to sit here and is gone. The clip
+ * that carries the whole gesture is pinned to the bottom edge, and a fallback
+ * mirrors the *position* without mirroring it — so the one time the fallback
+ * ever fired, the plate would have peeled open from an edge it was not attached
+ * to. The player brief already documents what a short viewport does instead:
+ * the controls row scrolls out of the column and the plate goes with it.
  */
 .select__plate {
   --lift-duration: calc(var(--press-duration) * 2);
@@ -434,7 +715,6 @@ async function remove(loop: SavedLoop, index: number) {
   position-anchor: --rewindify-saved-loops;
   /* Block-start, and right-aligned to the window it comes out of. */
   position-area: block-start span-inline-start;
-  position-try-fallbacks: flip-block;
   min-width: anchor-size(--rewindify-saved-loops width);
   margin: 0;
   margin-block-end: 5px;
@@ -489,16 +769,41 @@ async function remove(loop: SavedLoop, index: number) {
 }
 
 /*
- * Saving is the plate's own first object rather than a control in a header: the
- * header was a legend, a dotted leader and a hairline spent on a `+` that only
- * ever swapped itself for this form. The recess gives the plate a top edge
- * without a rule, which is the whole trade.
+ * The plate's own first object, and one row whichever thing is in it. Shut, it
+ * is a `+` and the count; open, it is the field and its cap. The recess in
+ * either state gives the plate a top edge without a rule, which is the whole
+ * trade.
  */
-.select__form {
+.select__create {
   display: flex;
   align-items: center;
   gap: 6px;
   margin-bottom: 4px;
+}
+
+.select__add {
+  @include cap-light;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+}
+
+/* Beside the control it qualifies, in the register this system prints a figure
+   on a plate. `12 · Full` is the printed half of a refused save. */
+.select__count {
+  @include legend(10px);
+  @include figures;
+  margin-left: auto;
+  padding-right: 4px;
+}
+
+.select__form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
 }
 
 .select__name-field {
@@ -517,7 +822,7 @@ async function remove(loop: SavedLoop, index: number) {
 
   /* The slot goes dead with the control beside it, at the same Deep Well the
      disabled cap takes: a live-looking field next to a refused Save reads as a
-     bug. The reason is never printed here — it is on the control. */
+     bug. The reason is printed below, not here. */
   &:disabled {
     background: var(--surface-well-deep);
     cursor: not-allowed;
@@ -550,6 +855,17 @@ async function remove(loop: SavedLoop, index: number) {
 }
 
 /*
+ * Sentence case, not a legend: this is a sentence the store wrote, and the
+ * legend register is for nomenclature. Body ink so it reads as the answer to a
+ * question rather than as a label on the row above it.
+ */
+.select__reason {
+  margin: 0 0 4px;
+  padding: 0 4px 4px;
+  color: var(--ink-body);
+}
+
+/*
  * Capped so the row past the last visible one is clipped rather than hidden: a
  * half-row is the honest scroll affordance, and it is the only structure the
  * list needs now that the hairlines between rows are gone.
@@ -562,10 +878,18 @@ async function remove(loop: SavedLoop, index: number) {
   overscroll-behavior: contain;
 }
 
+/*
+ * Eight, not two. The delete mark used to sit two pixels from the row that
+ * applies the loop — a destructive target inside the slop of a reach for the
+ * primary one, and the smallest target on the plate at every width. It is the
+ * gap that does the work here, because the act itself is deliberately still one
+ * press: the loop is cheap enough to lose that a confirmation would cost more
+ * than it saves, which makes not hitting it by accident the whole defence.
+ */
 .select__item {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 8px;
 }
 
 .select__row {
@@ -576,18 +900,34 @@ async function remove(loop: SavedLoop, index: number) {
   align-items: center;
   gap: 10px;
   /* 3px of rail and 9px of ground after it. */
-  padding: 0 4px 0 12px;
+  padding: 0 8px 0 12px;
   border-radius: 3px;
   text-align: left;
   /* Held arrows walk the focus down several rows a second; a hard swap at that
      rate reads as flicker rather than as a marker moving. */
-  transition: background-color var(--press-duration) ease;
+  transition:
+    background var(--press-duration) ease,
+    box-shadow var(--press-duration) ease,
+    transform var(--press-duration) ease;
   /* The list scrolls, so a ring at the standard 2px offset would be clipped
      against the scroll port. Inset, it sits on the row's own ground. */
   scroll-margin-block: 4px;
 
   &:focus-visible {
     outline-offset: -2px;
+  }
+
+  /*
+   * Outside the hover query on purpose. A row is a control, and every other
+   * control in this system presses; this one had a hover fill worth 1.07:1
+   * against the plate and nothing at all under a finger, so a tap on the phone
+   * produced no acknowledgement until the plate closed on top of the answer.
+   * Depth is what this world has that a tint does not.
+   */
+  &:active {
+    background: var(--surface-well);
+    box-shadow: var(--shadow-cap-light-pressed);
+    transform: translateY(1px);
   }
 }
 
@@ -629,16 +969,6 @@ async function remove(loop: SavedLoop, index: number) {
   color: var(--ink);
 }
 
-/*
- * An unnamed loop is identified *by* its times, so they take the row title's
- * own step rather than the supporting figure's. Same value, two registers, set
- * by which job it is doing in the row.
- */
-.select__row-name.is-figure {
-  @include figures;
-  letter-spacing: -0.01em;
-}
-
 /* Pushed to the right edge, where the tabular figures make their own column.
    No leader between: the column is the alignment, and the dotted rule carrying
    a title to its figure is the line this pass set out to remove. */
@@ -652,21 +982,8 @@ async function remove(loop: SavedLoop, index: number) {
   color: var(--ink-label);
 }
 
-/* Print, not a cap: deleting a loop is the rarest thing on this plate, and the
-   Frequency Sets Material Rule keeps the material honest about that. */
-.select__delete {
-  flex: none;
-  display: grid;
-  place-items: center;
-  border-radius: 3px;
-  color: var(--ink-label);
-
-  &:focus-visible {
-    outline-offset: -2px;
-  }
-}
-
 .select__empty {
+  @include well;
   margin: 0;
   padding: 10px 12px 12px;
   color: var(--ink-body);
@@ -676,7 +993,8 @@ async function remove(loop: SavedLoop, index: number) {
  * Matched to the loop switch's height at both steps, and held to the footprint
  * the old handle had: the desktop controls row carries 826px of content — 212px
  * transport, 22px, 402px nudger, 14px, this — in a column that holds one line
- * down to a 1190px window.
+ * down to a 1190px window. The step preference lives in the chassis strip, so
+ * it no longer interrupts this practice path or changes the row's wrap point.
  *
  * 176px is a resting width rather than a fixed one. Beside the nudger the bay's
  * `max-content` cap holds the control here; stacked under it, below that 1190px,
@@ -706,23 +1024,31 @@ async function remove(loop: SavedLoop, index: number) {
     font-size: 14px;
   }
 
-  /* Wide enough that a name at `LOOP_NAME_MAX` fits the row whole: measured,
-     the name column holds 166px once the range column, the delete mark and the
-     scrollbar are paid for, and twenty-four characters of ordinary mixed case
-     run 154–158px. The limit is the row's width expressed as a count, so it has
-     to be true — a 26-character name saved under the old limit is the one that
-     truncates, which is what the ellipsis is for.
+  /* 312px held a 40px delete mark two pixels from its row. Twelve more pay for
+     the eight-pixel gap and the six the mark grew by, so the name column keeps
+     the ~160px that twenty-four characters of ordinary mixed case run in.
+
+     Note what the limit is not: twenty-four *wide* glyphs run past 230px and
+     twenty-four CJK glyphs further still, so `LOOP_NAME_MAX` is the row's width
+     as a count for Latin text and the ellipsis covers the rest. It also covers
+     the resting window, which is 176px and cannot print a maximum-length name
+     whole at any breakpoint — the list is where a long name is read.
 
      A floor rather than a ceiling: the base rule holds the plate to at least the
      slot it comes out of, so a stacked window wider than this is matched by its
      own plate instead of drawing a narrow one out of a wide slot. */
   .select__plate {
-    width: 312px;
+    width: 324px;
   }
 
+  .select__add,
   .select__name-field,
   .select__commit {
     height: 34px;
+  }
+
+  .select__add {
+    width: 34px;
   }
 
   .select__name-field {
@@ -745,12 +1071,14 @@ async function remove(loop: SavedLoop, index: number) {
     min-height: 40px;
   }
 
+  /* Square with the row, where it used to be six pixels under it. */
   .select__delete {
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
   }
 
-  .select__empty {
+  .select__empty,
+  .select__reason {
     font-size: 12px;
   }
 }
@@ -774,13 +1102,21 @@ async function remove(loop: SavedLoop, index: number) {
     font-size: 15px;
   }
 
+  /* The field now takes the full practice-control width. Keep the viewport
+     floor as protection for embedded or unusually narrow containers, and let
+     the plate follow the field anywhere wider. */
   .select__plate {
-    width: anchor-size(--rewindify-saved-loops width);
+    width: max(anchor-size(--rewindify-saved-loops width), min(304px, 100vw - 32px));
   }
 
+  .select__add,
   .select__name-field,
   .select__commit {
     height: 42px;
+  }
+
+  .select__add {
+    width: 42px;
   }
 
   .select__name-field {
@@ -791,7 +1127,14 @@ async function remove(loop: SavedLoop, index: number) {
     font-size: 13px;
   }
 
-  /* Four rows and a fifth cut in half: `4 × 44 + 22`. */
+  /* Four rows and a fifth cut in half: `4 × 44 + 22`.
+     It was three and a half for a round, to keep the open plate clear of the
+     loop switch and the A/B cells — the rows that used to be the only statement
+     of why a save was refused. Measured, that does not work: the plate opens
+     upward from a field 62px off the chassis and would have to be under 115px
+     to clear the switch, which is the create row and one loop. The reason is
+     printed on the plate now, so the switch is no longer the answer the plate
+     was covering, and the fifth half-row is worth more than the clearance. */
   .select__list {
     max-height: 198px;
   }
@@ -801,21 +1144,47 @@ async function remove(loop: SavedLoop, index: number) {
   }
 
   .select__delete {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
 
-  .select__empty {
+  .select__empty,
+  .select__reason {
     font-size: 13px;
+  }
+}
+
+/* Print, not a cap: deleting a loop is the rarest thing on this plate, and the
+   Frequency Sets Material Rule keeps the material honest about that. It still
+   presses — see the row. */
+.select__delete {
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 3px;
+  color: var(--ink-label);
+  transition:
+    background-color var(--press-duration) ease,
+    color var(--press-duration) ease;
+
+  &:focus-visible {
+    outline-offset: -2px;
+  }
+
+  &:active {
+    color: var(--ink);
+    background: var(--surface-well-deep);
   }
 }
 
 @media (hover: hover) {
   .select__row:hover {
-    background: var(--surface-raised);
+    background: linear-gradient(var(--surface-raised), var(--surface-plate));
+    box-shadow: var(--shadow-cap-light);
   }
 
-  .select__commit:not(.is-blocked):hover {
+  .select__commit:not(.is-blocked):hover,
+  .select__add:hover {
     background: linear-gradient(var(--surface-hi), var(--surface-raised));
   }
 

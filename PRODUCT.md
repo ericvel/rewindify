@@ -87,8 +87,8 @@ Confirmed capabilities:
   point, L toggles the loop, S opens the saved-loops list with the caret in its
   name field, and the down arrow on the selector walks the stored spans.
 - Track search and a recently played list, both reading the Spotify account.
-- Per-user preferences persisted locally: skip size
-  (`rewindify:skipSeconds`) and remaining-versus-total time display.
+- Per-user preferences persisted locally: skip size, selectable as 2, 5, 10 or
+  15 seconds (`rewindify:skipSeconds`), and remaining-versus-total time display.
 - Loop state mirrored into the URL, debounced, so sharing and reloading both
   work.
 - Separate desktop and mobile player views behind a breakpoint.
@@ -115,12 +115,6 @@ Durable constraints, all four confirmed binding:
   A and B rows.
 - **Desktop and mobile web are both first-class.** Two real views, not one
   responsive compromise. Neither may be treated as the degraded case.
-
-Known gap, not a decision: the skip size is the centre of the product's main
-claim, is persisted, and is printed on both transport buttons — but nothing in
-the interface can change it. It is settable only by editing local storage.
-Whether it becomes a control, a set of preset sizes, or something adaptive is
-open.
 
 Terminology: **step** (or rewind/fast-forward) is a fixed-size move by the skip
 amount, and it is what Spotify's drag-only progress bar cannot do; **A** and

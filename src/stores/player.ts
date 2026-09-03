@@ -25,6 +25,8 @@ export const MIN_LOOP_SECONDS = 2;
 
 export type ScrubKind = 'head' | 'a' | 'b';
 export type TimeDisplay = 'Remaining' | 'Total';
+export const STEP_SECONDS = [2, 5, 10, 15] as const;
+export type StepSeconds = (typeof STEP_SECONDS)[number];
 
 export interface LoopRequest {
   a?: number;
@@ -57,7 +59,11 @@ export const usePlayerStore = defineStore('player', () => {
   const scrubKind = ref<ScrubKind | null>(null);
   const scrubValue = ref(0);
 
-  const skipSeconds = useLocalStorage('rewindify:skipSeconds', 5);
+  const skipSeconds = useLocalStorage<StepSeconds>('rewindify:skipSeconds', 5);
+  // The old developer-only setting accepted any JSON value. The visible
+  // selector has four deliberate positions, so stale or hand-edited values
+  // return to the safe default rather than leaving the field with no option.
+  if (!STEP_SECONDS.includes(skipSeconds.value)) skipSeconds.value = 5;
   const timeDisplay = useLocalStorage<TimeDisplay>('rewindify:timeDisplay', 'Remaining');
 
   /*
@@ -99,6 +105,12 @@ export const usePlayerStore = defineStore('player', () => {
   );
   const skipLabel = computed(() => `${skipSeconds.value}s`);
 
+  function setSkipSeconds(seconds: number) {
+    if (STEP_SECONDS.includes(seconds as StepSeconds)) {
+      skipSeconds.value = seconds as StepSeconds;
+    }
+  }
+
   /** The loaded track's saved loops, newest first. */
   const trackSavedLoops = computed(() =>
     currentTrack.value ? (savedLoops.value[currentTrack.value.id] ?? []) : [],
@@ -139,10 +151,6 @@ export const usePlayerStore = defineStore('player', () => {
     }
     return null;
   });
-
-  function toggleSavedLoops() {
-    savedLoopsOpen.value = !savedLoopsOpen.value;
-  }
 
   function openSavedLoops() {
     savedLoopsOpen.value = true;
@@ -364,12 +372,12 @@ export const usePlayerStore = defineStore('player', () => {
     nowLabel,
     endLabel,
     skipLabel,
+    setSkipSeconds,
     trackSavedLoops,
     armedSavedLoopId,
     saveLoopBlocked,
     savedLoopsOpen,
     loopSaveRequest,
-    toggleSavedLoops,
     openSavedLoops,
     closeSavedLoops,
     requestLoopSave,

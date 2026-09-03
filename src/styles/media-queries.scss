@@ -10,6 +10,10 @@ $screen-desktop: 900;
 // squeezing the leader, and two of them plus the 24px gutters is 598px.
 $screen-wide: 640;
 
+// Below this height the wide phone view becomes a side-by-side instrument:
+// portrait spacing no longer leaves the transport in the first viewport.
+$screen-short: 480;
+
 @mixin screen-desktop {
   @media (width >= #{$screen-desktop}px) {
     @content;
@@ -21,6 +25,14 @@ $screen-wide: 640;
 // unmount at 900 — the bound is stated so a reader never has to know that.
 @mixin screen-wide {
   @media (#{$screen-wide}px <= width < #{$screen-desktop}px) {
+    @content;
+  }
+}
+
+// Landscape phone and short tablet windows. Width and height both matter:
+// neither a narrow portrait phone nor a tall tablet wants this composition.
+@mixin screen-short-wide {
+  @media (#{$screen-wide}px <= width < #{$screen-desktop}px) and (height <= #{$screen-short}px) {
     @content;
   }
 }

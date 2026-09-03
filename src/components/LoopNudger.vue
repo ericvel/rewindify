@@ -5,7 +5,10 @@ import LoopToggle from './LoopToggle.vue';
 import { usePlayerStore } from '@/stores/player';
 import { formatTime } from '@/playback/time';
 
-withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), { variant: 'mobile' });
+withDefaults(defineProps<{ variant?: 'mobile' | 'desktop'; compact?: boolean }>(), {
+  variant: 'mobile',
+  compact: false,
+});
 
 const player = usePlayerStore();
 
@@ -16,7 +19,10 @@ const points = computed(() => [
 </script>
 
 <template>
-  <div class="nudger" :class="[`nudger--${variant}`, { 'is-armed': player.loopOn }]">
+  <div
+    class="nudger"
+    :class="[`nudger--${variant}`, { 'is-armed': player.loopOn, 'nudger--compact': compact }]"
+  >
     <!-- The loop's switch is the group's own cell at both steps, so the control
          that arms the passage sits beside the two ends that define it rather
          than at the far end of a row. On the phone it stands against both rows
@@ -185,6 +191,18 @@ const points = computed(() => [
   .nudger__step {
     width: 34px;
     height: 34px;
+  }
+}
+
+/* Width suggests the three-cell row, but short landscape has more vertical
+   room than horizontal room in its control bank. Reuse the phone stack. */
+.nudger--compact {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+
+  .nudger__arm {
+    grid-row: 1 / span 2;
   }
 }
 

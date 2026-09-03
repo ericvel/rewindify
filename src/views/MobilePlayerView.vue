@@ -7,11 +7,13 @@ import MobileSearchOverlay from '@/components/MobileSearchOverlay.vue';
 import NowPlayingHeader from '@/components/NowPlayingHeader.vue';
 import SavedLoopsSelect from '@/components/SavedLoopsSelect.vue';
 import SessionStatus from '@/components/SessionStatus.vue';
+import StepSizeSelect from '@/components/StepSizeSelect.vue';
 import TimeReadout from '@/components/TimeReadout.vue';
 import TransportControls from '@/components/TransportControls.vue';
 import TrackTimeline from '@/components/TrackTimeline.vue';
 import { useBarCount } from '@/composables/useBarCount';
 import { usePlayerKeyboard } from '@/composables/usePlayerKeyboard';
+import { useIsShortWide } from '@/composables/useBreakpoint';
 import { usePlayerStore } from '@/stores/player';
 import type { Track } from '@/playback/types';
 
@@ -20,6 +22,7 @@ const emit = defineEmits<{ select: [track: Track] }>();
 
 const player = usePlayerStore();
 const searchOpen = ref(false);
+const isShortWide = useIsShortWide();
 
 /*
  * The plate is full-bleed now, so the field is as wide as the window and a flat
@@ -69,30 +72,33 @@ function onSelect(track: Track) {
       <span>{{ player.error }}</span>
     </p>
 
-    <NowPlayingHeader :track="track" variant="mobile" />
+    <div class="phone__work">
+      <div class="phone__content">
+        <NowPlayingHeader :track="track" variant="mobile" :compact="isShortWide" />
 
-    <section ref="panel" class="phone__panel">
-      <TimeReadout variant="mobile" />
-      <TrackTimeline :bar-count="barCount" :field-height="94" variant="mobile" />
-    </section>
+        <section ref="panel" class="phone__panel">
+          <TimeReadout variant="mobile" :compact="isShortWide" />
+          <TrackTimeline
+            :bar-count="barCount"
+            :field-height="isShortWide ? 54 : 94"
+            variant="mobile"
+          />
+        </section>
+      </div>
 
-    <!-- The control group is bottom-anchored on the phone so the keys land
-         under the thumb rather than leaving an empty tail below the loop
-         switch. On the wide plate the leftover height is split with the header
-         instead, and the block sits centred. -->
-    <TransportControls class="phone__transport" variant="mobile" />
-    <LoopNudger variant="mobile" />
-
-    <!-- The window keeps the band the switch used to share with it; its list
-         comes up out of the slot rather than pushing the plate taller. The
-         switch has moved into the nudger above, where it stands with the two
-         ends it arms. -->
-    <SavedLoopsSelect variant="mobile" />
+      <!-- Bottom-anchored in portrait; the right-hand bank in short landscape. -->
+      <div class="phone__controls">
+        <TransportControls class="phone__transport" variant="mobile" />
+        <LoopNudger variant="mobile" :compact="isShortWide" />
+        <SavedLoopsSelect variant="mobile" />
+      </div>
+    </div>
 
     <MobileSearchOverlay v-if="searchOpen" @close="searchOpen = false" @select="onSelect" />
 
     <footer class="phone__footer">
-      <span>Eric Veliyulin · 2026</span>
+      <StepSizeSelect variant="mobile" />
+      <span class="phone__credit">Eric Veliyulin · 2026</span>
     </footer>
   </div>
 </template>
@@ -162,8 +168,8 @@ function onSelect(track: Track) {
   flex: none;
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   color: var(--ink-body);
 }
 
@@ -195,6 +201,13 @@ function onSelect(track: Track) {
   }
 }
 
+/* Wrappers are structural only in portrait, preserving the pinned stack. */
+.phone__work,
+.phone__content,
+.phone__controls {
+  display: contents;
+}
+
 .phone__transport {
   margin-top: auto;
   padding-top: 8px;
@@ -202,14 +215,15 @@ function onSelect(track: Track) {
 
 /* The chassis strip is bled to the plate edges, so it tracks the gutter. */
 .phone__footer {
-  height: 40px;
+  height: 48px;
   flex: none;
   margin: 4px -16px -28px;
   box-shadow: inset 0 1px 0 var(--surface-edge);
   background: var(--surface-well);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 16px;
   padding: 0 20px;
   font-size: 11px;
   font-weight: 500;
@@ -218,6 +232,58 @@ function onSelect(track: Track) {
 
   @include screen-wide {
     margin: 4px -24px -32px;
+  }
+}
+
+.phone__credit {
+  white-space: nowrap;
+}
+
+/* Sideways on a stand: information and controls become two banks instead of
+   making the musician scroll before touching transport. */
+@include screen-short-wide {
+  .phone {
+    height: 100dvh;
+    min-height: 0;
+    padding: 0 18px;
+    gap: 8px;
+  }
+
+  .phone__header {
+    height: 48px;
+    margin-bottom: 0;
+  }
+
+  .phone__work {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+    gap: 18px;
+  }
+
+  .phone__content,
+  .phone__controls {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .phone__panel {
+    padding: 12px 14px 10px;
+  }
+
+  .phone__transport {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .phone__footer {
+    height: 48px;
+    margin: 0 -18px;
   }
 }
 </style>

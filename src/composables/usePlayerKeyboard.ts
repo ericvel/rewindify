@@ -13,13 +13,21 @@ import { usePlayerStore } from '@/stores/player';
  */
 
 /**
- * Only text entry stands the global shortcuts down.
+ * Text entry and open top-layer surfaces stand the global shortcuts down.
  *
  * Buttons and links used to be on this list too, which meant the shortcuts went
  * dead the moment the pointer touched a transport control: clicking play leaves
  * that button focused, so the space bar after it hit the button's own handler
  * instead of the player. Focus is not intent here — the keys belong to the
  * player everywhere except where a caret is waiting for the same characters.
+ *
+ * That rule cost the two chooser fields their own keys, though. Space on the
+ * saved-loops window toggled playback instead of opening the list, and space on
+ * a row in the open list toggled playback instead of applying the loop — the
+ * player was preventing the default on a control whose whole job that key is.
+ * So two narrow exceptions join the caret: a control that advertises a popup
+ * owns the keys that open it, and an open popover owns the keys inside it. Both
+ * are stated in the DOM rather than by tag, so a new chooser inherits them.
  */
 const TEXT_ENTRY = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
 
@@ -36,9 +44,27 @@ const NON_TEXT_INPUT_TYPES = new Set([
   'submit',
 ]);
 
+/**
+ * `:popover-open` is asked for through `matches` in a `try`, because a DOM that
+ * does not know the selector throws on it rather than answering `false` — and a
+ * keyboard layer that threw would take the space bar down with it.
+ */
+function isInsideOpenPopover(target: HTMLElement) {
+  const popover = target.closest('[popover]');
+  if (popover === null) return false;
+  try {
+    return popover.matches(':popover-open');
+  } catch {
+    return false;
+  }
+}
+
 function ownsKeyboard(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;
+  // A chooser's trigger, and everything inside a chooser that is standing open.
+  if (target.hasAttribute('aria-expanded')) return true;
+  if (isInsideOpenPopover(target)) return true;
   if (!TEXT_ENTRY.has(target.tagName)) return false;
   if (target instanceof HTMLInputElement) return !NON_TEXT_INPUT_TYPES.has(target.type);
   return true;

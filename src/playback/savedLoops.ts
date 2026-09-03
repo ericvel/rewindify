@@ -48,9 +48,15 @@ export const MAX_TRACKS = 50;
 /**
  * What the name field accepts, and what a new save stores.
  *
- * A row prints its name in about 150px, which is around two dozen characters
- * before the ellipsis takes over — so this is the width of the row expressed as
- * a count, and a name that reaches it is a name the row can still show whole.
+ * Counted in *graphemes*, not UTF-16 units: `maxlength` would have let a family
+ * emoji spend four of these and then split the fifth down the middle of its
+ * joiners, so the field clamps through `clampName` instead.
+ *
+ * A row prints its name in 166px, which is around two dozen characters of
+ * ordinary mixed case. Note what that measurement is not: twenty-four *wide*
+ * glyphs run past 230px and truncate, and twenty-four CJK glyphs run further
+ * still. So this is the row's width expressed as a count for Latin text, and
+ * the ellipsis is what covers every script for which the count is generous.
  */
 export const LOOP_NAME_MAX = 24;
 
@@ -66,15 +72,26 @@ export const LOOP_NAME_MAX = 24;
 export const STORED_NAME_MAX = 120;
 
 /**
- * Match precision, in tenths of a second.
+ * Match precision: the second the interface actually prints.
  *
- * `useLoopUrlSync` rounds A and B to a tenth on the way into the URL, so a
- * loop that is applied, shared, and opened cold comes back up to 0.05s off
- * what was stored. Comparing at the URL's own precision is what lets that
- * reopened link still light its row.
+ * This was a tenth for one round, which is finer than anything the product
+ * shows. `formatTime` floors to the whole second, so A at 28.4 and A at 28.9
+ * both print `0:28` — and matching at a tenth meant a nudge the user could not
+ * see on any readout silently took them off their saved loop, and let them
+ * store a second row printing `0:28 – 1:00` beside an existing one. Precision
+ * is the product, so the figure the user reads is the figure that decides: the
+ * identity of a loop is the range it prints.
+ *
+ * Flooring rather than rounding, because `formatTime` floors — the comparison
+ * has to be the same function the readout is, not merely a similar one.
+ *
+ * The bounds themselves are still stored exactly. Only the *comparison* is
+ * coarse, so applying a saved loop restores the span that was pinned by ear
+ * rather than a truncated one, and `useLoopUrlSync`'s tenth-of-a-second round
+ * trip stays comfortably inside one printed second.
  */
-function tenths(seconds: number): number {
-  return Math.round(seconds * 10);
+function printedSecond(seconds: number): number {
+  return Math.floor(seconds);
 }
 
 function isSavedLoop(value: unknown): value is SavedLoop {
@@ -92,6 +109,30 @@ function isSavedLoop(value: unknown): value is SavedLoop {
     typeof entry.savedAt === 'number' &&
     Number.isFinite(entry.savedAt)
   );
+}
+
+/**
+ * One row per printed range, newest kept.
+ *
+ * `saveLoop` already refuses a duplicate, so this is not reachable through the
+ * interface — it is reachable through a hand-edited blob, and through a blob
+ * written before the match precision became the printed second. Two rows
+ * printing `0:28 – 1:00` are two rows the user has no way to tell apart, and
+ * only the first of them would ever light. Dropping the older one is the same
+ * trade `isSavedLoop` makes with a malformed entry: normalise to something the
+ * list can honestly render.
+ *
+ * Expects the list already sorted newest-first, which is the caller's own
+ * order.
+ */
+function dedupeByRange(loops: SavedLoop[]): SavedLoop[] {
+  const seen = new Set<string>();
+  return loops.filter((entry) => {
+    const range = `${printedSecond(entry.a)}-${printedSecond(entry.b)}`;
+    if (seen.has(range)) return false;
+    seen.add(range);
+    return true;
+  });
 }
 
 /** The newest save in a list, or 0 for an empty one. */
@@ -114,11 +155,12 @@ export function normaliseSavedLoops(raw: unknown): SavedLoopStore {
   const byTrack: SavedLoopStore = {};
   for (const [trackId, value] of Object.entries(raw as Record<string, unknown>)) {
     if (trackId === '' || !Array.isArray(value)) continue;
-    const loops = value
-      .filter(isSavedLoop)
-      .map((entry) => ({ ...entry, name: normaliseName(entry.name) }))
-      .sort((left, right) => right.savedAt - left.savedAt)
-      .slice(0, MAX_LOOPS_PER_TRACK);
+    const loops = dedupeByRange(
+      value
+        .filter(isSavedLoop)
+        .map((entry) => ({ ...entry, name: normaliseName(entry.name) }))
+        .sort((left, right) => right.savedAt - left.savedAt),
+    ).slice(0, MAX_LOOPS_PER_TRACK);
     if (loops.length > 0) byTrack[trackId] = loops;
   }
 
@@ -132,31 +174,85 @@ export function normaliseSavedLoops(raw: unknown): SavedLoopStore {
 }
 
 /**
+ * The one shape of `Intl.Segmenter` this module uses.
+ *
+ * Declared locally rather than by widening the project's `lib` to `ES2022`,
+ * which would quietly change what type-checks across every other file for the
+ * sake of one call. The runtime has had `Segmenter` since 2022; the `typeof`
+ * guard below is for a runtime that has not.
+ */
+interface GraphemeSegmenter {
+  segment(input: string): Iterable<{ segment: string }>;
+}
+
+function graphemeSegmenter(): GraphemeSegmenter | null {
+  const intl = Intl as unknown as {
+    Segmenter?: new (locales?: string, options?: { granularity: 'grapheme' }) => GraphemeSegmenter;
+  };
+  if (typeof intl.Segmenter !== 'function') return null;
+  return new intl.Segmenter(undefined, { granularity: 'grapheme' });
+}
+
+/**
+ * Truncate to a count of *graphemes*, so a limit never splits a character.
+ *
+ * `String.prototype.slice` counts UTF-16 code units, which is not a unit the
+ * user typed in: fourteen guitar emoji are twenty-eight of them, and a family
+ * emoji is eleven, so a slice at the limit can land inside a ZWJ sequence and
+ * leave the fragment behind. `Intl.Segmenter` counts what a caret moves over.
+ *
+ * The `slice` fallback is for a runtime without `Segmenter`. It cannot split a
+ * cluster it does not know about, so it takes the coarse cut rather than
+ * refusing the name — a truncated emoji is a worse name, not a lost loop.
+ */
+export function clampName(value: string, limit: number): string {
+  if (value.length <= limit) return value;
+  const segmenter = graphemeSegmenter();
+  if (segmenter === null) return value.slice(0, limit);
+
+  let out = '';
+  let taken = 0;
+  for (const { segment } of segmenter.segment(value)) {
+    if (taken === limit) break;
+    out += segment;
+    taken += 1;
+  }
+  return out;
+}
+
+/**
  * A typed name, or null for the rows that print their times instead.
  *
  * The limit is passed in rather than assumed, because the two callers want
  * different ones: a save from the field caps at `LOOP_NAME_MAX`, and reading
  * storage caps at `STORED_NAME_MAX` so an older, longer name survives the boot
  * that introduced the shorter limit.
+ *
+ * Trimmed after the clamp as well as before it, so a name cut at the limit
+ * cannot end on the space the cut exposed.
  */
 export function normaliseName(
   name: string | null | undefined,
   limit: number = STORED_NAME_MAX,
 ): string | null {
-  const trimmed = (name ?? '').trim().slice(0, limit);
+  const trimmed = clampName((name ?? '').trim(), limit).trim();
   return trimmed === '' ? null : trimmed;
 }
 
 /**
  * The saved loop holding these bounds, or null.
  *
- * The whole information content of the band rests on this: when it returns a
- * row, the armed loop *is* that loop; when it returns null after returning
- * one, a nudge has moved you off it, and the row's printed times and the
- * nudger's live ones now disagree on purpose.
+ * The whole information content of the selector rests on this: when it returns
+ * a row, the armed loop *is* that loop; when it returns null after returning
+ * one, a nudge has moved you off it — and because the comparison is now the
+ * printed second, that flip is always visible on the A and B readouts that
+ * caused it. A disagreement the user cannot see is not information.
  */
 export function findSavedLoop(loops: SavedLoop[], a: number, b: number): SavedLoop | undefined {
-  return loops.find((entry) => tenths(entry.a) === tenths(a) && tenths(entry.b) === tenths(b));
+  return loops.find(
+    (entry) =>
+      printedSecond(entry.a) === printedSecond(a) && printedSecond(entry.b) === printedSecond(b),
+  );
 }
 
 /** Newest first, capped. The order the band prints. */

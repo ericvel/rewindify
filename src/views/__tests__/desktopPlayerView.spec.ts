@@ -149,4 +149,35 @@ describe('shortcuts and whatever holds focus', () => {
     await Promise.resolve();
     expect(player.isPlaying).toBe(false);
   });
+
+  /*
+   * The two exceptions the choosers earned. A button is normally the player's,
+   * which is what keeps the space bar working after a click on the transport —
+   * but space on a control that opens a list is that control's key, and the
+   * saved-loops window lost it to playback for a round.
+   */
+  it('leaves a control that advertises a popup alone', async () => {
+    const trigger = mountEl('button');
+    trigger.setAttribute('aria-expanded', 'false');
+    pressFrom(trigger, ' ');
+    await Promise.resolve();
+    expect(player.isPlaying).toBe(false);
+  });
+
+  it('leaves everything inside an open popover alone', async () => {
+    const popover = mountEl('div');
+    popover.setAttribute('popover', 'auto');
+    const row = document.createElement('button');
+    popover.append(row);
+    // jsdom has no popover, so answer the one selector the layer asks for.
+    row.matches = ((selector: string) =>
+      selector === ':popover-open') as unknown as typeof row.matches;
+    Object.defineProperty(row, 'closest', { value: () => popover });
+    popover.matches = ((selector: string) =>
+      selector === ':popover-open') as unknown as typeof popover.matches;
+
+    pressFrom(row, ' ');
+    await Promise.resolve();
+    expect(player.isPlaying).toBe(false);
+  });
 });

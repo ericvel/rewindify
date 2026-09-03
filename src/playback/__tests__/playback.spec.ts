@@ -5,7 +5,7 @@ import { resolveLoopTransition } from '../loop';
 import { generateWaveform } from '../waveform';
 import { latestFakePlaybackSource } from './fakePlaybackSource';
 import { TEST_TRACK } from './fixtures';
-import { MIN_LOOP_SECONDS, usePlayerStore } from '@/stores/player';
+import { MIN_LOOP_SECONDS, STEP_SECONDS, usePlayerStore } from '@/stores/player';
 import { useSessionStore } from '@/stores/session';
 
 // The store's rules are the subject here, not Spotify's SDK.
@@ -204,6 +204,28 @@ describe('player store over its source', () => {
     expect(player.position).toBeGreaterThanOrEqual(30);
     expect(player.position).toBeLessThan(33);
     expect(player.isPlaying).toBe(true);
+  });
+
+  it('offers deliberate step presets and applies one to transport', async () => {
+    expect(STEP_SECONDS).toEqual([2, 5, 10, 15]);
+    const player = usePlayerStore();
+    await player.loadTrack(TEST_TRACK, { on: false });
+
+    player.setSkipSeconds(10);
+    await player.forward();
+
+    expect(player.skipSeconds).toBe(10);
+    expect(player.position).toBe(10);
+    expect(localStorage.getItem('rewindify:skipSeconds')).toBe('10');
+  });
+
+  it('repairs an unsupported stored step to the safe default', () => {
+    localStorage.setItem('rewindify:skipSeconds', '7');
+    setActivePinia(createPinia());
+
+    const player = usePlayerStore();
+
+    expect(player.skipSeconds).toBe(5);
   });
 
   it('pauses at the end of the track when the loop is off', async () => {

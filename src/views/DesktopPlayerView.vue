@@ -8,6 +8,7 @@ import LoopNudger from '@/components/LoopNudger.vue';
 import NowPlayingHeader from '@/components/NowPlayingHeader.vue';
 import SavedLoopsSelect from '@/components/SavedLoopsSelect.vue';
 import SessionStatus from '@/components/SessionStatus.vue';
+import StepSizeSelect from '@/components/StepSizeSelect.vue';
 import TimeReadout from '@/components/TimeReadout.vue';
 import TrackRow from '@/components/TrackRow.vue';
 import TransportControls from '@/components/TransportControls.vue';
@@ -106,7 +107,7 @@ const { heldPoint } = usePlayerKeyboard();
       <span class="desktop__shortcut">
         <kbd class="desktop__key desktop__key--narrow">←</kbd>
         <kbd class="desktop__key desktop__key--narrow">→</kbd>
-        <span class="desktop__shortcut-label">Skip</span>
+        <StepSizeSelect variant="desktop" />
       </span>
       <span class="desktop__shortcut">
         <kbd class="desktop__key desktop__key--narrow">L</kbd>

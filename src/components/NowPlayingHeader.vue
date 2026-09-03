@@ -4,9 +4,10 @@ import TrackArtwork from './TrackArtwork.vue';
 import { useIsWide } from '@/composables/useBreakpoint';
 import type { Track } from '@/playback/types';
 
-const props = withDefaults(defineProps<{ track: Track; variant?: 'mobile' | 'desktop' }>(), {
-  variant: 'mobile',
-});
+const props = withDefaults(
+  defineProps<{ track: Track; variant?: 'mobile' | 'desktop'; compact?: boolean }>(),
+  { variant: 'mobile', compact: false },
+);
 
 /*
  * The one measurement here the stylesheet cannot reach: `TrackArtwork` takes an
@@ -15,11 +16,16 @@ const props = withDefaults(defineProps<{ track: Track; variant?: 'mobile' | 'des
  * thumbnail with a headline next to it, not a record.
  */
 const isWide = useIsWide();
-const artworkSize = computed(() => (props.variant === 'desktop' || isWide.value ? 84 : 60));
+const artworkSize = computed(() =>
+  props.variant === 'desktop' || (isWide.value && !props.compact) ? 84 : 60,
+);
 </script>
 
 <template>
-  <div class="now-playing" :class="`now-playing--${variant}`">
+  <div
+    class="now-playing"
+    :class="[`now-playing--${variant}`, { 'now-playing--compact': compact }]"
+  >
     <TrackArtwork
       :src="track.artworkUrl"
       :alt="`${track.album} cover art`"
@@ -118,6 +124,23 @@ const artworkSize = computed(() => (props.variant === 'desktop' || isWide.value 
 .now-playing--mobile {
   @include screen-wide {
     @include now-playing-large;
+  }
+}
+
+/* Short landscape returns to the phone step; it does not invent a third one. */
+.now-playing--compact {
+  gap: 14px;
+
+  .now-playing__meta {
+    gap: 3px;
+  }
+
+  .now-playing__title {
+    font-size: 19px;
+  }
+
+  .now-playing__artist {
+    font-size: 14px;
   }
 }
 </style>

@@ -6,6 +6,7 @@ import {
   MAX_TRACKS,
   STORED_NAME_MAX,
   addSavedLoop,
+  clampName,
   findSavedLoop,
   normaliseName,
   normaliseSavedLoops,
@@ -57,8 +58,9 @@ describe('normaliseSavedLoops', () => {
   });
 
   it('sorts newest first and caps a track', () => {
+    // Distinct ranges, because two rows printing the same one are collapsed.
     const many = Array.from({ length: MAX_LOOPS_PER_TRACK + 4 }, (_, index) =>
-      loop({ id: `p${index}`, savedAt: 1_000 + index }),
+      loop({ id: `p${index}`, a: index * 10, b: index * 10 + 5, savedAt: 1_000 + index }),
     );
     const normalised = normaliseSavedLoops({ [TEST_TRACK.id]: many })[TEST_TRACK.id] ?? [];
     expect(normalised).toHaveLength(MAX_LOOPS_PER_TRACK);
@@ -109,17 +111,30 @@ describe('findSavedLoop', () => {
 
   /*
    * `useLoopUrlSync` rounds to a tenth on the way into the URL, so a shared
-   * loop comes back up to 0.05s off what was stored. Comparing at the URL's
-   * own precision is what lets a reopened link still light its row.
+   * loop comes back up to 0.05s off what was stored. The printed second is
+   * coarser than that by an order of magnitude, so a reopened link lights its
+   * row with room to spare.
    */
   it('matches a value that has been through the URL', () => {
     expect(findSavedLoop(loops, 72.44, 80.01)?.id).toBe('b');
     expect(findSavedLoop(loops, 72.35, 80)?.id).toBe('b');
   });
 
-  it('does not match a nudge away', () => {
+  /*
+   * The identity of a loop is the range it *prints*. `formatTime` floors, so
+   * 60 and 60.2 are both `1:00` and must be the same loop — matching finer than
+   * the readout meant a nudge nothing on screen could show silently took the
+   * user off their saved loop.
+   */
+  it('matches anywhere inside the printed second', () => {
+    expect(findSavedLoop(loops, 30, 60.2)?.id).toBe('a');
+    expect(findSavedLoop(loops, 30.9, 60.99)?.id).toBe('a');
+  });
+
+  it('does not match once a printed figure changes', () => {
     expect(findSavedLoop(loops, 31, 60)).toBeUndefined();
-    expect(findSavedLoop(loops, 30, 60.2)).toBeUndefined();
+    expect(findSavedLoop(loops, 30, 61)).toBeUndefined();
+    expect(findSavedLoop(loops, 29.9, 60)).toBeUndefined();
   });
 });
 
@@ -282,5 +297,60 @@ describe('player store loops', () => {
 
     player.closeSavedLoops();
     expect(player.savedLoopsOpen).toBe(false);
+  });
+});
+
+describe('clampName', () => {
+  it('leaves a name inside the limit alone', () => {
+    expect(clampName('Bridge', 24)).toBe('Bridge');
+  });
+
+  it('cuts on a grapheme boundary, not a code unit', () => {
+    const family = '\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466}';
+    // Eleven code units each: a `slice` at 3 would land inside the first one.
+    expect(clampName(family.repeat(4), 3)).toBe(family.repeat(3));
+  });
+
+  it('counts an astral character as one', () => {
+    expect(clampName('\u{1F3B8}'.repeat(6), 4)).toBe('\u{1F3B8}'.repeat(4));
+  });
+
+  it('takes the coarse cut without a Segmenter', () => {
+    // `Segmenter` is outside the project's `lib`, so it is reached the same way
+    // the module reaches it: through the one shape this test needs.
+    const intl = Intl as unknown as Record<string, unknown>;
+    const segmenter = intl.Segmenter;
+    delete intl.Segmenter;
+    try {
+      expect(clampName('abcdef', 3)).toBe('abc');
+    } finally {
+      intl.Segmenter = segmenter;
+    }
+  });
+});
+
+describe('normaliseSavedLoops, on a blob written elsewhere', () => {
+  it('keeps one row per printed range, newest first', () => {
+    const raw = {
+      [TEST_TRACK.id]: [
+        { id: 'old', name: 'Old', a: 30, b: 60, savedAt: 1_000 },
+        // Same printed range as `old`, and newer: 0:30 – 1:00 either way.
+        { id: 'new', name: 'New', a: 30.4, b: 60.2, savedAt: 2_000 },
+        { id: 'other', name: 'Other', a: 90, b: 120, savedAt: 1_500 },
+      ],
+    };
+    const normalised = normaliseSavedLoops(raw)[TEST_TRACK.id] ?? [];
+
+    expect(normalised.map((entry) => entry.id)).toEqual(['new', 'other']);
+  });
+
+  /* A name the user saved under a longer limit is theirs, not ours to shorten. */
+  it('keeps a legacy name at the storage ceiling', () => {
+    const long = 'x'.repeat(STORED_NAME_MAX + 10);
+    const raw = { [TEST_TRACK.id]: [{ id: 'a', name: long, a: 1, b: 2, savedAt: 1 }] };
+    const normalised = normaliseSavedLoops(raw)[TEST_TRACK.id] ?? [];
+
+    expect(normalised[0]?.name).toHaveLength(STORED_NAME_MAX);
+    expect(normalised[0]?.name?.length).toBeGreaterThan(LOOP_NAME_MAX);
   });
 });

@@ -1,8 +1,8 @@
 import { onScopeDispose, ref, readonly } from 'vue';
 import { breakpoints } from '@/styles/breakpoints';
 
-function useMinWidth(px: number) {
-  const query = window.matchMedia(`(min-width: ${px}px)`);
+function useMedia(queryText: string) {
+  const query = window.matchMedia(queryText);
   const matches = ref(query.matches);
 
   const onChange = (event: MediaQueryListEvent) => {
@@ -12,6 +12,10 @@ function useMinWidth(px: number) {
   onScopeDispose(() => query.removeEventListener('change', onChange));
 
   return readonly(matches);
+}
+
+function useMinWidth(px: number) {
+  return useMedia(`(min-width: ${px}px)`);
 }
 
 /** Below this the phone layout is shown. See `styles/media-queries.scss`. */
@@ -31,4 +35,11 @@ export function useIsDesktop() {
  */
 export function useIsWide() {
   return useMinWidth(breakpoints.screenWide);
+}
+
+/** Wide enough for two columns, but too short for the portrait control stack. */
+export function useIsShortWide() {
+  return useMedia(
+    `(min-width: ${breakpoints.screenWide}px) and (max-width: ${breakpoints.screenDesktop - 0.02}px) and (max-height: ${breakpoints.screenShort}px)`,
+  );
 }
