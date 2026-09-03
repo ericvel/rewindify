@@ -25,6 +25,7 @@ import type { Component } from 'vue';
 import {
   PhCaretDoubleLeft,
   PhCaretDoubleRight,
+  PhCaretUp,
   PhDisc,
   PhMagnifyingGlass,
   PhMinus,
@@ -44,6 +45,7 @@ type IconName =
   | 'play'
   | 'pause'
   | 'search'
+  | 'caret-up'
   | 'close'
   | 'delete'
   | 'minus'
@@ -62,6 +64,7 @@ const GLYPHS: Record<IconName, Component> = {
   play: PhPlay,
   pause: PhPause,
   search: PhMagnifyingGlass,
+  'caret-up': PhCaretUp,
   close: PhX,
   delete: PhTrash,
   minus: PhMinus,

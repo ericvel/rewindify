@@ -5,6 +5,7 @@ import { IS_FAKE_SPOTIFY } from '@/fake/enabled';
 import { createFakePlaybackSource } from '@/fake/fakePlaybackSource';
 import { resolveLoopTransition } from '@/playback/loop';
 import {
+  LOOP_NAME_MAX,
   MAX_LOOPS_PER_TRACK,
   addSavedLoop,
   findSavedLoop,
@@ -143,6 +144,10 @@ export const usePlayerStore = defineStore('player', () => {
     savedLoopsOpen.value = !savedLoopsOpen.value;
   }
 
+  function openSavedLoops() {
+    savedLoopsOpen.value = true;
+  }
+
   function closeSavedLoops() {
     savedLoopsOpen.value = false;
   }
@@ -157,7 +162,13 @@ export const usePlayerStore = defineStore('player', () => {
     loopSaveRequest.value++;
   }
 
-  /** Stores the current bounds. An empty name is stored as none, not as `''`. */
+  /**
+   * Stores the current bounds. An empty name is stored as none, not as `''`.
+   *
+   * Capped at `LOOP_NAME_MAX` rather than at normalisation's own ceiling: this
+   * is a name being written now, so it takes the limit the field enforces,
+   * while a name read back from storage keeps whatever length it was saved at.
+   */
   function saveLoop(name: string | null) {
     const track = currentTrack.value;
     if (!track || saveLoopBlocked.value !== null) return;
@@ -165,7 +176,7 @@ export const usePlayerStore = defineStore('player', () => {
       ...savedLoops.value,
       [track.id]: addSavedLoop(trackSavedLoops.value, {
         id: newLoopId(),
-        name: normaliseName(name),
+        name: normaliseName(name, LOOP_NAME_MAX),
         a: loopA.value,
         b: loopB.value,
         savedAt: Date.now(),
@@ -359,6 +370,7 @@ export const usePlayerStore = defineStore('player', () => {
     savedLoopsOpen,
     loopSaveRequest,
     toggleSavedLoops,
+    openSavedLoops,
     closeSavedLoops,
     requestLoopSave,
     saveLoop,

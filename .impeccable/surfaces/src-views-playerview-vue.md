@@ -44,6 +44,10 @@ hint line.
   implied to be audio.
 - Errors use inverted ink, never a second hue, so the accent stays exclusive to
   the loop. This is why a lost device reads as a dark chip rather than a red one.
+- Two things leave the plate and both are choosers — the search results and the
+  saved-loops list. What earns the top layer is being a set of candidates
+  anchored to the field you pick in; a tooltip, a menu of actions or a dialog
+  does not. Everything else is a well, a cap or print.
 - Quantities get tabular figures and no monospace anywhere; monospace was doing
   wireframe duty across 36 declarations and is what made the prototype read as
   a spec.
@@ -74,4 +78,12 @@ hint line.
 - **Short-and-wide windows.** A landscape phone (844×390) now gets the full-bleed
   plate rather than a 430px strip, which is strictly better, but the working
   block is taller than the viewport and the page scrolls. No height-aware band
-  has been designed.
+  has been designed. The saved-loops selector inherits this: below about 700px of
+  desktop height the controls row scrolls out of the main column, and an anchored
+  plate follows its field off-screen, which is correct behaviour for an anchor
+  nobody can see and still means the control is unreachable without scrolling.
+- **The scope of a saved loop is unprinted while the list has rows.** The
+  drawer's `SAVED ON THIS TRACK` legend went with the header this pass removed;
+  the empty state still says it, a populated plate does not. See DESIGN.md's
+  `## Open` — the fact is load-bearing and the window's legend has no room for
+  the qualifier at the width the controls row can spare.

@@ -5,8 +5,7 @@ import AppBrand from '@/components/AppBrand.vue';
 import LoopNudger from '@/components/LoopNudger.vue';
 import MobileSearchOverlay from '@/components/MobileSearchOverlay.vue';
 import NowPlayingHeader from '@/components/NowPlayingHeader.vue';
-import SavedLoopsBand from '@/components/SavedLoopsBand.vue';
-import SavedLoopsToggle from '@/components/SavedLoopsToggle.vue';
+import SavedLoopsSelect from '@/components/SavedLoopsSelect.vue';
 import SessionStatus from '@/components/SessionStatus.vue';
 import TimeReadout from '@/components/TimeReadout.vue';
 import TransportControls from '@/components/TransportControls.vue';
@@ -84,13 +83,11 @@ function onSelect(track: Track) {
     <TransportControls class="phone__transport" variant="mobile" />
     <LoopNudger variant="mobile" />
 
-    <!-- The handle keeps the band the switch used to share with it, and the
-         block keeps the drawer under its own handle. The switch has moved into
-         the nudger above, where it stands with the two ends it arms. -->
-    <div class="phone__loop-block">
-      <SavedLoopsToggle variant="mobile" />
-      <SavedLoopsBand variant="mobile" />
-    </div>
+    <!-- The window keeps the band the switch used to share with it; its list
+         comes up out of the slot rather than pushing the plate taller. The
+         switch has moved into the nudger above, where it stands with the two
+         ends it arms. -->
+    <SavedLoopsSelect variant="mobile" />
 
     <MobileSearchOverlay v-if="searchOpen" @close="searchOpen = false" @select="onSelect" />
 
@@ -201,12 +198,6 @@ function onSelect(track: Track) {
 .phone__transport {
   margin-top: auto;
   padding-top: 8px;
-}
-
-.phone__loop-block {
-  display: flex;
-  flex-direction: column;
-  flex: none;
 }
 
 /* The chassis strip is bled to the plate edges, so it tracks the gutter. */

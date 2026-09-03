@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import {
+  LOOP_NAME_MAX,
   MAX_LOOPS_PER_TRACK,
   MAX_TRACKS,
+  STORED_NAME_MAX,
   addSavedLoop,
   findSavedLoop,
   normaliseName,
@@ -74,11 +76,27 @@ describe('normaliseSavedLoops', () => {
     expect(normalised[`track-${MAX_TRACKS + 4}`]).toBeDefined();
   });
 
-  it('trims and caps a name, and reads an empty one as none', () => {
+  it('trims a name and reads an empty one as none', () => {
     expect(normaliseName('  Chorus lift  ')).toBe('Chorus lift');
     expect(normaliseName('   ')).toBeNull();
     expect(normaliseName(null)).toBeNull();
-    expect(normaliseName('x'.repeat(80))).toHaveLength(40);
+  });
+
+  /*
+   * The two limits are separate on purpose. A name being typed now takes the
+   * field's limit; a name read back from storage keeps the length it was saved
+   * at, because a boot that silently renamed a loop the user pinned by ear
+   * would be the same trade as discarding it.
+   */
+  it('caps a name at the limit its caller asks for', () => {
+    expect(normaliseName('x'.repeat(200))).toHaveLength(STORED_NAME_MAX);
+    expect(normaliseName('x'.repeat(200), LOOP_NAME_MAX)).toHaveLength(LOOP_NAME_MAX);
+  });
+
+  it('leaves a name saved under the older, longer limit alone', () => {
+    const long = 'x'.repeat(LOOP_NAME_MAX + 16);
+    const stored = { [TEST_TRACK.id]: [loop({ name: long })] };
+    expect(normaliseSavedLoops(stored)[TEST_TRACK.id]?.[0]?.name).toBe(long);
   });
 });
 
@@ -132,6 +150,14 @@ describe('player store loops', () => {
     expect(player.trackSavedLoops).toHaveLength(1);
     expect(player.trackSavedLoops[0]).toMatchObject({ name: 'Chorus lift', a: 30, b: 60 });
     expect(player.armedSavedLoopId).toBe(player.trackSavedLoops[0]?.id);
+  });
+
+  it('caps a name typed into the field', async () => {
+    const player = usePlayerStore();
+    await player.loadTrack(TEST_TRACK, { a: 30, b: 60, on: true });
+    player.saveLoop('x'.repeat(LOOP_NAME_MAX + 16));
+
+    expect(player.trackSavedLoops[0]?.name).toHaveLength(LOOP_NAME_MAX);
   });
 
   it('refuses to save with the loop off, and says why', async () => {

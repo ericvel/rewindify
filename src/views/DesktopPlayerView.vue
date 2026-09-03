@@ -6,8 +6,7 @@ import AppBrand from '@/components/AppBrand.vue';
 import DesktopSearchField from '@/components/DesktopSearchField.vue';
 import LoopNudger from '@/components/LoopNudger.vue';
 import NowPlayingHeader from '@/components/NowPlayingHeader.vue';
-import SavedLoopsBand from '@/components/SavedLoopsBand.vue';
-import SavedLoopsToggle from '@/components/SavedLoopsToggle.vue';
+import SavedLoopsSelect from '@/components/SavedLoopsSelect.vue';
 import SessionStatus from '@/components/SessionStatus.vue';
 import TimeReadout from '@/components/TimeReadout.vue';
 import TrackRow from '@/components/TrackRow.vue';
@@ -83,15 +82,18 @@ const { heldPoint } = usePlayerKeyboard();
           <TrackTimeline :bar-count="barCount" :field-height="152" variant="desktop" />
         </section>
 
-        <!-- The controls row and its drawer are one block, so the column's own
-             24px gap lands above the row rather than around a shut drawer. -->
-        <div class="desktop__control-block">
-          <div class="desktop__controls">
-            <TransportControls variant="desktop" />
+        <!--
+          Two bays, not three. The window names the span the nudger's two ends
+          are sitting on, so it belongs to the loop rather than to the row, and
+          saying so in the markup is what gives the row a joint to break at.
+        -->
+        <div class="desktop__controls">
+          <TransportControls variant="desktop" />
+
+          <div class="desktop__loop">
             <LoopNudger variant="desktop" />
-            <SavedLoopsToggle class="desktop__saved-loops" variant="desktop" />
+            <SavedLoopsSelect variant="desktop" />
           </div>
-          <SavedLoopsBand variant="desktop" />
         </div>
       </main>
     </div>
@@ -254,10 +256,19 @@ const { heldPoint } = usePlayerKeyboard();
 }
 
 /*
- * Wraps rather than overflowing: at the 900px breakpoint the three groups need
- * more room than the main column has, and an unwrapped row scrolled the whole
- * column sideways. The loop switch keeps to the right edge of whichever line
- * it lands on.
+ * Wraps rather than overflowing: at the 900px breakpoint the bays need more
+ * room than the main column has, and an unwrapped row scrolled the whole column
+ * sideways. Everything packs left, so every line starts on the panel's own left
+ * edge and no control moves along the row as the window is resized — which is
+ * the point on a surface someone glances at once with an instrument in hand.
+ *
+ * The window used to be right-anchored here, and that is what made the wrap
+ * read as broken. It was the last thing left of the arrangement where the loop
+ * switch sat outboard of the window; once the switch folded into the nudger the
+ * anchor was holding the one control with no reason to be at the far edge.
+ * Unwrapped it slid with the viewport, so its position was never twice the
+ * same; wrapped it landed alone on a line of its own, against the opposite edge
+ * from everything above it, aligned with nothing.
  */
 .desktop__controls {
   display: flex;
@@ -267,17 +278,26 @@ const { heldPoint } = usePlayerKeyboard();
   flex: none;
 }
 
-/* The drawer's handle keeps to the right edge of whichever line it lands on.
-   The loop's switch used to sit outboard of it; it is a cell in the nudger
-   now, so this is the row's one right-anchored control. */
-.desktop__saved-loops {
-  margin-left: auto;
-}
-
-.desktop__control-block {
+/*
+ * The loop's bay, and `max-content` is the whole reflow rule. While the bay has
+ * room for both, the cap holds it to one line and the window keeps the 176px
+ * resting width its own variant declares; once it does not, the window drops
+ * under the nudger and fills the line it lands on. That is the phone's rule for
+ * this control and the phone's reason for it — a narrow slot alone on the plate
+ * reads as unmoored — and it is what puts the stacked window's left edge on the
+ * nudger's and its right edge on the panel's instead of floating between them.
+ *
+ * 14px inside the bay against the row's 22px is the grouping stated in spacing:
+ * the window is the nudger's peer, not the transport's.
+ */
+.desktop__loop {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: max-content;
   display: flex;
-  flex-direction: column;
-  flex: none;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 14px;
 }
 
 /* An engraved chassis strip: recessed a shade below the plate, with the

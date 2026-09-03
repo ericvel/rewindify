@@ -45,8 +45,25 @@ export const MAX_LOOPS_PER_TRACK = 12;
  */
 export const MAX_TRACKS = 50;
 
-/** Longer than this stops fitting a row before the ellipsis earns its keep. */
-export const LOOP_NAME_MAX = 40;
+/**
+ * What the name field accepts, and what a new save stores.
+ *
+ * A row prints its name in about 150px, which is around two dozen characters
+ * before the ellipsis takes over — so this is the width of the row expressed as
+ * a count, and a name that reaches it is a name the row can still show whole.
+ */
+export const LOOP_NAME_MAX = 24;
+
+/**
+ * The ceiling normalisation applies on the way in, which is a different job.
+ *
+ * `LOOP_NAME_MAX` governs what the user can type from here on; this one only
+ * has to stop a hand-edited blob carrying a paragraph. Names already saved
+ * under a longer limit are the user's, not ours to shorten — a boot that
+ * silently renamed them would be the same trade as discarding a loop, and the
+ * row truncates what it cannot fit anyway.
+ */
+export const STORED_NAME_MAX = 120;
 
 /**
  * Match precision, in tenths of a second.
@@ -114,9 +131,19 @@ export function normaliseSavedLoops(raw: unknown): SavedLoopStore {
   );
 }
 
-/** A typed name, or null for the rows that print their times instead. */
-export function normaliseName(name: string | null | undefined): string | null {
-  const trimmed = (name ?? '').trim().slice(0, LOOP_NAME_MAX);
+/**
+ * A typed name, or null for the rows that print their times instead.
+ *
+ * The limit is passed in rather than assumed, because the two callers want
+ * different ones: a save from the field caps at `LOOP_NAME_MAX`, and reading
+ * storage caps at `STORED_NAME_MAX` so an older, longer name survives the boot
+ * that introduced the shorter limit.
+ */
+export function normaliseName(
+  name: string | null | undefined,
+  limit: number = STORED_NAME_MAX,
+): string | null {
+  const trimmed = (name ?? '').trim().slice(0, limit);
   return trimmed === '' ? null : trimmed;
 }
 
