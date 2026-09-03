@@ -72,6 +72,20 @@ describe('loading a track', () => {
     await vi.waitFor(() => expect(source.isReady.value).toBe(true));
     expect(lastFakePlayer().calls).toContain('connect');
   });
+
+  it('keeps the playhead at zero when the previous track reports late', async () => {
+    const source = createSpotifyPlaybackSource();
+    await source.load(TEST_TRACK);
+    await source.play();
+    const player = lastFakePlayer();
+    player.emit('player_state_changed', playbackState({ position: 45_000 }));
+
+    await source.load(OTHER_TEST_TRACK);
+    player.emit('player_state_changed', playbackState({ paused: true, position: 45_000 }));
+
+    expect(source.position.value).toBe(0);
+    expect(source.duration.value).toBe(OTHER_TEST_TRACK.duration);
+  });
 });
 
 describe('playing', () => {

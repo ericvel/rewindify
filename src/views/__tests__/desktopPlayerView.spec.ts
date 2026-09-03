@@ -11,8 +11,8 @@ vi.mock('@/playback/spotifyPlaybackSource', async () => {
   return { createSpotifyPlaybackSource: fake.createFakePlaybackSource };
 });
 
-function press(key: string) {
-  window.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+function press(key: string, repeat = false) {
+  window.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, repeat }));
 }
 
 function release(key: string) {
@@ -116,6 +116,14 @@ describe('shortcuts and whatever holds focus', () => {
   // keyboard is usually in — not an edge case.
   it('still toggles play from a focused button', async () => {
     pressFrom(mountEl('button'), ' ');
+    await Promise.resolve();
+    expect(player.isPlaying).toBe(true);
+  });
+
+  it('toggles play once while Space is held', async () => {
+    press(' ');
+    press(' ', true);
+    press(' ', true);
     await Promise.resolve();
     expect(player.isPlaying).toBe(true);
   });

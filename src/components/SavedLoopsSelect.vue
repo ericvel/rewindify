@@ -38,23 +38,23 @@
  * The dotted leader that used to carry a name to its figure was the line this
  * whole pass exists to remove.
  *
- * **The plate opens as a chooser, and becomes a creator when asked.** For one
- * round the name field and its `SAVE` cap were the plate's unconditional first
- * object. That put a text field in front of a user who had opened the list to
- * *pick* something, made the plate's heaviest object a dead control whenever
- * saving was refused, and left the first-run plate a form over an empty
- * sentence. `S` already carries the creation intent from anywhere on the
- * surface, so creation is what the `+` reveals and what `S` opens straight
- * into. The row it lives on is the same row the form takes, so revealing it
- * grows the control rather than pushing the list down.
+ * **The plate says what the next action is.** With nothing stored there is
+ * nothing to select, so the resting recess becomes a light `SAVE LOOP` cap
+ * and opens straight into the naming form. Once rows exist, creation sits above
+ * them as a full-width `Save current loop` action rather than an unexplained
+ * square `+`. That action disappears while a saved row is armed: the current
+ * bounds already have a home, so offering to save them again is a dead end.
+ * `S` still opens the form from anywhere, including blocked states, because its
+ * job is also to explain why the requested save cannot happen.
  *
  * The accent is spent in exactly one place, on the row whose stored bounds the
- * loop is currently sitting on: a 3px `accent-strong` rail, the timeline
- * bracket's own material at row scale, sweeping on `--arm-duration` so applying
- * a loop lights the bracket, the nudger chips, the switch label and the row
- * together in the one moment the system already owns. The window itself takes
- * no rail: it prints the loop's *name*, which states the same bit in words, and
- * a graphic beside it would be the second statement Say-It-Once exists to stop.
+ * loop is currently sitting on: the timeline's wash behind it, a 3px
+ * `accent-strong` rail, and an `ACTIVE` legend. Wash and rail sweep on
+ * `--arm-duration`, so applying a loop lights the bracket, the nudger chips, the
+ * switch label and the row together in the one moment the system already owns.
+ * The window itself takes no rail: it prints the loop's *name*, which states the
+ * same bit in words, and a graphic beside it would be the second statement
+ * Say-It-Once exists to stop.
  *
  * Nothing here prints whether the loop is on. That bit belongs to the switch and
  * the bracket. What the plate *does* print, once the form is open, is the reason
@@ -90,7 +90,7 @@ const addEl = useTemplateRef<HTMLButtonElement>('add');
 
 const draft = ref('');
 
-/** Whether the create row is showing the form or the `+` that reveals it. */
+/** Whether a creation request has expanded the form while saved rows exist. */
 const formOpen = ref(false);
 
 /**
@@ -118,18 +118,25 @@ const armed = computed(
   () => player.trackSavedLoops.find((entry) => entry.id === player.armedSavedLoopId) ?? null,
 );
 
+const hasSavedLoops = computed(() => player.trackSavedLoops.length > 0);
+
+/** First use is creation, not selection; the open plate always shows its form. */
+const showCreateForm = computed(() => formOpen.value || !hasSavedLoops.value);
+
+/** A stored loop already in effect cannot usefully be saved again. */
+const showCreateAction = computed(() => !showCreateForm.value && armed.value === null);
+
 /**
- * The window's value, and the one place the two empty states are told apart.
+ * The window's value once there is something to choose.
  *
- * `None saved` and `None` carry what the handle's printed count used to: with
- * nothing stored there is nothing to open, and with spans stored the live loop
- * is simply not one of them — which is the state a nudge leaves you in, and the
- * whole information content of the feature. Two words instead of a figure, in
- * the slot the figure would have needed anyway.
+ * With spans stored, `None` means the live bounds are not one of them — the
+ * state a nudge leaves you in, and the whole information content of the empty
+ * window. The no-spans state is an action now and never asks this value to
+ * impersonate one.
  */
 const windowValue = computed(() => {
   if (armed.value) return identity(armed.value);
-  return player.trackSavedLoops.length === 0 ? 'None saved' : 'None';
+  return 'None';
 });
 
 /** An unnamed loop is identified by its times, so the window sets them as one. */
@@ -233,7 +240,10 @@ function onPress() {
 function onFieldClick(event: MouseEvent) {
   const wasOut = event.detail === 0 ? isPlateOpen() : openAtPress;
   if (wasOut) close();
-  else open();
+  else {
+    open();
+    if (!hasSavedLoops.value) void revealForm();
+  }
 }
 
 /** Re-armed for every message, so two identical ones are two announcements. */
@@ -351,7 +361,12 @@ function focusRow(index: number) {
 }
 
 function focusCreate() {
-  (formOpen.value ? nameEl.value : addEl.value)?.focus();
+  if (showCreateForm.value) {
+    (blocked.value ? saveEl.value : nameEl.value)?.focus();
+    return;
+  }
+  if (showCreateAction.value) addEl.value?.focus();
+  else fieldEl.value?.focus();
 }
 
 function onRowUp(index: number) {
@@ -386,7 +401,7 @@ async function remove(loop: SavedLoop, index: number) {
   const all = rows();
   // The deleted row took the focus with it: land on whatever now occupies its
   // place, or on the field once there is nothing left to land on.
-  if (all.length === 0) fieldEl.value?.focus();
+  if (all.length === 0) focusCreate();
   else all[Math.min(index, all.length - 1)]?.focus();
 }
 
@@ -446,6 +461,7 @@ function onTab(event: KeyboardEvent) {
       ref="field"
       type="button"
       class="select__field"
+      :class="{ 'is-first-save': !hasSavedLoops }"
       aria-haspopup="true"
       aria-describedby="saved-loops-hint"
       :aria-expanded="player.savedLoopsOpen"
@@ -455,24 +471,30 @@ function onTab(event: KeyboardEvent) {
       @keydown.down.prevent="enterList('first')"
       @keydown.up.prevent="enterList('last')"
     >
-      <span class="select__legend">Saved loop</span>
-      <span class="select__line">
-        <!-- The user's own text, so the paragraph direction is the text's to
-             set: an RTL name in an LTR row resolves its own edges. -->
-        <span
-          class="select__value"
-          dir="auto"
-          :class="{ 'is-empty': armed === null, 'is-figure': windowIsFigure }"
-        >
-          {{ windowValue }}
+      <template v-if="hasSavedLoops">
+        <span class="select__legend">Saved loop</span>
+        <span class="select__line">
+          <!-- The user's own text, so the paragraph direction is the text's to
+               set: an RTL name in an LTR row resolves its own edges. -->
+          <span
+            class="select__value"
+            dir="auto"
+            :class="{ 'is-empty': armed === null, 'is-figure': windowIsFigure }"
+          >
+            {{ windowValue }}
+          </span>
+          <!-- The plate is drawn up out of this slot at both steps, so the mark
+               states the direction of travel and stays true in both states. -->
+          <AppIcon
+            class="select__caret"
+            name="caret-up"
+            :size="props.variant === 'desktop' ? 14 : 16"
+          />
         </span>
-        <!-- The plate is drawn up out of this slot at both steps, so the mark
-             states the direction of travel and stays true in both states. -->
-        <AppIcon
-          class="select__caret"
-          name="caret-up"
-          :size="props.variant === 'desktop' ? 14 : 16"
-        />
+      </template>
+      <span v-else class="select__first-save">
+        <AppIcon name="plus" :size="props.variant === 'desktop' ? 15 : 17" aria-hidden="true" />
+        <span>Save loop</span>
       </span>
     </button>
 
@@ -480,7 +502,11 @@ function onTab(event: KeyboardEvent) {
          printed hint here is the header this pass removed. It is still the
          field's to declare. -->
     <span id="saved-loops-hint" class="select__offscreen">
-      Up and down arrows walk the saved loops on this track.
+      {{
+        hasSavedLoops
+          ? 'Up and down arrows walk the saved loops on this track.'
+          : 'Opens a form to name and save the current loop on this track.'
+      }}
     </span>
 
     <!-- Outside the plate, so a message survives the plate that closes on the
@@ -498,41 +524,35 @@ function onTab(event: KeyboardEvent) {
       @keydown.esc="onEscape($event)"
       @keydown.tab="onTab($event)"
     >
-      <div class="select__create">
-        <!--
-          The `+` and the form take the same row, so revealing one grows the
-          control rather than pushing the list down. It is never disabled: a
-          refused save is a thing to be *told*, and the form is where the telling
-          happens.
-        -->
-        <template v-if="!formOpen">
-          <button
-            ref="add"
-            type="button"
-            class="select__add"
-            aria-label="Name and save the current loop"
-            @click="revealForm()"
-          >
+      <div v-if="showCreateForm || showCreateAction" class="select__create">
+        <!-- A chooser action with a name, not an icon stranded in a corner. It
+             disappears when the current loop is already represented by the
+             armed row. -->
+        <template v-if="showCreateAction">
+          <button ref="add" type="button" class="select__add" @click="revealForm()">
             <AppIcon name="plus" :size="props.variant === 'desktop' ? 14 : 16" />
+            <span class="select__add-label">Save current loop</span>
+            <span v-if="countLabel" class="select__count">{{ countLabel }}</span>
           </button>
-          <span v-if="countLabel" class="select__count">{{ countLabel }}</span>
         </template>
 
         <form v-else class="select__form" @submit.prevent="commit()">
-          <input
-            ref="name"
-            v-model="draft"
-            class="select__name-field"
-            type="text"
-            :placeholder="placeholder"
-            :disabled="blocked"
-            aria-label="Name for this loop (optional)"
-            autocomplete="off"
-            spellcheck="false"
-            dir="auto"
-            @input="onNameInput()"
-            @keydown.enter.prevent="commit()"
-          />
+          <label class="select__name">
+            <span class="select__name-label">Name · optional</span>
+            <input
+              ref="name"
+              v-model="draft"
+              class="select__name-field"
+              type="text"
+              :placeholder="placeholder"
+              :disabled="blocked"
+              autocomplete="off"
+              spellcheck="false"
+              dir="auto"
+              @input="onNameInput()"
+              @keydown.enter.prevent="commit()"
+            />
+          </label>
           <!--
             `aria-disabled` rather than `disabled` so the control stays focusable
             and can be reached to be read. The reason is `describedby` rather
@@ -588,7 +608,12 @@ function onTab(event: KeyboardEvent) {
                  unnamed row is the range alone, in the same place, so the column
                  a user scans for a span is never broken by the rows that have no
                  name to sit above it. -->
-            <span class="select__times">{{ timeRange(loop) }}</span>
+            <span class="select__times">
+              <span v-if="loop.id === player.armedSavedLoopId" class="select__active-status">
+                Active
+              </span>
+              <span>{{ timeRange(loop) }}</span>
+            </span>
           </button>
           <button
             type="button"
@@ -600,11 +625,7 @@ function onTab(event: KeyboardEvent) {
           </button>
         </li>
       </ul>
-      <!-- A recess, so an empty plate is still an object: plate-toned ink on a
-           plate-toned ground over a plate-toned page had only the drop shadow
-           holding it off the surface, and it read as a sentence printed on the
-           page rather than as a chooser standing open. -->
-      <p v-else class="select__empty">No loops saved on this track yet.</p>
+      <p v-else class="select__empty">Saved loops stay with this track.</p>
     </div>
   </div>
 </template>
@@ -649,6 +670,30 @@ function onTab(event: KeyboardEvent) {
   gap: 8px;
   width: 100%;
   text-align: left;
+}
+
+/* With no value to print, this is an action rather than an empty selector. The
+   same footprint keeps the controls row stable; a light cap keeps it secondary
+   to transport while still making the available next step explicit. */
+.select__field.is-first-save {
+  @include cap-light;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  color: var(--ink);
+}
+
+.select__first-save {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .select__legend {
@@ -769,24 +814,33 @@ function onTab(event: KeyboardEvent) {
 }
 
 /*
- * The plate's own first object, and one row whichever thing is in it. Shut, it
- * is a `+` and the count; open, it is the field and its cap. The recess in
- * either state gives the plate a top edge without a rule, which is the whole
- * trade.
+ * Creation is either a full-width named action or the focused name-and-save
+ * form. An armed saved loop removes the action and lets the chooser start with
+ * its current row.
  */
 .select__create {
   display: flex;
-  align-items: center;
-  gap: 6px;
   margin-bottom: 4px;
 }
 
 .select__add {
   @include cap-light;
-  flex: none;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0 10px;
+  text-align: left;
   color: var(--ink);
+}
+
+.select__add-label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  letter-spacing: -0.006em;
 }
 
 /* Beside the control it qualifies, in the register this system prints a figure
@@ -795,20 +849,33 @@ function onTab(event: KeyboardEvent) {
   @include legend(10px);
   @include figures;
   margin-left: auto;
-  padding-right: 4px;
+  white-space: nowrap;
 }
 
 .select__form {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 6px;
   flex: 1;
   min-width: 0;
 }
 
+.select__name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.select__name-label {
+  @include legend(10px);
+  padding-left: 2px;
+}
+
 .select__name-field {
   @include well;
-  flex: 1;
+  width: 100%;
   min-width: 0;
   padding: 0 10px;
   border: 0;
@@ -931,6 +998,24 @@ function onTab(event: KeyboardEvent) {
   }
 }
 
+/* The timeline wash at row scale. It stays mounted and sweeps from the centre
+   with the loop, so selection becomes unmistakable without inventing a second
+   selected-state colour or animation. */
+.select__row::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--accent-wash);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition:
+    opacity var(--arm-duration) var(--ease-out),
+    transform var(--arm-duration) var(--ease-out);
+}
+
 /*
  * The one place this feature spends the accent: the boundary rule from the
  * timeline bracket, stood on end at row scale. It means what it means
@@ -939,6 +1024,7 @@ function onTab(event: KeyboardEvent) {
  */
 .select__rail {
   position: absolute;
+  z-index: 2;
   top: 6px;
   bottom: 6px;
   left: 0;
@@ -957,7 +1043,18 @@ function onTab(event: KeyboardEvent) {
   transform: scaleY(1);
 }
 
+.is-armed .select__row {
+  box-shadow: var(--shadow-well);
+}
+
+.is-armed .select__row::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
 .select__row-name {
+  position: relative;
+  z-index: 1;
   flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -974,7 +1071,13 @@ function onTab(event: KeyboardEvent) {
    a title to its figure is the line this pass set out to remove. */
 .select__times {
   @include figures;
+  position: relative;
+  z-index: 1;
   flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
   margin-left: auto;
   font-size: 12px;
   font-weight: 500;
@@ -982,10 +1085,18 @@ function onTab(event: KeyboardEvent) {
   color: var(--ink-label);
 }
 
+.select__active-status {
+  @include legend(9px);
+  color: var(--accent-text);
+}
+
+.is-armed .select__times {
+  color: var(--ink);
+}
+
 .select__empty {
-  @include well;
   margin: 0;
-  padding: 10px 12px 12px;
+  padding: 6px 6px 8px;
   color: var(--ink-body);
 }
 
@@ -1024,6 +1135,11 @@ function onTab(event: KeyboardEvent) {
     font-size: 14px;
   }
 
+  .select__first-save,
+  .select__add-label {
+    font-size: 12px;
+  }
+
   /* 312px held a 40px delete mark two pixels from its row. Twelve more pay for
      the eight-pixel gap and the six the mark grew by, so the name column keeps
      the ~160px that twenty-four characters of ordinary mixed case run in.
@@ -1045,10 +1161,6 @@ function onTab(event: KeyboardEvent) {
   .select__name-field,
   .select__commit {
     height: 34px;
-  }
-
-  .select__add {
-    width: 34px;
   }
 
   .select__name-field {
@@ -1102,6 +1214,11 @@ function onTab(event: KeyboardEvent) {
     font-size: 15px;
   }
 
+  .select__first-save,
+  .select__add-label {
+    font-size: 13px;
+  }
+
   /* The field now takes the full practice-control width. Keep the viewport
      floor as protection for embedded or unusually narrow containers, and let
      the plate follow the field anywhere wider. */
@@ -1113,10 +1230,6 @@ function onTab(event: KeyboardEvent) {
   .select__name-field,
   .select__commit {
     height: 42px;
-  }
-
-  .select__add {
-    width: 42px;
   }
 
   .select__name-field {
@@ -1183,7 +1296,12 @@ function onTab(event: KeyboardEvent) {
     box-shadow: var(--shadow-cap-light);
   }
 
+  .is-armed .select__row:hover {
+    box-shadow: var(--shadow-well);
+  }
+
   .select__commit:not(.is-blocked):hover,
+  .select__field.is-first-save:hover,
   .select__add:hover {
     background: linear-gradient(var(--surface-hi), var(--surface-raised));
   }

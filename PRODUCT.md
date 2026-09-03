@@ -78,10 +78,11 @@ Confirmed capabilities:
   and a minimum loop length of 2 seconds.
 - Saved loops, per track, persisted locally (`rewindify:saved-loops`): the armed
   span is stored with an optional name of up to 24 characters, and re-applied in
-  one press — both ends set, the loop switched on, playback returned to A. The
-  control is a selector: a slot in the controls row printing whichever saved
-  loop the live loop is currently sitting on, opening a list of the track's
-  stored spans over the surface. Twelve to a track, fifty tracks.
+  one press — both ends set, the loop switched on, playback returned to A. With
+  nothing stored, the control is a `Save loop` action that opens its naming
+  form. Once the track has saved spans, the same footprint becomes a selector
+  printing whichever one the live loop is sitting on and opening their list
+  over the surface. Twelve to a track, fifty tracks.
 - Keyboard control: space toggles play, arrows step back and forward by the
   configured skip, holding A or B turns the arrows into a nudge of that loop
   point, L toggles the loop, S opens the saved-loops list with the caret in its

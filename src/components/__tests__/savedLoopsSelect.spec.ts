@@ -132,9 +132,10 @@ describe('SavedLoopsSelect', () => {
       expect(wrapper.get('.select__value').text()).toBe('Bridge');
     });
 
-    it('tells an empty track from a loop that is not saved', async () => {
+    it('becomes a save action until the track has something to select', async () => {
       const wrapper = mountSelect();
-      expect(wrapper.get('.select__value').text()).toBe('None saved');
+      expect(wrapper.get('#saved-loops-toggle').text()).toBe('Save loop');
+      expect(wrapper.find('.select__value').exists()).toBe(false);
 
       player.saveLoop('Bridge');
       player.nudge('a', 2);
@@ -160,23 +161,36 @@ describe('SavedLoopsSelect', () => {
   });
 
   describe('the create row', () => {
-    it('opens as a chooser, with the form behind the plus', async () => {
+    it('hides creation while the current saved loop is active', async () => {
       player.saveLoop('Bridge');
       await nextTick();
       const wrapper = mountSelect();
       pressField(wrapper);
       await nextTick();
 
-      expect(wrapper.find('.select__add').exists()).toBe(true);
+      expect(wrapper.find('.select__add').exists()).toBe(false);
       expect(wrapper.find('.select__name-field').exists()).toBe(false);
     });
 
-    it('prints the count beside the plus, and the ceiling as full', async () => {
+    it('offers a named full-width save action when no saved loop is active', async () => {
       const wrapper = mountSelect();
       player.saveLoop('One');
+      player.nudge('a', 2);
       await nextTick();
 
+      expect(wrapper.get('.select__add').text()).toContain('Save current loop');
       expect(wrapper.get('.select__count').text()).toBe('1 saved');
+    });
+
+    it('opens the first-save form directly and takes the caret', async () => {
+      const wrapper = mountSelect();
+      pressField(wrapper);
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.find('.select__add').exists()).toBe(false);
+      expect(wrapper.get('.select__name-label').text()).toBe('Name · optional');
+      expect(document.activeElement).toBe(wrapper.get('.select__name-field').element);
     });
 
     it('reveals the form and takes the caret on a save request', async () => {
@@ -261,6 +275,14 @@ describe('SavedLoopsSelect', () => {
       expect(wrapper.findAll('.select__times')).toHaveLength(3);
     });
 
+    it('marks only the active saved loop as active', () => {
+      const wrapper = mountSelect();
+
+      expect(wrapper.findAll('.select__active-status')).toHaveLength(1);
+      expect(wrapper.get('.is-armed .select__active-status').text()).toBe('Active');
+      expect(wrapper.get('.is-armed .select__row').attributes('aria-current')).toBe('true');
+    });
+
     it('enters at the loop you are on, not at the top', async () => {
       // Back onto `First`, which newest-first puts at the bottom of three.
       player.nudge('a', -10);
@@ -275,7 +297,7 @@ describe('SavedLoopsSelect', () => {
       expect(document.activeElement).toBe(rows[2]?.element);
     });
 
-    it('walks up out of the list rather than round it', async () => {
+    it('walks up to the field when the active loop hides creation', async () => {
       const wrapper = mountSelect();
       pressField(wrapper);
       await nextTick();
@@ -284,7 +306,7 @@ describe('SavedLoopsSelect', () => {
       await rows[0]?.trigger('keydown', { key: 'ArrowUp' });
       await nextTick();
 
-      expect(document.activeElement).toBe(wrapper.get('.select__add').element);
+      expect(document.activeElement).toBe(wrapper.get('#saved-loops-toggle').element);
     });
 
     it('deletes from the keyboard and lands on the row that took its place', async () => {

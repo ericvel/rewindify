@@ -102,7 +102,9 @@ const { heldPoint } = usePlayerKeyboard();
     <footer class="desktop__statusbar">
       <span class="desktop__shortcut">
         <kbd class="desktop__key">SPACE</kbd>
-        <span class="desktop__shortcut-label">{{ player.isPlaying ? 'Pause' : 'Play' }}</span>
+        <span class="desktop__shortcut-label desktop__shortcut-label--playback">
+          {{ player.isPlaying ? 'Pause' : 'Play' }}
+        </span>
       </span>
       <span class="desktop__shortcut">
         <kbd class="desktop__key desktop__key--narrow">←</kbd>
@@ -353,6 +355,11 @@ const { heldPoint } = usePlayerKeyboard();
 
 .desktop__shortcut-label {
   @include legend(10px);
+}
+
+/* Reserve the longest state label so the remaining legends never move. */
+.desktop__shortcut-label--playback {
+  width: 40px;
 }
 
 .desktop__credit {

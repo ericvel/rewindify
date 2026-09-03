@@ -87,6 +87,6 @@ hint line.
   the remaining case is desktop height rather than phone orientation.
 - **The scope of a saved loop is unprinted while the list has rows.** The
   drawer's `SAVED ON THIS TRACK` legend went with the header this pass removed;
-  the empty state still says it, a populated plate does not. See DESIGN.md's
+  first-use guidance still says it, a populated plate does not. See DESIGN.md's
   `## Open` — the fact is load-bearing and the window's legend has no room for
   the qualifier at the width the controls row can spare.

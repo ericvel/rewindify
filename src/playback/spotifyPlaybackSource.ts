@@ -109,8 +109,10 @@ export function createSpotifyPlaybackSource(): PlaybackSource {
     }
 
     // A state about some other track is a leftover from a switch in progress.
+    // `cuedUri` is cleared before the old player is paused, so the selected
+    // track remains the authority while that pause and its events settle.
     const playing = state.track_window.current_track;
-    if (cuedUri !== null && playing !== null && playing.uri !== cuedUri) return;
+    if (track !== null && playing !== null && playing.uri !== track.uri) return;
 
     if (state.duration > 0) duration.value = state.duration / 1000;
     const reported = state.position / 1000;

@@ -91,7 +91,9 @@ export function usePlayerKeyboard() {
       heldPoint.value = point;
     } else if (event.key === ' ' || event.code === 'Space') {
       event.preventDefault();
-      void player.togglePlay();
+      // Space repeats while held; playback is a toggle, so auto-repeat would
+      // undo the first action and leave the player oscillating.
+      if (!event.repeat) void player.togglePlay();
     } else if (event.key === 'ArrowLeft') {
       event.preventDefault();
       if (heldPoint.value) player.nudge(heldPoint.value, -NUDGE_SECONDS);
