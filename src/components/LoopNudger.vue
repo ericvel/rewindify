@@ -27,7 +27,7 @@ const points = computed(() => [
          that arms the passage sits beside the two ends that define it rather
          than at the far end of a row. On the phone it stands against both rows
          at once; on desktop it leads them. -->
-    <LoopToggle class="nudger__arm" :variant="variant" />
+    <LoopToggle class="nudger__arm" :variant="variant" :compact="compact" />
     <div v-for="point in points" :key="point.key" class="nudger__row">
       <!-- The chip matches its marker on the timeline, so the two read as one
            control at two scales. It takes the accent only once the loop is on. -->

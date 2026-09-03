@@ -188,4 +188,23 @@ describe('shortcuts and whatever holds focus', () => {
     await Promise.resolve();
     expect(player.isPlaying).toBe(false);
   });
+
+  /*
+   * The mobile search overlay is a plate over the player rather than a popover,
+   * and its result rows are tabbable — so the space bar on one of them was
+   * toggling playback behind a surface that was covering the transport.
+   */
+  it('leaves everything inside a modal surface alone', async () => {
+    const dialog = mountEl('div');
+    dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-modal', 'true');
+    const row = document.createElement('button');
+    dialog.append(row);
+
+    pressFrom(row, ' ');
+    pressFrom(row, 'l');
+    await Promise.resolve();
+    expect(player.isPlaying).toBe(false);
+    expect(player.loopOn).toBe(true);
+  });
 });

@@ -247,6 +247,8 @@ onScopeDispose(() => {
   --scale-strip: 24px;
   --bar-gap: 2px;
   --rail: 3px;
+  /* 120ms, as a fraction of the sweep it comes in behind. */
+  --behind-sweep: calc(var(--arm-duration) * 0.375);
   position: relative;
   height: calc(var(--knob-strip) + var(--field-height) + var(--scale-strip));
   touch-action: none;
@@ -394,10 +396,15 @@ onScopeDispose(() => {
   right: -2px;
 }
 
-/* Behind the sweep, on the same delay as the grips they belong to. */
+/*
+ * Behind the sweep, on the same delay as the grips they belong to. Derived from
+ * the arm token rather than declared: a literal 120ms survives
+ * `prefers-reduced-motion`, which zeroes the durations at `:root` and cannot
+ * reach a delay nothing expressed through it.
+ */
 .is-armed .timeline__bracket {
   opacity: 1;
-  transition-delay: 120ms;
+  transition-delay: var(--behind-sweep);
 }
 
 .timeline__scale {
@@ -506,7 +513,7 @@ onScopeDispose(() => {
 .is-armed .timeline__grip {
   opacity: 1;
   pointer-events: auto;
-  transition-delay: 120ms;
+  transition-delay: var(--behind-sweep);
 }
 
 .timeline__grip--a {

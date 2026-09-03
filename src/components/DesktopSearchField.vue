@@ -32,7 +32,26 @@ const resultsLabel = computed(() => {
   if (!trimmed.value) return 'Recently played';
   if (library.isSearching) return 'Searching…';
   const count = results.value.length;
+  /*
+   * Nothing found prints once, and it prints the sentence. `0 matches` above
+   * `No tracks match “zzzz”.` was the same fact twice, and the sentence is the
+   * half that carries the query — which is what a user who mistyped needs.
+   */
+  if (count === 0) return null;
   return `${count} ${count === 1 ? 'match' : 'matches'}`;
+});
+
+/*
+ * Only once there is an answer. `!results.length` alone printed `No tracks
+ * match “b”.` under a header that still said `Searching…` — the store keeps
+ * `isSearching` up through the 250ms debounce and the request behind it, and
+ * on the first search of a session there are no stale rows to sit under. It
+ * also fired with no query at all on an account Spotify has no history for,
+ * which printed the sentence with an empty pair of quotes in it.
+ */
+const emptyLabel = computed(() => {
+  if (library.isSearching || results.value.length > 0) return null;
+  return trimmed.value ? `No tracks match “${trimmed.value}”.` : 'Nothing played yet.';
 });
 
 // Results now arrive after the keystroke that asked for them, so the store is
@@ -104,8 +123,8 @@ function clearQuery() {
         class="search__input"
         type="text"
         role="combobox"
-        placeholder="Search your library"
-        aria-label="Search your library"
+        placeholder="Search Spotify"
+        aria-label="Search Spotify"
         aria-controls="search-results"
         :aria-expanded="isOpen"
         :aria-activedescendant="isOpen ? activeOptionId : undefined"
@@ -135,15 +154,22 @@ function clearQuery() {
       aria-label="Search results"
       @toggle="isOpen = ($event as ToggleEvent).newState === 'open'"
     >
-      <div class="search__popover-header">
+      <div v-if="resultsLabel" class="search__popover-header">
         <span>{{ resultsLabel }}</span>
-        <span class="search__hint">Enter to play</span>
+        <!-- Only while there is a row for that key to land on. -->
+        <span v-if="results.length > 0" class="search__hint">Enter to play</span>
       </div>
+      <!-- `tabindex="-1"`: this is an `aria-activedescendant` combobox, so the
+           field keeps DOM focus and the arrows move the active row. Left
+           tabbable, the two models contradicted each other — Tab walked
+           twenty-seven option buttons while the field still claimed one of
+           them as its active descendant. -->
       <TrackRow
         v-for="(track, index) in results"
         :id="`search-option-${track.id}`"
         :key="track.id"
         role="option"
+        tabindex="-1"
         :aria-selected="index === activeIndex"
         :track="track"
         :active="track.id === player.currentTrack?.id"
@@ -151,7 +177,7 @@ function clearQuery() {
         size="sm"
         @select="pick(track)"
       />
-      <p v-if="!results.length" class="search__empty">No tracks match “{{ trimmed }}”.</p>
+      <p v-if="emptyLabel" class="search__empty">{{ emptyLabel }}</p>
     </div>
   </div>
 </template>

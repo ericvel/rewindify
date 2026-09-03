@@ -21,9 +21,18 @@
  */
 import { usePlayerStore } from '@/stores/player';
 
-const props = withDefaults(defineProps<{ variant?: 'mobile' | 'desktop' }>(), {
-  variant: 'mobile',
-});
+const props = withDefaults(
+  defineProps<{
+    variant?: 'mobile' | 'desktop';
+    /**
+     * Whether the bay spans both A/B rows. The nudger stacks its rows in short
+     * landscape at a width the wide band would otherwise lay the switch down
+     * at, and orientation follows the bay, never the breakpoint.
+     */
+    compact?: boolean;
+  }>(),
+  { variant: 'mobile', compact: false },
+);
 
 const player = usePlayerStore();
 </script>
@@ -32,7 +41,7 @@ const player = usePlayerStore();
   <button
     type="button"
     class="loop"
-    :class="[`loop--${props.variant}`, { 'is-on': player.loopOn }]"
+    :class="[`loop--${props.variant}`, { 'is-on': player.loopOn, 'is-tall-bay': props.compact }]"
     :aria-pressed="player.loopOn"
     @click="player.toggleLoop()"
   >
@@ -156,32 +165,40 @@ const player = usePlayerStore();
    * band the bay is one row tall beside the pair, so there is no long axis to
    * run up — and a 110px switch would have set the row height for the two A/B
    * rows next to it. It lies down again here, at the touch step.
+   *
+   * Bounded by the bay, not by the band. Short landscape is wide enough for
+   * this query and still stacks its A/B rows, which left a 34×18 track parked
+   * in a 116px cell with 98px of dead well around it — the exact slot this
+   * arrangement was built to stop being. Where the bay spans both rows, the
+   * track runs up it whatever the width says.
    */
   @include screen-wide {
-    flex-direction: column;
-    padding: 0 11px;
+    &:not(.is-tall-bay) {
+      flex-direction: column;
+      padding: 0 11px;
 
-    /* Desktop's track exactly: horizontal, the switch is the mechanism inside
-       the button rather than the button itself, and the bay it sits in is
-       56×54 — so the affordance clears 40px in both axes on a touch tablet
-       even though the track does not. */
-    .loop__switch {
-      width: 34px;
-      height: 18px;
-      border-radius: 9px;
-    }
+      /* Desktop's track exactly: horizontal, the switch is the mechanism inside
+         the button rather than the button itself, and the bay it sits in is
+         56×54 — so the affordance clears 40px in both axes on a touch tablet
+         even though the track does not. */
+      .loop__switch {
+        width: 34px;
+        height: 18px;
+        border-radius: 9px;
+      }
 
-    .loop__knob {
-      top: 3px;
-      bottom: auto;
-      width: 12px;
-      height: 12px;
-      transition: left var(--arm-duration) var(--ease-out);
-    }
+      .loop__knob {
+        top: 3px;
+        bottom: auto;
+        width: 12px;
+        height: 12px;
+        transition: left var(--arm-duration) var(--ease-out);
+      }
 
-    &.is-on .loop__knob {
-      bottom: auto;
-      left: 19px;
+      &.is-on .loop__knob {
+        bottom: auto;
+        left: 19px;
+      }
     }
   }
 }
@@ -210,12 +227,11 @@ const player = usePlayerStore();
 }
 
 /* A recessed control cannot press down, so the hover deepens the track it
-   already has. Same alpha the light cap uses for its own sustained press. */
+   already has — on the light cap's own pressed shadow, which is the same two
+   layers this was restating as literals. */
 @media (hover: hover) {
   .loop:hover .loop__switch {
-    box-shadow:
-      inset 0 1px 3px rgba(88, 80, 64, 0.26),
-      inset 0 0 0 1px var(--surface-edge);
+    box-shadow: var(--shadow-cap-light-pressed);
   }
 }
 </style>

@@ -265,6 +265,10 @@ onBeforeUnmount(() => {
   --scale-strip: 24px;
   --bar-gap: 2px;
   --rail: 3px;
+  /* 120ms, as a fraction of the sweep it comes in behind — the player's own
+     derivation, for the same reason: a literal delay outlives the durations
+     `prefers-reduced-motion` zeroes at `:root`. */
+  --behind-sweep: calc(var(--arm-duration) * 0.375);
   position: relative;
   height: calc(var(--knob-strip) + var(--field-height) + var(--scale-strip));
   /* Nothing here is operable, so nothing here takes a pointer or a caret. */
@@ -439,7 +443,7 @@ onBeforeUnmount(() => {
 .is-armed .demo__bracket,
 .is-armed .demo__marker {
   opacity: 1;
-  transition-delay: 120ms;
+  transition-delay: var(--behind-sweep);
 }
 
 .demo__scale {

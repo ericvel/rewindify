@@ -47,6 +47,32 @@ function selectTrack(track: Track) {
     :track="player.currentTrack"
     @select="selectTrack"
   />
+  <!--
+    Cold boot only. Picking a track keeps the loaded one on screen until the new
+    one lands, so this is the shared link and the reload: the guard's fetch, the
+    token exchange and the device registration all happen before there is a
+    track to render, and the plate was standing empty and silent while they did.
+    The gate's own answer to the same moment, at the same step — see
+    `CallbackView`.
+  -->
+  <div v-else class="player-boot">
+    <p class="player-boot__status" role="status">Loading track…</p>
+  </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+@use '@/styles/surfaces' as *;
+
+.player-boot {
+  width: 100%;
+  min-height: 100dvh;
+  background: var(--surface-plate);
+  display: grid;
+  place-items: center;
+}
+
+.player-boot__status {
+  @include legend(11px);
+  margin: 0;
+}
+</style>

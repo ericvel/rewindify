@@ -67,8 +67,26 @@ hint line.
   beside the desktop arrow-key legend and opposite the mobile credit. The two
   dark step keys remain one-press actions and update their printed amount
   immediately.
+- The loop switch's orientation follows the bay it sits in, never the width.
+  Short landscape is a wide-band width with a stacked two-row bay, so the track
+  runs up it there as it does in portrait.
+- Cold boot prints a status rather than an empty plate, at the gate's own step:
+  the shared link and the reload have a fetch, a token exchange and a device
+  registration in front of them.
+- Both search fields say "Search Spotify" and count "matches". The search is
+  Spotify's whole catalogue, not a collection the user owns, and the two
+  breakpoints may not word the same query differently. A search that finds
+  nothing prints one statement — the sentence naming the query — and the
+  header goes with the count.
 
 ## Unresolved
+
+- **The position readout is silent to a screen reader.** `<output>` announced
+  the figure every second of playback, so `aria-live` is off and the accessible
+  name carries the value instead. Nothing now announces a *discrete* move — a
+  step, a nudge, a loop wrap. The saved-loops plate already has an authored
+  `role="status"` for its own acts; the transport needs the same, keyed to the
+  act rather than to the tick.
 
 - **Anthracite plate.** The role tokens in `src/styles/tokens.scss` are named by
   job precisely so a dark rendition can be switched on by redefining one block.

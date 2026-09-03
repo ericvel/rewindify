@@ -1085,8 +1085,10 @@ function onTab(event: KeyboardEvent) {
   color: var(--ink-label);
 }
 
+/* The ramp's own legend step. It shipped at 9px, which is a sixteenth size in a
+   fifteen-step ramp and the only text in the product under the 10px floor. */
 .select__active-status {
-  @include legend(9px);
+  @include legend(10px);
   color: var(--accent-text);
 }
 

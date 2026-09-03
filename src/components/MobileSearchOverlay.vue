@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import AppIcon from './AppIcon.vue';
 import TrackRow from './TrackRow.vue';
 import { useLibraryStore } from '@/stores/library';
@@ -27,19 +27,58 @@ const rows = computed(() =>
     : library.recentTracks.map((entry) => ({ track: entry.track, playedAt: entry.playedAt })),
 );
 
+/** The desktop field's wording; one search, one vocabulary. */
 const resultsLabel = computed(() => {
   if (library.error) return library.error;
   if (!trimmed.value) return 'Recently played';
   if (library.isSearching) return 'Searching…';
   const count = matches.value.length;
-  return `${count} ${count === 1 ? 'track' : 'tracks'}`;
+  // Nothing found prints once, in the sentence that names the query.
+  if (count === 0) return null;
+  return `${count} ${count === 1 ? 'match' : 'matches'}`;
 });
 
-onMounted(() => inputEl.value?.focus());
+/*
+ * Only once there is an answer. The overlay printed `No tracks match “b”.`
+ * directly under a label that still said `Searching…`, because the store holds
+ * `isSearching` through the debounce and the request and the first search of a
+ * session has no rows behind it.
+ */
+const emptyLabel = computed(() => {
+  if (library.isSearching || rows.value.length > 0) return null;
+  return trimmed.value ? `No tracks match “${trimmed.value}”.` : 'Nothing played yet.';
+});
+
+/*
+ * The overlay says `role="dialog"`, so it has to behave like one: Escape closes
+ * it, and the focus goes back to the control that opened it rather than being
+ * dropped on the body when this unmounts. Without the restore, a keyboard user
+ * who closed search landed nowhere and had to tab in from the top of the plate.
+ */
+const opener = ref<HTMLElement | null>(null);
+
+function onKeydown(event: KeyboardEvent) {
+  if (event.key !== 'Escape') return;
+  event.preventDefault();
+  emit('close');
+}
+
+onMounted(() => {
+  opener.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  inputEl.value?.focus();
+});
+
+onUnmounted(() => opener.value?.focus());
 </script>
 
 <template>
-  <div class="search-overlay" role="dialog" aria-label="Search">
+  <div
+    class="search-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Search"
+    @keydown="onKeydown"
+  >
     <div class="search-overlay__bar">
       <div class="search-overlay__field">
         <AppIcon class="search-overlay__icon" name="search" :size="17" />
@@ -62,7 +101,7 @@ onMounted(() => inputEl.value?.focus());
       </button>
     </div>
 
-    <p class="search-overlay__label">{{ resultsLabel }}</p>
+    <p v-if="resultsLabel" class="search-overlay__label">{{ resultsLabel }}</p>
 
     <div class="search-overlay__results">
       <TrackRow
@@ -74,9 +113,7 @@ onMounted(() => inputEl.value?.focus());
         size="lg"
         @select="emit('select', row.track)"
       />
-      <p v-if="trimmed && !matches.length" class="search-overlay__empty">
-        No tracks match “{{ trimmed }}”.
-      </p>
+      <p v-if="emptyLabel" class="search-overlay__empty">{{ emptyLabel }}</p>
     </div>
   </div>
 </template>

@@ -25,9 +25,10 @@ import { usePlayerStore } from '@/stores/player';
  * saved-loops window toggled playback instead of opening the list, and space on
  * a row in the open list toggled playback instead of applying the loop — the
  * player was preventing the default on a control whose whole job that key is.
- * So two narrow exceptions join the caret: a control that advertises a popup
- * owns the keys that open it, and an open popover owns the keys inside it. Both
- * are stated in the DOM rather than by tag, so a new chooser inherits them.
+ * So three narrow exceptions join the caret: a control that advertises a popup
+ * owns the keys that open it, an open popover owns the keys inside it, and a
+ * modal surface owns the keys inside it. All three are stated in the DOM rather
+ * than by tag, so a new chooser or overlay inherits them.
  */
 const TEXT_ENTRY = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
 
@@ -65,6 +66,13 @@ function ownsKeyboard(target: EventTarget | null) {
   // A chooser's trigger, and everything inside a chooser that is standing open.
   if (target.hasAttribute('aria-expanded')) return true;
   if (isInsideOpenPopover(target)) return true;
+  /*
+   * A modal surface owns its own keys, the same way an open popover does. The
+   * mobile search overlay is not a popover — it is a plate over the player —
+   * and its result rows are tabbable, so the space bar on one of them was
+   * toggling playback behind a dialog that was covering the transport.
+   */
+  if (target.closest('[role="dialog"][aria-modal="true"]') !== null) return true;
   if (!TEXT_ENTRY.has(target.tagName)) return false;
   if (target instanceof HTMLInputElement) return !NON_TEXT_INPUT_TYPES.has(target.type);
   return true;

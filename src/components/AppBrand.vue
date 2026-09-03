@@ -25,6 +25,7 @@ import AppIcon from './AppIcon.vue';
   font-weight: 700;
   letter-spacing: -0.018em;
   color: var(--ink);
+  cursor: default;
 }
 
 /*

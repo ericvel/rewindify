@@ -55,12 +55,18 @@
    * One hue, three jobs, and it means the loop and nothing else. Split by
    * contrast duty rather than by taste: `--accent` is graphics only (3.2:1 on
    * plate, fine for rules and fills, not for text), `--accent-strong` carries
-   * white text at 5.1:1, `--accent-text` is accent-coloured text on the plate
-   * at 4.6:1.
+   * white text at 5.1:1, `--accent-text` is accent-coloured text.
+   *
+   * `--accent-text` is measured on all three grounds it can land on, because
+   * the washed span is one of them and is darker than the plate: 5.74:1 on the
+   * plate, 5.23:1 on the well, 4.79:1 on the wash. At #AB3D07 the first two
+   * cleared and the third did not — the armed saved-loop row prints `ACTIVE`
+   * over the wash at 4.26:1 — so the value went one step deeper at the same
+   * 20° hue rather than the legend giving up the accent.
    */
   --accent: #e2510f;
   --accent-strong: #c24309;
-  --accent-text: #ab3d07;
+  --accent-text: #9e3806;
   /*
    * The span wash is luminance-locked, not alpha-limited. An in-loop bar has to
    * clear 3:1 against both this ground and the played bar, which leaves the
