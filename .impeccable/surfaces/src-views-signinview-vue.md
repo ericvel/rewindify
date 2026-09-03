@@ -26,11 +26,10 @@ The Bench Instrument, shown rather than described. The working panel — the sam
 scale — comes before the decision group in the reading order. On desktop it is
 the wider left bank beside the heading, copy and key; on a narrow plate it
 stacks above them. It runs a scripted session on a fourteen-second cycle. A
-first visit opens at A with the loop armed, so the claim is already present in
-the first frame. After the cycle turns over, the head runs from the top of the
-track, the loop arms in the system's own 320ms sweep as the head reaches A, the
-passage wraps at B twice, the loop releases, and playback carries on to the end
-before the track starts over.
+first visit opens four demo seconds before A with the loop clear. Once the head
+passes A, the loop arms in the system's own 320ms sweep, the passage wraps at B
+twice, the loop releases, and playback carries on to the end before the track
+starts over.
 
 The text under it was brought up to the same conviction in a second round. The
 heading takes the numeral steps — 46/64, the pair the position readout owns —

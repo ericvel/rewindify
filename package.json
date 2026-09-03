@@ -1,10 +1,10 @@
 {
   "name": "rewindify",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 127.0.0.1",
     "dev:fake": "VITE_FAKE_SPOTIFY=1 vite --host 127.0.0.1 --port 5174",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",

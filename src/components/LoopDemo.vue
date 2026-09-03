@@ -6,10 +6,9 @@
  * is a stranger arriving cold — and the screen that has to sell the thing was
  * the one screen carrying none of it. So the working panel comes to the gate
  * with the field in it, and the field plays a scripted session. A first visit
- * opens at A with the loop armed, so the gate's claim is present in its first
- * frame; after the cycle turns over, the head runs from the top of the track,
- * the loop arms as it reaches A, the passage wraps at B twice, the loop
- * releases, and playback carries on to the end before the track starts over.
+ * opens just before A with the loop clear; crossing A arms it, the passage
+ * wraps at B twice, the loop releases, and playback carries on to the end
+ * before the track starts over.
  *
  * The head only ever moves forward under its own steam. It jumps in exactly two
  * places, and both are events the product owns: the loop wrapping at B, and the
@@ -71,12 +70,12 @@ interface Beat {
 
 /*
  * The session, in demo seconds. One pass down the track, with the loop arming
- * exactly where A is and releasing at B after the second wrap. The only cuts
+ * immediately after A and releasing at B after the second wrap. The only cuts
  * are the wrap itself and the track running out.
  */
 const SCRIPT: Beat[] = [
   { from: 0, to: LOOP_A, armed: false },
-  // Armed as the head arrives at A, so the sweep opens around a still head.
+  // This beat owns positions beyond A; the exact boundary stays unarmed.
   { from: LOOP_A, to: LOOP_B, armed: true },
   { from: LOOP_A, to: LOOP_B, armed: true },
   // Released at B, and playback carries on past it — which is what looping prevents.
@@ -86,8 +85,9 @@ const SCRIPT: Beat[] = [
 const BEATS = SCRIPT.map((beat) => ({ ...beat, seconds: (beat.to - beat.from) / RATE }));
 const CYCLE = BEATS.reduce((total, beat) => total + beat.seconds, 0);
 
-/** Enter on the first armed beat; the claim should not take 4.5 seconds to appear. */
-const ENTRY = BEATS[0]?.seconds ?? 0;
+/** Four demo seconds gives the visitor a clear half-second before the head crosses A. */
+const ENTRY_LEAD = 4;
+const ENTRY = (LOOP_A - ENTRY_LEAD) / RATE;
 
 /** The frame a still visitor gets: armed, head inside the passage. */
 const RESTING = { position: 48, armed: true };
@@ -114,7 +114,7 @@ const frame = computed(() => {
   if (!running.value) return RESTING;
   let remaining = elapsed.value;
   for (const beat of BEATS) {
-    if (remaining < beat.seconds) {
+    if (remaining <= beat.seconds) {
       return {
         position: beat.from + (beat.to - beat.from) * (remaining / beat.seconds),
         armed: beat.armed,
