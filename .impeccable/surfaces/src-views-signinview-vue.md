@@ -23,27 +23,33 @@ paragraph.
 
 The Bench Instrument, shown rather than described. The working panel — the same
 `well(4px)` recess, the same padding pair, the same field, the same printed
-scale — is cut into the gate above the heading, and it runs a scripted session
-on a fourteen-second cycle: the head runs from the top of the track, the loop
-arms in the system's own 320ms sweep as the head reaches A, the passage wraps at
-B twice, the loop releases, and playback carries on to the end before the track
-starts over. The claim in the heading is the thing the recess is doing while it
-is read.
+scale — comes before the decision group in the reading order. On desktop it is
+the wider left bank beside the heading, copy and key; on a narrow plate it
+stacks above them. It runs a scripted session on a fourteen-second cycle. A
+first visit opens at A with the loop armed, so the claim is already present in
+the first frame. After the cycle turns over, the head runs from the top of the
+track, the loop arms in the system's own 320ms sweep as the head reaches A, the
+passage wraps at B twice, the loop releases, and playback carries on to the end
+before the track starts over.
 
 The text under it was brought up to the same conviction in a second round. The
 heading takes the numeral steps — 46/64, the pair the position readout owns —
 because this is the one screen with no position on it, so nothing here is
 outranked by a title set that large; it is cut to **Loop any passage**, two
-lines, at Position's weight and tracking. The copy keeps its claims in one
-shorter sentence. The requirement stays a single printed legend: a three-row
-spec plate of nomenclature and values (REQUIRES / PLAYS IN / STEP SIZE, on the
-nudger's dotted leader) was built here and taken back out on the author's call —
-the gate has one precondition, and printing it as a table gave two more
-statements a room they did not need.
+lines, at Position's weight and tracking. The copy explains the account's role
+in one sentence: **Rewindify uses your Spotify account for playback.** The
+separate Premium requirement was removed on the author's call, leaving the gate
+to state its one action once through the key.
 
 This replaced a 420px column at View Title on bare plate — the one screen in the
-product that carried none of the product's own devices. The alert slot, the
-requirement line and the key keep their place and their order.
+product that carried none of the product's own devices. The alert slot and key
+keep their place and order.
+
+The desktop composition is deliberately unequal: the demonstration takes three
+shares on the left and the decision takes two on the right, separated by the
+player's 32px desktop working gutter. Equal columns would treat proof and action
+as peers rather than giving the instrument room to lead. The existing 900px
+desktop boundary opens the split; no sign-in-only breakpoint is introduced.
 
 ## Constraints this surface carries
 
@@ -77,7 +83,9 @@ requirement line and the key keep their place and their order.
   system does not draw.
 - **A short plate gives up field height, never the key.** Under 700px of
   viewport height the field drops to 72px and the gaps close, so the error state
-  still fits above the fold at 1000×560.
+  still fits above the fold at 1000×560. In the existing short-wide band, the
+  gate follows the player's landscape pattern: demonstration and decision sit
+  in two banks, keeping the action in the first viewport.
 - **Spotify's official mark is still outstanding.** The key carries Phosphor's
   `SpotifyLogo`; the terms ask for the official asset and a "content from
   Spotify" attribution, and neither is satisfied. No mark may be invented here.
@@ -92,7 +100,3 @@ requirement line and the key keep their place and their order.
   was cut for reading as broken, the heading was cut to `Loop any passage`, and
   the spec row that named the size went with the plate. Nothing here is untrue,
   but the differentiator arrives only after sign-in.
-- **The cycle has no entry point.** A visitor lands mid-script, wherever the
-  clock happens to be. Starting the cycle on mount was not tried; it would make
-  the first three seconds the same for everyone, at the cost of a component that
-  cares when it is looked at.

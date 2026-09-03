@@ -35,16 +35,16 @@ async function signIn() {
 </script>
 
 <!--
-  The gate. It shows what the product does, says what it needs, and offers the
-  one action — in that order, because a visitor arriving on a shared loop link
-  has never seen the app and a returning one only needs the key.
+  The gate. It shows what the product does, explains why Spotify is involved,
+  and offers the one action — in that order, because a visitor arriving on a
+  shared loop link has never seen the app and a returning one only needs the key.
 
-  The showing is the working panel itself, cut into the plate above the heading
-  with the field running in it. Every other screen in this product is the
-  instrument; this one used to be a paragraph about it, and a sentence about
-  looping a passage is weaker than a passage arming at A and wrapping at B while
-  the sentence is being read. Nothing in the recess is operable or claims to be
-  a track — see `LoopDemo.vue`.
+  The showing is the working panel itself, cut into the plate before the
+  decision group: beside it on desktop, above it on a narrow plate. Every other
+  screen in this product is the instrument; this one used to be a paragraph
+  about it, and a sentence about looping a passage is weaker than a passage
+  arming at A and wrapping at B while the sentence is being read. Nothing in the
+  recess is operable or claims to be a track — see `LoopDemo.vue`.
 
   The header carried a "Not connected" line until this pass. The router sends a
   connected visitor away from this route, so that line could only ever print
@@ -63,38 +63,35 @@ async function signIn() {
           <LoopDemo />
         </div>
 
-        <h1 class="sign-in__title">Loop any passage</h1>
-        <p class="sign-in__copy">
-          Rewindify plays through your Spotify account. You sign in there and land back here.
-        </p>
+        <div class="sign-in__content">
+          <!-- Fixed copy with a fixed two-line composition at every width. -->
+          <h1 class="sign-in__title">
+            <span>Loop any</span>
+            <span>passage</span>
+          </h1>
+          <p class="sign-in__copy">Rewindify uses your Spotify account for playback.</p>
 
-        <!--
-          Only ever the truth about what is in the way, so it sits above the
-          button rather than replacing the invitation to try again. Inverted ink
-          is the product's alert register; the accent is reserved for the loop.
-        -->
-        <p v-if="notice" id="sign-in-notice" class="sign-in__notice" role="alert">
-          <AppIcon name="alert" :size="15" />
-          <span>{{ notice }}</span>
-        </p>
+          <!--
+            Only ever the truth about what is in the way, so it sits above the
+            button rather than replacing the invitation to try again. Inverted ink
+            is the product's alert register; the accent is reserved for the loop.
+          -->
+          <p v-if="notice" id="sign-in-notice" class="sign-in__notice" role="alert">
+            <AppIcon name="alert" :size="15" />
+            <span>{{ notice }}</span>
+          </p>
 
-        <!--
-          Printed above the key it gates, not under it. Premium is the one thing
-          that can make this flow fail for a reason trying again cannot fix, so
-          it is read before the press rather than found afterwards.
-        -->
-        <p id="sign-in-requirement" class="sign-in__requirement">Spotify Premium required</p>
-
-        <button
-          type="button"
-          class="sign-in__action cap-surface"
-          :aria-describedby="notice ? 'sign-in-notice sign-in-requirement' : 'sign-in-requirement'"
-          :disabled="!IS_CONFIGURED"
-          @click="signIn()"
-        >
-          <AppIcon name="spotify" :size="18" />
-          <span class="sign-in__action-label">Continue with Spotify</span>
-        </button>
+          <button
+            type="button"
+            class="sign-in__action cap-surface"
+            :aria-describedby="notice ? 'sign-in-notice' : undefined"
+            :disabled="!IS_CONFIGURED"
+            @click="signIn()"
+          >
+            <AppIcon name="spotify" :size="18" />
+            <span class="sign-in__action-label">Continue with Spotify</span>
+          </button>
+        </div>
       </div>
     </main>
 
@@ -153,17 +150,34 @@ async function signIn() {
   @media (height < 700px) {
     padding: 14px 16px;
   }
+
+  @include screen-desktop {
+    padding-inline: 32px;
+  }
 }
 
 /*
- * 460px rather than the 420 this column carried: the recess now holds a field,
- * and a field narrower than this prints its scale closer together than the
- * player ever does. The copy measure comes out around 64 characters, which is
- * inside the band it wants anyway.
+ * A narrow plate keeps the proof and decision in one 460px reading column. On
+ * desktop the same DOM order opens into two banks: the working field leads at
+ * three shares, while the decision keeps two and never falls below the width
+ * its fixed title and account sentence need. The 32px gap is the desktop
+ * working-column gutter already established by the player.
  */
 .sign-in__column {
   width: 100%;
   max-width: 460px;
+
+  @include screen-desktop {
+    max-width: 1000px;
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(360px, 2fr);
+    align-items: center;
+    gap: 32px;
+  }
+}
+
+.sign-in__content {
+  min-width: 0;
 }
 
 /*
@@ -208,6 +222,14 @@ async function signIn() {
   @media (height < 700px) {
     margin-top: 20px;
   }
+
+  @include screen-desktop {
+    margin-top: 0;
+  }
+}
+
+.sign-in__title > span {
+  display: block;
 }
 
 .sign-in__copy {
@@ -238,35 +260,19 @@ async function signIn() {
   }
 }
 
-/*
- * The legend and the key are one group: generous room above, tight below. The
- * hairline that used to separate this line from the button is gone with the
- * reordering — it was there to mark a footnote, and this is a label.
- */
-/*
- * The legend and the key are one group: generous room above, tight below. It
- * stays a single printed line — a three-row spec plate of nomenclature and
- * values was tried here and taken back out; the gate has one precondition, and
- * printing it as a table gave two more statements a room they did not need.
- */
-.sign-in__requirement {
-  @include legend(10px);
-  margin: 28px 0 0;
-
-  @media (height < 700px) {
-    margin-top: 20px;
-  }
-}
-
 .sign-in__action {
   @include cap;
-  margin-top: 10px;
+  margin-top: 28px;
   width: 100%;
   height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+
+  @media (height < 700px) {
+    margin-top: 20px;
+  }
 
   // A build without a client id has nowhere to send anyone.
   &:disabled {
@@ -275,6 +281,16 @@ async function signIn() {
     color: var(--ink-label);
     cursor: not-allowed;
     transform: none;
+  }
+}
+
+.sign-in__notice + .sign-in__action {
+  margin-top: 10px;
+}
+
+@media (hover: hover) {
+  .sign-in__action:not(:disabled):hover {
+    background: linear-gradient(#474741, var(--cap-top));
   }
 }
 
@@ -299,6 +315,60 @@ async function signIn() {
 
   @include screen-desktop {
     justify-content: flex-start;
+  }
+}
+
+/* Sideways on a stand: demonstration and decision become two banks, keeping
+   the action in the first viewport instead of asking for a scroll. */
+@include screen-short-wide {
+  .sign-in {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .sign-in__header {
+    height: 48px;
+    padding: 0 18px;
+  }
+
+  .sign-in__body {
+    align-items: safe center;
+    justify-items: center;
+    overflow-y: auto;
+    padding: 8px 18px;
+  }
+
+  .sign-in__column {
+    max-width: 808px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 1fr);
+    align-items: center;
+    gap: 18px;
+  }
+
+  .sign-in__panel {
+    padding: 12px 14px 10px;
+  }
+
+  .sign-in__title {
+    margin-top: 0;
+  }
+
+  .sign-in__copy {
+    margin-top: 10px;
+  }
+
+  .sign-in__notice {
+    margin-top: 12px;
+  }
+
+  .sign-in__action {
+    margin-top: 18px;
+  }
+
+  .sign-in__notice + .sign-in__action {
+    margin-top: 8px;
   }
 }
 </style>

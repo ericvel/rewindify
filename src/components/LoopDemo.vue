@@ -5,10 +5,11 @@
  * A visitor on `/sign-in` has never seen the instrument — the shared-link case
  * is a stranger arriving cold — and the screen that has to sell the thing was
  * the one screen carrying none of it. So the working panel comes to the gate
- * with the field in it, and the field plays a scripted session: the head runs
- * from the top of the track, the loop arms as it reaches A, the passage wraps
- * at B twice, the loop releases, and playback carries on to the end before the
- * track starts over.
+ * with the field in it, and the field plays a scripted session. A first visit
+ * opens at A with the loop armed, so the gate's claim is present in its first
+ * frame; after the cycle turns over, the head runs from the top of the track,
+ * the loop arms as it reaches A, the passage wraps at B twice, the loop
+ * releases, and playback carries on to the end before the track starts over.
  *
  * The head only ever moves forward under its own steam. It jumps in exactly two
  * places, and both are events the product owns: the loop wrapping at B, and the
@@ -85,6 +86,9 @@ const SCRIPT: Beat[] = [
 const BEATS = SCRIPT.map((beat) => ({ ...beat, seconds: (beat.to - beat.from) / RATE }));
 const CYCLE = BEATS.reduce((total, beat) => total + beat.seconds, 0);
 
+/** Enter on the first armed beat; the claim should not take 4.5 seconds to appear. */
+const ENTRY = BEATS[0]?.seconds ?? 0;
+
 /** The frame a still visitor gets: armed, head inside the passage. */
 const RESTING = { position: 48, armed: true };
 
@@ -101,7 +105,7 @@ const stillness =
 const fieldEl = useTemplateRef<HTMLElement>('field');
 const barCount = useBarCount(fieldEl);
 
-const elapsed = ref(0);
+const elapsed = ref(ENTRY);
 const running = ref(!(stillness?.matches ?? false));
 
 const LAST = BEATS[BEATS.length - 1];
