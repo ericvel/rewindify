@@ -18,14 +18,16 @@ const trackEl = ref<HTMLElement | null>(null);
 
 /*
  * Recomputed per track, not per frame: the playhead only changes bar classes.
- * Bars are mirrored about the centre line by the field's own alignment, so the
- * height here is the full peak-to-peak extent, not a half-amplitude.
+ * Bars are mirrored about the centre line by the field's own alignment. Their
+ * percentage height resolves inside the field inset that keeps the waveform
+ * clear of the loop rails, so a peak of 1 fills that inner envelope rather
+ * than touching the bracket.
  */
 const barHeights = computed(() => {
   const track = player.currentTrack;
   if (!track) return [];
   return generateWaveform(track.seed, props.barCount).map(
-    (level) => `${Math.max(2, Math.round(level * props.fieldHeight))}px`,
+    (level) => `max(2px, ${(level * 100).toFixed(2)}%)`,
   );
 });
 
@@ -188,8 +190,8 @@ onScopeDispose(() => {
       mark A and B sat BEHIND the bars at 1.07:1 against an unplayed one, so
       the exact boundary vanished behind any tall bar. Bracketing works
       because it puts the accent where the field leaves the ground clear: the
-      bars are mirrored about the centre line, so the top and bottom few pixels
-      of the field are bare well almost everywhere, and `accent-strong` reads
+      bars are mirrored inside an inset envelope, leaving 3px of bare well
+      between even a full-scale peak and each rail, and `accent-strong` reads
       there at 3.85:1. It sits after the scale so a boundary rule outranks a
       graduation, and before the playhead so position outranks both.
     -->
@@ -247,6 +249,7 @@ onScopeDispose(() => {
   --scale-strip: 24px;
   --bar-gap: 2px;
   --rail: 3px;
+  --bar-edge-air: 3px;
   /* 120ms, as a fraction of the sweep it comes in behind. */
   --behind-sweep: calc(var(--arm-duration) * 0.375);
   position: relative;
@@ -258,7 +261,8 @@ onScopeDispose(() => {
 
 .timeline__bars {
   position: absolute;
-  inset: var(--knob-strip) 0 var(--scale-strip);
+  inset: calc(var(--knob-strip) + var(--rail) + var(--bar-edge-air)) 0
+    calc(var(--scale-strip) + var(--rail) + var(--bar-edge-air));
   display: flex;
   align-items: center;
   gap: var(--bar-gap);
@@ -330,9 +334,10 @@ onScopeDispose(() => {
 }
 
 /*
- * The two rails ride the field's edges, where the mirrored bars leave bare
- * ground. They sweep open from the centre on the same tokens as the wash, so
- * arming the loop stays one moment rather than becoming three.
+ * The two rails ride the field's edges, with one rail-width of bare ground
+ * between them and the mirrored bars. They sweep open from the centre on the
+ * same tokens as the wash, so arming the loop stays one moment rather than
+ * becoming three.
  */
 .timeline__rail {
   position: absolute;

@@ -128,8 +128,9 @@ const frame = computed(() => {
 
 /*
  * Percent heights, not pixels: the field is 94px on the phone and 116px on a
- * wide plate, and a bar that reads its own share of the field keeps that a CSS
- * decision. `max(2px, …)` holds the floor the player's render holds.
+ * wide plate, and a bar that reads its own share of the inset bar envelope
+ * keeps that a CSS decision. `max(2px, …)` holds the player's floor while a
+ * peak of 1 still leaves clear ground inside the loop rails.
  */
 const barHeights = computed(() =>
   generateWaveform(SEED, barCount.value).map((level) => `max(2px, ${(level * 100).toFixed(2)}%)`),
@@ -269,6 +270,7 @@ onBeforeUnmount(() => {
   --scale-strip: 24px;
   --bar-gap: 2px;
   --rail: 3px;
+  --bar-edge-air: 3px;
   /* 120ms, as a fraction of the sweep it comes in behind — the player's own
      derivation, for the same reason: a literal delay outlives the durations
      `prefers-reduced-motion` zeroes at `:root`. */
@@ -299,7 +301,8 @@ onBeforeUnmount(() => {
 
 .demo__bars {
   position: absolute;
-  inset: var(--knob-strip) 0 var(--scale-strip);
+  inset: calc(var(--knob-strip) + var(--rail) + var(--bar-edge-air)) 0
+    calc(var(--scale-strip) + var(--rail) + var(--bar-edge-air));
   display: flex;
   align-items: center;
   gap: var(--bar-gap);
